@@ -334,6 +334,36 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 @media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}}
 @media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}}
 
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:600px){
+  /* flow card scroll */
+  .fp-flow-track{overflow-x:auto;padding:16px 12px 12px;}
+  .fp-flow-nodes{min-width:560px;}
+  .fp-flow-line{top:38px;}
+  .fp-flow-dot{width:36px;height:36px;font-size:.7rem;}
+  .fp-flow-lbl{font-size:.48rem;max-width:58px;}
+
+  /* toolbar stack */
+  .fp-toolbar{flex-direction:column;align-items:stretch;}
+  .fp-toolbar input[type=text]{min-width:0;width:100%;}
+  .fp-toolbar select,.fp-toolbar input[type=date]{width:100%;}
+
+  /* table: allow horizontal scroll, remove fixed layout */
+  .tbl{table-layout:auto;min-width:560px;}
+  .tbl th:nth-child(n),.tbl td:nth-child(n){width:auto;white-space:nowrap;}
+  /* hide less important columns on mobile */
+  .tbl th:nth-child(6),.tbl td:nth-child(6),
+  .tbl th:nth-child(7),.tbl td:nth-child(7){display:none;}
+
+  /* detail panel stack */
+  .bs-wrap{grid-template-columns:1fr;}
+  .bs-left{border-right:none;border-bottom:1px solid var(--b);}
+  .bs-kpis{grid-template-columns:1fr 1fr;}
+
+  /* page padding */
+  .page{padding:12px;}
+}
+
 /* ── TAB NAV ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--b);display:flex;padding:0 28px;gap:0;position:sticky;top:68px;z-index:190;}
 .tab-btn{padding:10px 22px;font-size:.68rem;font-weight:700;letter-spacing:.04em;border:none;background:none;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;font-family:var(--font);display:flex;align-items:center;gap:7px;}
