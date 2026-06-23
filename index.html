@@ -595,7 +595,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
       <button class="fp-btn" onclick="exportPDF()">↓ Export</button>
       <button class="fp-btn" onclick="fpReset()">↺ Reset</button>
-      <span class="fp-count" id="fpRecCount"></span>
     </div>
 
     <!-- TRACEABILITY FLOW -->
@@ -1095,8 +1094,6 @@ function fpRenderFlow(filtered){
   }).join('');
   var meta=document.getElementById('fpFlowMeta');
   if(meta) meta.textContent=total.toLocaleString()+' total batches';
-  var rec=document.getElementById('fpRecCount');
-  if(rec) rec.textContent=total.toLocaleString()+' records';
 }
 
 function getFiltered(){
