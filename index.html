@@ -1290,9 +1290,9 @@ function renderDetailRow(l){
     +'<div class="bs-field"><span class="bs-fkey">Customer</span><span class="bs-fval">'+l.shipTo+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">PO Number</span><span class="bs-fval">'+l.po+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">SAP Batch</span><span class="bs-fval">'+l.batchId+'</span></div>'
-    +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
+    +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;flex-wrap:wrap;gap:4px;"><span class="bs-fkey" style="flex-shrink:0;">Kiln Batch</span><span class="bs-fval" style="text-align:right;word-break:break-all;white-space:normal;max-width:100%;line-height:1.6;flex:1;">'+l.kilnBatchId+'</span></div>':'')
     +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
-    +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
+    +(l.wi&&l.wi['Description']?'<div class="bs-field" style="align-items:flex-start;flex-wrap:wrap;gap:4px;"><span class="bs-fkey" style="flex-shrink:0;">Description</span><span class="bs-fval" style="text-align:right;word-break:break-word;white-space:normal;max-width:100%;line-height:1.6;flex:1;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['Truck ID']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['Truck ID']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
