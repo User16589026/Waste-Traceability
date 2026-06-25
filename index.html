@@ -1525,10 +1525,22 @@ var STEP_EXTRA=[
   }
 ];
 
-function onDotClick(e,el){
+async function fetchDetail(id){
+  var lot=LOTS.find(function(x){return x.id===id;});
+  if(!lot||lot._detailLoaded) return lot;
+  var res=await db.from('deliveries').select('wi,wa,li,wo').eq('id',id).single();
+  if(!res.error&&res.data){
+    lot.wi=res.data.wi||{}; lot.wa=res.data.wa||{};
+    lot.li=res.data.li||{}; lot.wo=res.data.wo||{};
+    lot._detailLoaded=true;
+  }
+  return lot;
+}
+
+async function onDotClick(e,el){
   e.stopPropagation();
   var lotId=el.dataset.lid, si=+el.dataset.si;
-  var lot=LOTS.find(function(x){return x.id===lotId;});
+  var lot=await fetchDetail(lotId);
   if(!lot) return;
   showStepPopover(lot,si,el.getBoundingClientRect());
 }
@@ -1673,11 +1685,12 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape') closePopove
 /* ═══════════════════════════════
    SUPABASE INIT
 ═══════════════════════════════ */
-(async function(){
-  var SUPABASE_URL = 'https://rscwnlfndzdzpqnhoxmy.supabase.co';
-  var ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzY3dubGZuZHpkenBxbmhveG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDMzMDAsImV4cCI6MjA5NzkxOTMwMH0.wZzVehQeqRLtW-K8m2vPwttea6e0MQCt50p0JMpGC5I';
+var db = supabase.createClient(
+  'https://rscwnlfndzdzpqnhoxmy.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzY3dubGZuZHpkenBxbmhveG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDMzMDAsImV4cCI6MjA5NzkxOTMwMH0.wZzVehQeqRLtW-K8m2vPwttea6e0MQCt50p0JMpGC5I'
+);
 
-  var db = supabase.createClient(SUPABASE_URL, ANON_KEY);
+(async function(){
 
   function dbToLot(r){
     return {
@@ -1717,7 +1730,9 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape') closePopove
     var PAGE = 1000, from = 0, all = [];
     document.getElementById('loadingMsg').textContent = 'Loading data…';
     while(true){
-      var res = await db.from('deliveries').select('*').range(from, from + PAGE - 1);
+      var res = await db.from('deliveries')
+        .select('id,batch_id,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps')
+        .range(from, from + PAGE - 1);
       if(res.error) throw res.error;
       all = all.concat(res.data);
       document.getElementById('loadingMsg').textContent =
@@ -2231,14 +2246,15 @@ function buildDetailContent(l){
     +'</div>';
 }
 
-function openModal(id){
-  var l=LOTS.find(function(x){return x.id===id;});
+async function openModal(id){
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('modalBody').innerHTML='<div style="padding:40px;text-align:center;color:#94A3B8;">Loading…</div>';
+  var l=await fetchDetail(id);
   if(!l) return;
   var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
   document.getElementById('modalTopTitle').textContent=batchName+' — '+l.id;
   document.getElementById('modalBody').innerHTML=buildDetailContent(l);
-  document.getElementById('detailModal').classList.add('open');
-  document.body.style.overflow='hidden';
 }
 function closeModal(){
   document.getElementById('detailModal').classList.remove('open');
