@@ -1058,7 +1058,7 @@ function fpPopulateCusts(){
     if(l.batchId) suggestions[l.batchId]=1;
     if(l.po) suggestions[l.po]=1;
     if(l.shipTo) suggestions[l.shipTo]=1;
-    if(l.wi&&l.wi['Batch Name']) suggestions[l.wi['Batch Name']]=1;
+    if(l.batchName) suggestions[l.batchName]=1;
   });
   var dlHtml=Object.keys(suggestions).sort().map(function(v){return'<option value="'+v.replace(/"/g,'&quot;')+'"></option>';}).join('');
   var dl=document.getElementById('fpSearchList');
@@ -1102,7 +1102,7 @@ function getFiltered(){
     if(chartFilter.type==='shipTo'&&l.shipTo!==chartFilter.value) return false;
     if(chartFilter.type==='soldToParty'&&l.soldToParty!==chartFilter.value) return false;
     if(searchTerm){
-      var bname=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'';
+      var bname=l.batchName||'';
       var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(l.kilnBatchId||"")+" "+l.wasteType+" "+bname).toLowerCase();
       if(h.indexOf(searchTerm)<0) return false;
     }
@@ -1114,7 +1114,7 @@ function getSorted(arr){
   if(!sortCol) return arr;
   return arr.slice().sort(function(a,b){
     var va,vb;
-    if(sortCol==="batchName"){va=(a.wi&&a.wi['Batch Name'])||"";vb=(b.wi&&b.wi['Batch Name'])||"";}
+    if(sortCol==="batchName"){va=a.batchName||"";vb=b.batchName||"";}
     else{va=a[sortCol]||"";vb=b[sortCol]||"";}
     if(sortCol==="weight"){va=+va;vb=+vb;}
     if(va<vb) return -sortDir;
@@ -1222,7 +1222,7 @@ function renderTable(){
 function renderRow(l,isExp){
   var dots=buildDots(l);
   var badge=buildBadge(l.status);
-  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+  var batchName=l.batchName||'—';
   return '<tr class="lot-row'+(isExp?" expanded":"")+'" data-id="'+l.id+'">'
     +'<td style="font-size:.72rem;color:var(--t3);font-family:var(--mono);">'+l.id+'</td>'
     +'<td style="font-size:.72rem;font-family:var(--mono);">'+l.batchId+'</td>'
@@ -1262,7 +1262,7 @@ function renderDetailRow(l){
   var iconCls=isDone?'dn':isRej?'rj':'cu';
   var iconEmoji=isDone?'✓':isRej?'✕':'●';
   var statusLabel=isDone?'Complete':isRej?'Rejected':'In Progress';
-  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+  var batchName=l.batchName||'—';
 
   var descHtml='';
 
@@ -1384,7 +1384,7 @@ function exportPDF(overrideLots,custName){
     var mono=td+'font-family:monospace;';
     var muted=td+'color:#64748B;white-space:nowrap;';
     if(isCust){
-      var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'';
+      var batchName=l.batchName||'';
       var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
       var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
       var cycleTime='';
@@ -1696,6 +1696,7 @@ var db = supabase.createClient(
     return {
       id:             r.id,
       batchId:        r.batch_id,
+      batchName:      r.batch_name || null,
       po:             r.po || '—',
       shipTo:         r.ship_to || '—',
       soldToParty:    r.sold_to_party,
@@ -1727,7 +1728,7 @@ var db = supabase.createClient(
   }
 
   try {
-    var COLS = 'id,batch_id,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
     var PAGE = 1000;
     document.getElementById('loadingMsg').textContent = 'กำลังโหลดข้อมูล…';
 
@@ -2197,7 +2198,7 @@ function buildDetailContent(l){
   var iconCls=isDone?'dn':isRej?'rj':'cu';
   var iconEmoji=isDone?'✓':isRej?'✕':'●';
   var statusLabel=isDone?'Complete':isRej?'Rejected':'In Progress';
-  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+  var batchName=l.batchName||'—';
 
   var leftHtml=''
     +'<div class="bs-header">'
@@ -2262,7 +2263,7 @@ async function openModal(id){
   document.getElementById('modalBody').innerHTML='<div style="padding:40px;text-align:center;color:#94A3B8;">Loading…</div>';
   var l=await fetchDetail(id);
   if(!l) return;
-  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+  var batchName=l.batchName||'—';
   document.getElementById('modalTopTitle').textContent=batchName+' — '+l.id;
   document.getElementById('modalBody').innerHTML=buildDetailContent(l);
 }
