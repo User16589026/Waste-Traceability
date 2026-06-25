@@ -135,14 +135,16 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 /* Table */
 .tbl-wrap{overflow-x:auto;}
 .tbl{width:100%;border-collapse:collapse;font-size:.7rem;table-layout:fixed;}
-.tbl th:nth-child(1),.tbl td:nth-child(1){width:28%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.tbl th:nth-child(2),.tbl td:nth-child(2){width:13%;}
-.tbl th:nth-child(3),.tbl td:nth-child(3){width:14%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.tbl th:nth-child(4),.tbl td:nth-child(4){width:12%;}
-.tbl th:nth-child(5),.tbl td:nth-child(5){width:12%;}
-.tbl th:nth-child(6),.tbl td:nth-child(6){width:10%;}
-.tbl th:nth-child(7),.tbl td:nth-child(7){width:10%;}
-.tbl th:nth-child(8),.tbl td:nth-child(8){width:4%;}
+.tbl th:nth-child(1),.tbl td:nth-child(1){width:9%;white-space:nowrap;}
+.tbl th:nth-child(2),.tbl td:nth-child(2){width:9%;white-space:nowrap;}
+.tbl th:nth-child(3),.tbl td:nth-child(3){width:20%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tbl th:nth-child(4),.tbl td:nth-child(4){width:9%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tbl th:nth-child(5),.tbl td:nth-child(5){width:12%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tbl th:nth-child(6),.tbl td:nth-child(6){width:8%;}
+.tbl th:nth-child(7),.tbl td:nth-child(7){width:11%;}
+.tbl th:nth-child(8),.tbl td:nth-child(8){width:7%;}
+.tbl th:nth-child(9),.tbl td:nth-child(9){width:9%;}
+.tbl th:nth-child(10),.tbl td:nth-child(10){width:3%;}
 .tbl thead th{padding:9px 12px;text-align:left;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3);background:var(--s2);border-bottom:1px solid var(--b);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;}
 .tbl thead th:hover{color:var(--t);}
 .tbl thead th.sorted{color:var(--navy2);}
@@ -173,9 +175,9 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .prog-pct{font-size:.6rem;font-weight:700;font-family:var(--mono);color:var(--t2);min-width:32px;text-align:right;}
 
 /* ── STEP POPOVER ── */
-.spop-overlay{position:fixed;inset:0;z-index:500;pointer-events:none;background:rgba(0,0,0,0);transition:background .18s;}
+.spop-overlay{position:fixed;inset:0;z-index:1100;pointer-events:none;background:rgba(0,0,0,0);transition:background .18s;}
 .spop-overlay.open{pointer-events:all;background:rgba(0,0,0,.25);}
-.spop{position:fixed;z-index:501;background:var(--s);border:1px solid var(--b);border-radius:var(--r2);box-shadow:var(--sh3);width:320px;padding:0;overflow:hidden;opacity:0;transform:translate(-50%,-50%) scale(.96);transition:opacity .18s,transform .18s;pointer-events:none;}
+.spop{position:fixed;z-index:1101;background:var(--s);border:1px solid var(--b);border-radius:var(--r2);box-shadow:var(--sh3);width:320px;padding:0;overflow:hidden;opacity:0;transform:translate(-50%,-50%) scale(.96);transition:opacity .18s,transform .18s;pointer-events:none;}
 .spop.open{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:all;}
 .spop.wide{width:480px;}
 .spop-body-scroll{max-height:340px;overflow-y:auto;padding:12px 14px;}
@@ -270,6 +272,14 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .bs-tl-more:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
 .bs-rej-banner{margin:0;padding:12px 16px;background:#fee2e2;border-top:1px solid #fecaca;border-left:3px solid #dc2626;font-size:.66rem;color:#991b1b;line-height:1.5;}
 .bs-rej-banner strong{display:block;font-size:.7rem;margin-bottom:2px;}
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-panel{background:var(--s);border:1px solid var(--b);border-radius:16px;width:min(860px,96vw);max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.22);transform:translateY(20px) scale(.98);transition:transform .22s cubic-bezier(.22,1,.36,1);position:relative;}
+.modal-ov.open .modal-panel{transform:none;}
+.modal-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px;border-bottom:1px solid var(--b);position:sticky;top:0;background:var(--s);z-index:2;border-radius:16px 16px 0 0;}
+.modal-topbar-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);}
+.modal-x{background:none;border:1px solid var(--b);border-radius:8px;padding:4px 10px;font-size:.72rem;cursor:pointer;color:var(--t2);font-family:var(--font);line-height:1.4;transition:all .12s;}
+.modal-x:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
 
 /* keep old stepper classes for dot click popover */
 .st-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;position:relative;z-index:1;border:2px solid;background:var(--s);flex-shrink:0;cursor:default;font-family:var(--font);padding:0;transition:transform .12s,box-shadow .12s;}
@@ -333,36 +343,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 @media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row{grid-template-columns:1fr;}.charts-row .chart-card:last-child{grid-column:auto;}}
 @media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}}
 @media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}}
-
-/* ── MOBILE RESPONSIVE ── */
-@media(max-width:600px){
-  /* flow card scroll */
-  .fp-flow-track{overflow-x:auto;padding:16px 12px 12px;}
-  .fp-flow-nodes{min-width:560px;}
-  .fp-flow-line{top:38px;}
-  .fp-flow-dot{width:36px;height:36px;font-size:.7rem;}
-  .fp-flow-lbl{font-size:.48rem;max-width:58px;}
-
-  /* toolbar stack */
-  .fp-toolbar{flex-direction:column;align-items:stretch;}
-  .fp-toolbar input[type=text]{min-width:0;width:100%;}
-  .fp-toolbar select,.fp-toolbar input[type=date]{width:100%;}
-
-  /* table: allow horizontal scroll, remove fixed layout */
-  .tbl{table-layout:auto;min-width:560px;}
-  .tbl th:nth-child(n),.tbl td:nth-child(n){width:auto;white-space:nowrap;}
-  /* hide less important columns on mobile */
-  .tbl th:nth-child(6),.tbl td:nth-child(6),
-  .tbl th:nth-child(7),.tbl td:nth-child(7){display:none;}
-
-  /* detail panel stack */
-  .bs-wrap{grid-template-columns:1fr;}
-  .bs-left{border-right:none;border-bottom:1px solid var(--b);}
-  .bs-kpis{grid-template-columns:1fr 1fr;}
-
-  /* page padding */
-  .page{padding:12px;}
-}
 
 /* ── TAB NAV ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--b);display:flex;padding:0 28px;gap:0;position:sticky;top:68px;z-index:190;}
@@ -568,7 +548,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <div class="hbar-list" id="wasteChart"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Top Customers <span>by batches</span><button class="chart-clear-btn" id="clearCust" style="display:none" onclick="clearChartFilter()">✕ Clear</button></div>
+      <div class="chart-title">Top Customers <span>by deliveries</span><button class="chart-clear-btn" id="clearCust" style="display:none" onclick="clearChartFilter()">✕ Clear</button></div>
       <div class="hbar-list" id="custChart"></div>
     </div>
   </div>
@@ -581,7 +561,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
     <!-- FP TOOLBAR -->
     <div class="fp-toolbar">
-      <input type="text" id="fpSearchInput" placeholder="Search by batch code, name, PO, customer…" oninput="fpOnSearch()" list="fpSearchList" autocomplete="off"/>
+      <input type="text" id="fpSearchInput" placeholder="Search by Delivery, Batch, PO, customer…" oninput="fpOnSearch()" list="fpSearchList" autocomplete="off"/>
       <datalist id="fpSearchList"></datalist>
       <select id="fpCustSel" onchange="fpApplyFilters()"><option value="all">All Customers</option></select>
       <select id="fpStatusSel" onchange="fpApplyFilters()">
@@ -595,6 +575,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
       <button class="fp-btn" onclick="exportPDF()">↓ Export</button>
       <button class="fp-btn" onclick="fpReset()">↺ Reset</button>
+      <span class="fp-count" id="fpRecCount"></span>
     </div>
 
     <!-- TRACEABILITY FLOW -->
@@ -620,7 +601,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
         </div>
 <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg>
-          <input class="search-input" id="searchInput" placeholder="Search Batch ID, Ship-to, PO…" oninput="onFilter()"/>
+          <input class="search-input" id="searchInput" placeholder="Search Delivery, Batch ID, PO…" oninput="onFilter()"/>
         </div>
         <div class="lots-toolbar-right">
           <div class="cfilter-wrap" id="cfilterWrap"></div>
@@ -632,9 +613,11 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
         <table class="tbl" id="lotsTable">
           <thead>
             <tr>
-              <th data-col="batchName">Batch <span class="sort-icon">↕</span></th>
-              <th data-col="id">Batch Code <span class="sort-icon">↕</span></th>
-              <th data-col="shipTo">Customer <span class="sort-icon">↕</span></th>
+              <th data-col="id">Delivery <span class="sort-icon">↕</span></th>
+              <th data-col="batchId">Batch <span class="sort-icon">↕</span></th>
+              <th data-col="batchName">Batch Name <span class="sort-icon">↕</span></th>
+              <th data-col="wasteType">Waste Type <span class="sort-icon">↕</span></th>
+              <th data-col="shipTo">Ship-to Name <span class="sort-icon">↕</span></th>
               <th data-col="status">Status <span class="sort-icon">↕</span></th>
               <th>Steps</th>
               <th data-col="weight">Net Wt (T) <span class="sort-icon">↕</span></th>
@@ -731,7 +714,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
             </div>
             <div class="cd-search-wrap">
               <svg class="cd-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg>
-              <input class="cd-search" id="custSearchTbl" placeholder="Search Batch ID or PO…" oninput="custOnFilter()"/>
+              <input class="cd-search" id="custSearchTbl" placeholder="Search Delivery, Batch ID or PO…" oninput="custOnFilter()"/>
             </div>
             <span class="cd-count" id="custResultCount"></span>
             <button class="btn-sm" onclick="custExportPDF()">↓ Export PDF</button>
@@ -740,7 +723,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
             <table class="cd-tbl" id="custLotsTable">
               <thead>
                 <tr>
-                  <th>Batch ID</th>
+                  <th>Delivery / Batch</th>
                   <th>Waste Type</th>
                   <th>Weight (t)</th>
                   <th>Pipeline Stage</th>
@@ -819,7 +802,7 @@ function onDateFilter(){
   var strip=document.getElementById('dfs');
   strip.classList.toggle('dfs-active',!!(gDateFrom||gDateTo));
   var al=getActiveLots();
-  document.getElementById('dfsResult').textContent=(gDateFrom||gDateTo)?al.length.toLocaleString()+' batches in range':'';
+  document.getElementById('dfsResult').textContent=(gDateFrom||gDateTo)?al.length.toLocaleString()+' deliveries in range':'';
   renderAll();
 }
 
@@ -860,7 +843,7 @@ function updateClock(){
   document.getElementById("clock").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
 updateClock();setInterval(updateClock,1000);
-document.getElementById("lotCount").textContent=LOTS.length.toLocaleString()+" batches";
+document.getElementById("lotCount").textContent=LOTS.length.toLocaleString()+" deliveries";
 
 /* ═══════════════════════════════
    KPI ROW
@@ -872,7 +855,7 @@ function renderKPI(){
   var pA=Math.round(d.active.length/total*100);
   var pR=(d.rejected.length/total*100).toFixed(1);
   document.getElementById("kpiRow").innerHTML=
-    kpiCard("total","TOTAL BATCHES",d.lots.length.toLocaleString(),"","","")+
+    kpiCard("total","TOTAL DELIVERIES",d.lots.length.toLocaleString(),"","","")+
     kpiCard("done","COMPLETED",d.done.length.toLocaleString(),'<span class="pct-badge g">'+pD+'%</span>',"","of total")+
     kpiCard("active","IN PROGRESS",d.active.length.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>',"","currently active")+
     kpiCardSmall("reject","REJECTED",d.rejected.length,pR+'%');
@@ -997,10 +980,13 @@ var expandedId=null;
 
 function setStatusFilter(st){
   filterStatus=st;
+  fpStatus2=st;
   chartFilter={type:null,value:null};
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
   var chip=document.querySelector('[data-f="'+st+'"]');
   if(chip) chip.classList.add('active');
+  var sel=document.getElementById('fpStatusSel');
+  if(sel) sel.value=st;
   page=1; expandedId=null;
   renderAll();
   document.getElementById('lotsTable').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1038,7 +1024,10 @@ function fpApplyFilters(){
   fpStatus2=document.getElementById('fpStatusSel').value;
   fpDFrom=document.getElementById('fpDateFrom').value;
   fpDTo=document.getElementById('fpDateTo').value;
-  if(fpStatus2!=='all') filterStatus=fpStatus2; else filterStatus='all';
+  filterStatus=fpStatus2!=='all'?fpStatus2:'all';
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  var chip=document.querySelector('[data-f="'+filterStatus+'"]');
+  if(chip) chip.classList.add('active');
   page=1;renderAll();
 }
 function fpReset(){
@@ -1093,7 +1082,9 @@ function fpRenderFlow(filtered){
       +'</div>';
   }).join('');
   var meta=document.getElementById('fpFlowMeta');
-  if(meta) meta.textContent=total.toLocaleString()+' total batches';
+  if(meta) meta.textContent=total.toLocaleString()+' total deliveries';
+  var rec=document.getElementById('fpRecCount');
+  if(rec) rec.textContent='';
 }
 
 function getFiltered(){
@@ -1181,7 +1172,7 @@ function renderTable(){
   if(page>pages) page=pages;
   var slice=sorted.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
 
-  document.getElementById("resultCount").textContent="Showing "+Math.min(total,PAGE_SIZE*(page))+" of "+total+" batches";
+  document.getElementById("resultCount").textContent="Showing "+Math.min(total,PAGE_SIZE*(page))+" of "+total+" deliveries";
   document.getElementById("chipAll").textContent=getActiveLots().length;
   document.getElementById("chipClear").style.display=filterStatus!=="all"?"inline-flex":"none";
   document.getElementById("clearWasteType").style.display=chartFilter.type==="wasteType"?"inline-flex":"none";
@@ -1200,31 +1191,25 @@ function renderTable(){
 
   var html="";
   if(slice.length===0){
-    html='<tr><td colspan="8"><div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg><p>No batches match current filters.</p></div></td></tr>';
+    html='<tr><td colspan="9"><div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg><p>No deliveries match current filters.</p></div></td></tr>';
   } else {
     slice.forEach(function(l){
-      var isExp=expandedId===l.id;
-      html+=renderRow(l,isExp);
-      if(isExp) html+=renderDetailRow(l);
+      html+=renderRow(l,false);
     });
   }
   document.getElementById("tblBody").innerHTML=html;
   renderPagination(total,pages);
 
-  // attach expand click
+  // attach row click → open modal
   document.querySelectorAll(".expand-btn").forEach(function(btn){
     btn.addEventListener("click",function(e){
       e.stopPropagation();
-      var id=btn.dataset.id;
-      expandedId=(expandedId===id)?null:id;
-      renderTable();
+      openModal(btn.dataset.id);
     });
   });
   document.querySelectorAll(".tbl tbody tr.lot-row").forEach(function(tr){
     tr.addEventListener("click",function(){
-      var id=tr.dataset.id;
-      expandedId=(expandedId===id)?null:id;
-      renderTable();
+      openModal(tr.dataset.id);
     });
   });
 }
@@ -1234,8 +1219,10 @@ function renderRow(l,isExp){
   var badge=buildBadge(l.status);
   var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
   return '<tr class="lot-row'+(isExp?" expanded":"")+'" data-id="'+l.id+'">'
-    +'<td><strong style="font-weight:700;font-size:.78rem;color:var(--t);">'+batchName+'</strong></td>'
     +'<td style="font-size:.72rem;color:var(--t3);font-family:var(--mono);">'+l.id+'</td>'
+    +'<td style="font-size:.72rem;font-family:var(--mono);">'+l.batchId+'</td>'
+    +'<td><strong style="font-weight:600;font-size:.78rem;color:var(--t);">'+batchName+'</strong></td>'
+    +'<td class="t3" style="font-size:.68rem;">'+l.wasteType+'</td>'
     +'<td class="t2">'+l.shipTo+'</td>'
     +'<td>'+badge+'</td>'
     +'<td><div class="dots7">'+dots+'</div></td>'
@@ -1287,12 +1274,13 @@ function renderDetailRow(l){
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
     +'<div class="bs-fields">'
-    +'<div class="bs-field"><span class="bs-fkey">Customer</span><span class="bs-fval">'+l.shipTo+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Ship-to Name</span><span class="bs-fval">'+l.shipTo+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">PO Number</span><span class="bs-fval">'+l.po+'</span></div>'
-    +'<div class="bs-field"><span class="bs-fkey">SAP Batch</span><span class="bs-fval">'+l.batchId+'</span></div>'
-    +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;flex-wrap:wrap;gap:4px;"><span class="bs-fkey" style="flex-shrink:0;">Kiln Batch</span><span class="bs-fval" style="text-align:right;word-break:break-all;white-space:normal;max-width:100%;line-height:1.6;flex:1;">'+l.kilnBatchId+'</span></div>':'')
+    +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
+    +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
-    +(l.wi&&l.wi['Description']?'<div class="bs-field" style="align-items:flex-start;flex-wrap:wrap;gap:4px;"><span class="bs-fkey" style="flex-shrink:0;">Description</span><span class="bs-fval" style="text-align:right;word-break:break-word;white-space:normal;max-width:100%;line-height:1.6;flex:1;">'+l.wi['Description']+'</span></div>':'')
+    +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['Truck ID']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['Truck ID']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
@@ -1351,10 +1339,11 @@ function goPage(p){page=p;renderTable();}
 /* ═══════════════════════════════
    EXPORT CSV
 ═══════════════════════════════ */
-function exportPDF(overrideLots){
+function exportPDF(overrideLots,custName){
   var lots=overrideLots||getSorted(getFiltered());
   var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' – '+(document.getElementById('dateTo').value||'Jun 2026');
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  var isCust=!!custName;
 
   // KPI from filtered lots
   var total=lots.length;
@@ -1385,16 +1374,43 @@ function exportPDF(overrideLots){
   var statusColor={'completed':'#059669','in-progress':'#D97706','rejected':'#DC2626'};
   var rows=lots.map(function(l,i){
     var isDone=l.status==='completed',isRej=l.status==='rejected';
+    var sc=statusColor[l.status]||'#94A3B8';
+    var td='padding:5px 7px;font-size:8px;';
+    var mono=td+'font-family:monospace;';
+    var muted=td+'color:#64748B;white-space:nowrap;';
+    if(isCust){
+      var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'';
+      var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
+      var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
+      var cycleTime='';
+      if(l.blendDate&&l.submitted&&l.submitted!=='—'){
+        var d1=new Date(l.submitted),d2=new Date(l.blendDate);
+        if(!isNaN(d1)&&!isNaN(d2)){var days=Math.round((d2-d1)/(864e5));cycleTime=days>0?days+' days':'—';}
+      }
+      return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
+        +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
+        +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
+        +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
+        +'<td style="'+td+'white-space:nowrap;">'+l.wasteType+'</td>'
+        +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
+        +'<td style="'+td+'max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+vendorName+'</td>'
+        +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
+        +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+        +'<td style="'+muted+'">'+l.submitted+'</td>'
+        +'<td style="'+muted+'">'+l.lastUpdated+'</td>'
+        +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
+        +'</tr>';
+    }
     return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
-      +'<td style="padding:5px 7px;font-size:8px;font-family:monospace;color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;white-space:nowrap;">'+(l.wi&&l.wi['TrnsIDCode']?l.wi['TrnsIDCode']:'—')+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.wi&&l.wi['Description']?l.wi['Description']:'—')+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+l.shipTo+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;">'+l.wasteType+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;text-align:right;font-family:monospace;">'+l.weight+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;"><span style="background:'+(statusColor[l.status]||'#94A3B8')+'1A;color:'+(statusColor[l.status]||'#94A3B8')+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
-      +'<td style="padding:5px 7px;font-size:8px;color:#64748B;white-space:nowrap;">'+l.submitted+'</td>'
-      +'<td style="padding:5px 7px;font-size:8px;color:#64748B;white-space:nowrap;">'+l.lastUpdated+'</td>'
+      +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
+      +'<td style="'+td+'white-space:nowrap;">'+(l.wi&&l.wi['TrnsIDCode']?l.wi['TrnsIDCode']:'—')+'</td>'
+      +'<td style="'+td+'max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.wi&&l.wi['Description']?l.wi['Description']:'—')+'</td>'
+      +'<td style="'+td+'max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+l.shipTo+'</td>'
+      +'<td style="'+td+'">'+l.wasteType+'</td>'
+      +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
+      +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+      +'<td style="'+muted+'">'+l.submitted+'</td>'
+      +'<td style="'+muted+'">'+l.lastUpdated+'</td>'
       +'</tr>';
   }).join('');
 
@@ -1430,7 +1446,7 @@ function exportPDF(overrideLots){
     +'</style></head><body>'
     +'<div class="hd">'
     +'<div>'
-    +'<div class="hd-title">INSEE Ecocycle — Waste Traceability Report</div>'
+    +'<div class="hd-title">'+(isCust?'Waste Traceability Report for '+custName:'INSEE Ecocycle — Waste Traceability Report')+'</div>'
     +'<div class="hd-sub">Period: '+dateRange+' &nbsp;·&nbsp; Generated: '+now+'</div>'
     +'</div>'
     +'</div>'
@@ -1469,7 +1485,10 @@ function exportPDF(overrideLots){
     }()
     +'<table>'
     +'<thead><tr>'
-    +'<th>Batch ID</th><th>Truck ID</th><th>Description</th><th>Ship-to</th><th>Waste Type</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th>'
+    +(isCust
+      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th><th>Cycle Time</th>'
+      :'<th>Delivery / Batch</th><th>Truck ID</th><th>Description</th><th>Ship-to</th><th>Waste Type</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th>'
+    )
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody>'
     +'</table>'
@@ -1486,7 +1505,7 @@ function exportPDF(overrideLots){
    STEP POPOVER
 ═══════════════════════════════ */
 var STEP_EXTRA=[
-  function(l){return l.weight?[{k:'Weight In',v:l.weight+' t'},{k:'Batch ID',v:l.batchId}]:[];},
+  function(l){return l.weight?[{k:'Weight In',v:l.weight+' t'},{k:'Batch',v:l.batchId}]:[];},
   function(l){return [{k:'Result',v:l.steps[1]?l.steps[1].note:'—'}];},
   function(l){return l.dispatchQty?[{k:'Dispatched',v:l.dispatchQty+' t'}]:[];},
   function(l){return [];},
@@ -1769,7 +1788,7 @@ function custOnDateFilter(){
   custDateTo=document.getElementById('custDateTo').value?new Date(document.getElementById('custDateTo').value):null;
   var al=custGetActive();
   document.getElementById('custSubBar').classList.toggle('dfs-active',!!(custDateFrom||custDateTo));
-  document.getElementById('custDfsResult').textContent=(custDateFrom||custDateTo)?al.length.toLocaleString()+' batches in range':'';
+  document.getElementById('custDfsResult').textContent=(custDateFrom||custDateTo)?al.length.toLocaleString()+' deliveries in range':'';
   custRenderAll();
 }
 function custClearDateFilter(){
@@ -1822,7 +1841,7 @@ function custRenderKPI(){
     +'<div style="font-size:1.5rem;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--t);">'+rej+'</div>'
     +'<div class="kpi-sub" style="margin-top:5px;"><span class="pct-badge r">'+pR+'%</span></div></div>';
   document.getElementById('custKpiRow').innerHTML=
-    kpi('total','TOTAL BATCHES',al.length.toLocaleString(),'','')+
+    kpi('total','TOTAL DELIVERIES',al.length.toLocaleString(),'','')+
     kpi('done','COMPLETED',done.toLocaleString(),'<span class="pct-badge g">'+pD+'%</span>','of total')+
     kpi('active','IN PROGRESS',active.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>','currently active')+
     rejCard;
@@ -1939,7 +1958,8 @@ function custRenderDetailRow(l){
       +'</div>';
   });
   var meta='<div class="detail-meta">'
-    +'<div class="dm-item"><div class="dm-key">Batch ID</div><div class="dm-val mono" style="font-weight:400;">'+l.id+'</div></div>'
+    +'<div class="dm-item"><div class="dm-key">Delivery (DO)</div><div class="dm-val mono" style="font-weight:400;">'+l.id+'</div></div>'
+    +'<div class="dm-item"><div class="dm-key">Batch</div><div class="dm-val mono" style="font-weight:400;">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">PO Number</div><div class="dm-val mono" style="font-weight:400;">'+l.po+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Waste Type</div><div class="dm-val" style="font-weight:400;">'+l.wasteType+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Weight</div><div class="dm-val" style="font-weight:400;">'+l.weight+' t</div></div>'
@@ -1990,12 +2010,12 @@ function custRenderTable(){
   var pages=Math.ceil(total/CUST_PAGE_SIZE)||1;
   if(custPage>pages) custPage=pages;
   var slice=filtered.slice((custPage-1)*CUST_PAGE_SIZE,custPage*CUST_PAGE_SIZE);
-  document.getElementById('custResultCount').textContent='Showing '+Math.min(total,CUST_PAGE_SIZE*custPage)+' of '+total+' batches';
+  document.getElementById('custResultCount').textContent='Showing '+Math.min(total,CUST_PAGE_SIZE*custPage)+' of '+total+' deliveries';
   document.getElementById('custChipAll').textContent=custGetActive().length;
   document.getElementById('custClearWaste').style.display=custChartFilter.type==='wasteType'?'inline-flex':'none';
   var html='';
   if(slice.length===0){
-    html='<tr><td colspan="8"><div class="cd-empty"><p>No batches match the current filter.</p></div></td></tr>';
+    html='<tr><td colspan="8"><div class="cd-empty"><p>No deliveries match the current filter.</p></div></td></tr>';
   } else {
     slice.forEach(function(l){
       var isExp=custExpandedId===l.id;
@@ -2068,10 +2088,105 @@ function custInitTableSort(){
 
 function custExportPDF(){
   var lots=custGetFiltered();
-  if(!lots||lots.length===0){alert('No batches to export.');return;}
-  exportPDF(lots);
+  if(!lots||lots.length===0){alert('No deliveries to export.');return;}
+  var company=document.getElementById('custCompanySelect').value||document.getElementById('custTbCompany').textContent||'';
+  if(company==='—') company='';
+  exportPDF(lots,company||'Customer');
 }
+
+/* ═══════════════════════════════
+   DETAIL MODAL
+═══════════════════════════════ */
+function buildDetailContent(l){
+  var isDone=l.status==="completed",isRej=l.status==="rejected";
+  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
+  var iconCls=isDone?'dn':isRej?'rj':'cu';
+  var iconEmoji=isDone?'✓':isRej?'✕':'●';
+  var statusLabel=isDone?'Complete':isRej?'Rejected':'In Progress';
+  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+
+  var leftHtml=''
+    +'<div class="bs-header">'
+    +'<div class="bs-icon '+iconCls+'">'+iconEmoji+'</div>'
+    +'<div><div class="bs-title">'+batchName+'</div><div class="bs-sub">'+l.id+'</div></div>'
+    +'</div>'
+    +'<div class="bs-kpis">'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':isRej?'red':'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':isRej?l.rejectedStep:l.currentStep)+' / 7</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
+    +'</div>'
+    +'<div class="bs-fields">'
+    +'<div class="bs-field"><span class="bs-fkey">Ship-to Name</span><span class="bs-fval">'+l.shipTo+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">PO Number</span><span class="bs-fval">'+l.po+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
+    +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
+    +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
+    +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
+    +(l.wi&&l.wi['Truck ID']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['Truck ID']+'</span></div>':'')
+    +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
+    +'</div>';
+
+  var FLOW_NAMES=['WA Accept','Weight In','Waste Analysis','Load In','Weight Out','Pre-process','Finish Goods','Kiln'];
+  var tlHtml='<div class="bs-timeline-title">Traceability Progress</div><div class="bs-timeline">';
+  STEPS.forEach(function(name,i){
+    var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
+    if(isRej&&i===l.rejectedStep){tlCls="tl-rj";dotChar="✕";}
+    else if(i<stepsDone){tlCls="tl-dn";dotChar="✓";}
+    else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
+    var stepData=l.steps[i];
+    if(stepData&&stepData.date&&stepData.date!=='—'){
+      dateTxt=stepData.date;
+      dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
+    }
+    var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
+    tlHtml+='<div class="bs-tl-row '+tlCls+'">'
+      +(clickable
+        ?'<button class="bs-tl-dot '+tlCls+'" data-lid="'+l.id+'" data-si="'+i+'" onclick="onDotClick(event,this)">'+dotChar+'</button>'
+        :'<div class="bs-tl-dot '+tlCls+'">'+dotChar+'</div>'
+      )
+      +'<div class="bs-tl-info">'
+      +'<div class="bs-tl-name'+(tlCls==='tl-pe'?' muted':'')+'">'+name+'</div>'
+      +(dateTxt?'<div class="bs-tl-date '+dateCls+'">'+dateTxt+'</div>':'')
+      +(clickable?'<button class="bs-tl-more" data-lid="'+l.id+'" data-si="'+i+'" onclick="onDotClick(event,this)">More Detail</button>':'')
+      +'</div></div>';
+  });
+  tlHtml+='</div>';
+
+  var rejBanner=isRej?'<div class="bs-rej-banner"><strong>Off-Spec Rejection'+(l.rejectType?' — '+l.rejectType:'')+'</strong>'+l.rejectedReason+'</div>':'';
+
+  return '<div class="detail-inner">'
+    +'<div class="bs-wrap"><div class="bs-desc"></div><div class="bs-left">'+leftHtml+'</div><div class="bs-right">'+tlHtml+'</div></div>'
+    +rejBanner
+    +'</div>';
+}
+
+function openModal(id){
+  var l=LOTS.find(function(x){return x.id===id;});
+  if(!l) return;
+  var batchName=(l.wi&&l.wi['Batch Name'])?l.wi['Batch Name']:'—';
+  document.getElementById('modalTopTitle').textContent=batchName+' — '+l.id;
+  document.getElementById('modalBody').innerHTML=buildDetailContent(l);
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('detailModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 </script>
+
+<div class="modal-ov" id="detailModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-panel">
+    <div class="modal-topbar">
+      <span class="modal-topbar-title" id="modalTopTitle"></span>
+      <button class="modal-x" onclick="closeModal()">✕ Close</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
 </body>
 </html>
 
