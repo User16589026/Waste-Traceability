@@ -1727,18 +1727,28 @@ var db = supabase.createClient(
   }
 
   try {
-    var PAGE = 1000, from = 0, all = [];
-    document.getElementById('loadingMsg').textContent = 'Loading data…';
-    while(true){
-      var res = await db.from('deliveries')
-        .select('id,batch_id,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps')
-        .range(from, from + PAGE - 1);
-      if(res.error) throw res.error;
-      all = all.concat(res.data);
-      document.getElementById('loadingMsg').textContent =
-        'Loading… ' + all.length.toLocaleString() + ' / 30,010';
-      if(res.data.length < PAGE) break;
-      from += PAGE;
+    var COLS = 'id,batch_id,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+    var PAGE = 1000;
+    document.getElementById('loadingMsg').textContent = 'กำลังโหลดข้อมูล…';
+
+    // Get total count first
+    var countRes = await db.from('deliveries').select('*', {count:'exact', head:true});
+    if(countRes.error) throw countRes.error;
+    var total = countRes.count;
+    var pages = Math.ceil(total / PAGE);
+
+    // Fetch all pages in parallel
+    var requests = [];
+    for(var p = 0; p < pages; p++){
+      requests.push(
+        db.from('deliveries').select(COLS).range(p*PAGE, (p+1)*PAGE - 1)
+      );
+    }
+    var results = await Promise.all(requests);
+    var all = [];
+    for(var i = 0; i < results.length; i++){
+      if(results[i].error) throw results[i].error;
+      all = all.concat(results[i].data);
     }
     LOTS = all.map(dbToLot);
     done     = LOTS.filter(function(l){return l.status==='completed';});
