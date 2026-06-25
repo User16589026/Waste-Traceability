@@ -563,7 +563,12 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
     <div class="fp-toolbar">
       <input type="text" id="fpSearchInput" placeholder="Search by Delivery, Batch, PO, customer…" oninput="fpOnSearch()" list="fpSearchList" autocomplete="off"/>
       <datalist id="fpSearchList"></datalist>
-      <select id="fpCustSel" onchange="fpApplyFilters()"><option value="all">All Customers</option></select>
+      <div id="custDropWrap" style="position:relative;flex-shrink:0;">
+        <input id="fpCustSearch" autocomplete="off" placeholder="All Customers"
+          style="width:160px;padding:6px 10px;font-size:.72rem;border:1px solid var(--b2);border-radius:6px;background:var(--s);color:var(--t);outline:none;cursor:pointer;"
+          oninput="custDropFilter()" onfocus="custDropOpen()" onblur="setTimeout(custDropClose,150)"/>
+        <div id="custDropList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:220px;max-height:220px;overflow-y:auto;background:#fff;border:1px solid var(--b2);border-radius:8px;box-shadow:var(--sh3);z-index:500;font-size:.72rem;"></div>
+      </div>
       <select id="fpStatusSel" onchange="fpApplyFilters()">
         <option value="all">All Status</option>
         <option value="in-progress">In Progress</option>
@@ -573,6 +578,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <input type="date" id="fpDateFrom" onchange="fpApplyFilters()"/>
       <span class="fp-toolbar-sep">to</span>
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
+      <button id="kilnToggleBtn" onclick="toggleKilnSearch()" style="flex-shrink:0;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;">Batch only</button>
       <button class="fp-btn" onclick="exportPDF()">↓ Export</button>
       <button class="fp-btn" onclick="fpReset()">↺ Reset</button>
       <span class="fp-count" id="fpRecCount"></span>
@@ -978,6 +984,16 @@ function renderAll(){
 var filterStatus="all";
 var chartFilter={type:null,value:null};
 var searchTerm="";
+var includeKiln=true;
+function toggleKilnSearch(){
+  includeKiln=!includeKiln;
+  var btn=document.getElementById('kilnToggleBtn');
+  btn.textContent=includeKiln?'Batch + Kiln':'Batch only';
+  btn.style.background=includeKiln?'var(--navy)':'var(--s)';
+  btn.style.color=includeKiln?'#fff':'var(--t2)';
+  btn.style.borderColor=includeKiln?'var(--navy)':'var(--b2)';
+  page=1; renderTable();
+}
 var sortCol=null,sortDir=1;
 var page=1;
 const PAGE_SIZE=15;
@@ -1024,8 +1040,32 @@ function fpOnSearch(){
     page=1;renderAll();
   },300);
 }
+var _custList=[];
+function custDropOpen(){
+  custDropFilter();
+  document.getElementById('custDropList').style.display='block';
+}
+function custDropClose(){
+  document.getElementById('custDropList').style.display='none';
+}
+function custDropFilter(){
+  var q=document.getElementById('fpCustSearch').value.toLowerCase();
+  var items=q?_custList.filter(function(c){return c.toLowerCase().indexOf(q)>=0;}):_custList;
+  var html='<div style="padding:7px 12px;cursor:pointer;color:var(--t2);" onmousedown="custDropSelect(\'all\')">All Customers</div>';
+  items.forEach(function(c){
+    html+='<div style="padding:7px 12px;cursor:pointer;border-top:1px solid var(--b);" onmousedown="custDropSelect(\''+c.replace(/'/g,"\\'")+'\')" title="'+c+'">'+c+'</div>';
+  });
+  document.getElementById('custDropList').innerHTML=html;
+}
+function custDropSelect(val){
+  fpCust=val;
+  document.getElementById('fpCustSearch').value=val==='all'?'':val;
+  document.getElementById('custDropList').style.display='none';
+  page=1; renderAll();
+}
+
 function fpApplyFilters(){
-  fpCust=document.getElementById('fpCustSel').value;
+  fpCust=fpCust;
   fpStatus2=document.getElementById('fpStatusSel').value;
   fpDFrom=document.getElementById('fpDateFrom').value;
   fpDTo=document.getElementById('fpDateTo').value;
@@ -1037,7 +1077,7 @@ function fpApplyFilters(){
 }
 function fpReset(){
   document.getElementById('fpSearchInput').value='';
-  document.getElementById('fpCustSel').value='all';
+  document.getElementById('fpCustSearch').value='';
   document.getElementById('fpStatusSel').value='all';
   document.getElementById('fpDateFrom').value='';
   document.getElementById('fpDateTo').value='';
@@ -1047,9 +1087,7 @@ function fpReset(){
 }
 function fpPopulateCusts(){
   var seen={};getActiveLots().forEach(function(l){if(l.shipTo)seen[l.shipTo]=1;});
-  var html='<option value="all">All Customers</option>';
-  Object.keys(seen).sort().forEach(function(c){html+='<option value="'+c.replace(/"/g,'&quot;')+'">'+c+'</option>';});
-  document.getElementById('fpCustSel').innerHTML=html;
+  _custList=Object.keys(seen).sort();
 
   // populate search datalist
   var suggestions={};
@@ -1103,7 +1141,7 @@ function getFiltered(){
     if(chartFilter.type==='soldToParty'&&l.soldToParty!==chartFilter.value) return false;
     if(searchTerm){
       var bname=l.batchName||'';
-      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(l.kilnBatchId||"")+" "+l.wasteType+" "+bname).toLowerCase();
+      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+l.wasteType+" "+bname).toLowerCase();
       if(h.indexOf(searchTerm)<0) return false;
     }
     return true;
@@ -1344,8 +1382,10 @@ function goPage(p){page=p;renderTable();}
 /* ═══════════════════════════════
    EXPORT CSV
 ═══════════════════════════════ */
-function exportPDF(overrideLots,custName){
+async function exportPDF(overrideLots,custName){
   var lots=overrideLots||getSorted(getFiltered());
+  // Fetch detail (wi/wa) for any lots not yet loaded
+  await Promise.all(lots.map(function(l){ return fetchDetail(l.id); }));
   var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' – '+(document.getElementById('dateTo').value||'Jun 2026');
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   var isCust=!!custName;
@@ -1406,16 +1446,26 @@ function exportPDF(overrideLots,custName){
         +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
         +'</tr>';
     }
+    var batchName=l.batchName||'';
+    var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
+    var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
+    var cycleTime='';
+    if(l.blendDate&&l.submitted&&l.submitted!=='—'){
+      var d1=new Date(l.submitted),d2=new Date(l.blendDate);
+      if(!isNaN(d1)&&!isNaN(d2)){var days=Math.round((d2-d1)/(864e5));cycleTime=days>0?days+' days':'—';}
+    }
     return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
       +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
-      +'<td style="'+td+'white-space:nowrap;">'+(l.wi&&l.wi['TrnsIDCode']?l.wi['TrnsIDCode']:'—')+'</td>'
-      +'<td style="'+td+'max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(l.wi&&l.wi['Description']?l.wi['Description']:'—')+'</td>'
-      +'<td style="'+td+'max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+l.shipTo+'</td>'
-      +'<td style="'+td+'">'+l.wasteType+'</td>'
+      +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
+      +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
+      +'<td style="'+td+'white-space:nowrap;">'+l.wasteType+'</td>'
+      +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
+      +'<td style="'+td+'max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+vendorName+'</td>'
       +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
       +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
       +'<td style="'+muted+'">'+l.submitted+'</td>'
       +'<td style="'+muted+'">'+l.lastUpdated+'</td>'
+      +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
       +'</tr>';
   }).join('');
 
@@ -1492,7 +1542,7 @@ function exportPDF(overrideLots,custName){
     +'<thead><tr>'
     +(isCust
       ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th><th>Cycle Time</th>'
-      :'<th>Delivery / Batch</th><th>Truck ID</th><th>Description</th><th>Ship-to</th><th>Waste Type</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th>'
+      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th><th>Cycle Time</th>'
     )
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody>'
