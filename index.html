@@ -1575,7 +1575,25 @@ function showStepPopover(l,si,rect){
 
   // pick the right dict per step
   var dictMap=[l.wi, l.wa, l.li, l.wo, l.pp, l.pp, l.kc];
-  var dict=dictMap[si];
+  var rawDict=dictMap[si];
+
+  // Preprocess: copy dict and apply display transformations
+  var dict=rawDict?Object.assign({},rawDict):rawDict;
+  if(dict){
+    // Remove AFR Time when it's 00:00:00 or empty
+    if(dict['AFR Time']==='00:00:00'||dict['AFR Time']==='') delete dict['AFR Time'];
+    // Combine WI Time with Weight In date
+    if(dict['WI Time']&&l.submitted&&l.submitted!=='—'){
+      dict['Weight In']=l.submitted+'  '+dict['WI Time'];
+      delete dict['WI Time'];
+    }
+    // Combine WO Time with Weight Out date
+    var woDate=(l.wo&&l.wo['WO Date'])||dict['WO Date']||'';
+    if(dict['WO Time']&&woDate){
+      dict['Weight Out']=woDate+'  '+dict['WO Time'];
+      delete dict['WO Time'];
+    }
+  }
   var hasDict=dict&&Object.keys(dict).length>0;
 
   // group definitions per step index
@@ -1730,7 +1748,7 @@ var db = supabase.createClient(
   try {
     var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
     var PAGE = 1000;
-    document.getElementById('loadingMsg').textContent = 'กำลังโหลดข้อมูล…';
+    document.getElementById('loadingMsg').textContent = 'Loading data…';
 
     // Get total count first
     var countRes = await db.from('deliveries').select('*', {count:'exact', head:true});
