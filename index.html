@@ -1742,7 +1742,7 @@ var db = supabase.createClient(
     var requests = [];
     for(var p = 0; p < pages; p++){
       requests.push(
-        db.from('deliveries').select(COLS).range(p*PAGE, (p+1)*PAGE - 1)
+        db.from('deliveries').select(COLS).order('id').range(p*PAGE, (p+1)*PAGE - 1)
       );
     }
     var results = await Promise.all(requests);
