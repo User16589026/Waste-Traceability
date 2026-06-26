@@ -1562,7 +1562,7 @@ async function exportPDF(overrideLots,custName){
 var STEP_EXTRA=[
   function(l){return l.weight?[{k:'Weight In',v:l.weight+' t'},{k:'Batch',v:l.batchId}]:[];},
   function(l){return [{k:'Result',v:l.steps[1]?l.steps[1].note:'—'}];},
-  function(l){return l.dispatchQty?[{k:'Dispatched',v:l.dispatchQty+' t'}]:[];},
+  function(l){return l.receivedQty?[{k:'Received',v:l.receivedQty+' t'}]:[];},
   function(l){return [];},
   function(l){return l.kilnBatchId?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
   function(l){return l.kilnBatchId?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
@@ -1666,7 +1666,7 @@ function showStepPopover(l,si,rect){
       {label:'Result',   keys:['Judgement','Remark']},
     ],
     // 2 LI
-    [{label:'Dispatch', keys:['First Dispatch','Last Dispatch','Dispatch Qty','Dispatch Count','Dispatch MTs','Deliveries']}],
+    [{label:'Load In', keys:['First Received','Last Received','Received Qty','Received Count','Received MTs','Deliveries']}],
     // 3 WO
     [
       {label:'Weight Out', keys:['Weight Out Date','Weight Out Time','Weight Out QTY','Weight-out By']},
@@ -1780,7 +1780,7 @@ var db = supabase.createClient(
       rejectedReason: r.rejected_reason,
       rejectType:     null,
       nDeliveries:    r.n_deliveries,
-      dispatchQty:    r.dispatch_qty,
+      receivedQty:    r.received_qty,
       blendDate:      r.blend_date,
       kilnRecv:       r.kiln_recv,
       kilnConsume:    r.kiln_consume,
@@ -1796,7 +1796,7 @@ var db = supabase.createClient(
   }
 
   try {
-    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,dispatch_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
     var PAGE = 1000;
     document.getElementById('loadingMsg').textContent = 'Loading data…';
 
