@@ -1318,7 +1318,7 @@ function renderDetailRow(l){
     +'</div>'
     +'<div class="bs-fields">'
     +'<div class="bs-field"><span class="bs-fkey">Ship-to Name</span><span class="bs-fval">'+l.shipTo+'</span></div>'
-    +'<div class="bs-field"><span class="bs-fkey">PO Number</span><span class="bs-fval">'+l.po+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Sold-to ID</span><span class="bs-fval">'+(l.soldToParty||'—')+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
@@ -1336,8 +1336,9 @@ function renderDetailRow(l){
     else if(i<stepsDone){tlCls="tl-dn";dotChar="✓";}
     else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
-    if(stepData&&stepData.date&&stepData.date!=='—'){
-      dateTxt=stepData.date;
+    if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
+      var sd=stepData.date, wiD=l.submitted;
+      dateTxt=(wiD&&sd<wiD)?'—':sd;
       dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
     }
     var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
@@ -2105,7 +2106,8 @@ function custRenderDetailRow(l){
     else if(!isRej&&!isDone&&i===stepsDone) cls='cu';
     var label=cls==='dn'?'✓':cls==='rj'?'✕':(vi+1);
     var stepData=l.steps[i];
-    var dateHtml=stepData?'<div class="st-date '+cls+'">'+stepData.date+'</div>':'<div class="st-date">—</div>';
+    var _sd=stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'&&l.submitted&&stepData.date<l.submitted?'—':stepData?stepData.date:'—';
+    var dateHtml='<div class="st-date '+cls+'">'+_sd+'</div>';
     var noteHtml=stepData?'<div class="st-tcode" title="'+stepData.note+'">'+stepData.note+'</div>':'';
     var tcodeHtml='<div class="st-tcode" style="margin-top:2px;color:#94A3B8;">'+TCODES[i]+'</div>';
     var clickable=(cls==='dn'||cls==='cu'||cls==='rj');
@@ -2123,7 +2125,7 @@ function custRenderDetailRow(l){
   var meta='<div class="detail-meta">'
     +'<div class="dm-item"><div class="dm-key">Delivery (DO)</div><div class="dm-val mono" style="font-weight:400;">'+l.id+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Batch</div><div class="dm-val mono" style="font-weight:400;">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</div></div>'
-    +'<div class="dm-item"><div class="dm-key">PO Number</div><div class="dm-val mono" style="font-weight:400;">'+l.po+'</div></div>'
+    +'<div class="dm-item"><div class="dm-key">Sold-to ID</div><div class="dm-val mono" style="font-weight:400;">'+(l.soldToParty||'—')+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Waste Type</div><div class="dm-val" style="font-weight:400;">'+l.wasteType+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Weight</div><div class="dm-val" style="font-weight:400;">'+l.weight+' t</div></div>'
     +'<div class="dm-item"><div class="dm-key">Submitted</div><div class="dm-val" style="font-weight:400;">'+l.submitted+'</div></div>'
@@ -2281,7 +2283,7 @@ function buildDetailContent(l){
     +'</div>'
     +'<div class="bs-fields">'
     +'<div class="bs-field"><span class="bs-fkey">Ship-to Name</span><span class="bs-fval">'+l.shipTo+'</span></div>'
-    +'<div class="bs-field"><span class="bs-fkey">PO Number</span><span class="bs-fval">'+l.po+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Sold-to ID</span><span class="bs-fval">'+(l.soldToParty||'—')+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
@@ -2299,8 +2301,9 @@ function buildDetailContent(l){
     else if(i<stepsDone){tlCls="tl-dn";dotChar="✓";}
     else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
-    if(stepData&&stepData.date&&stepData.date!=='—'){
-      dateTxt=stepData.date;
+    if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
+      var sd=stepData.date, wiD=l.submitted;
+      dateTxt=(wiD&&sd<wiD)?'—':sd;
       dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
     }
     var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
