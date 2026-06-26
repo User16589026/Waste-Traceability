@@ -1338,7 +1338,8 @@ function renderDetailRow(l){
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
       var sd=stepData.date, wiD=l.submitted;
-      dateTxt=(wiD&&sd<wiD)?'—':sd;
+      var sdParsed=parseDate(sd), wiParsed=parseDate(wiD);
+      dateTxt=(sdParsed&&wiParsed&&sdParsed<wiParsed)?'—':sd;
       dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
     }
     var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
@@ -2106,7 +2107,9 @@ function custRenderDetailRow(l){
     else if(!isRej&&!isDone&&i===stepsDone) cls='cu';
     var label=cls==='dn'?'✓':cls==='rj'?'✕':(vi+1);
     var stepData=l.steps[i];
-    var _sd=stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'&&l.submitted&&stepData.date<l.submitted?'—':stepData?stepData.date:'—';
+    var _sdRaw=stepData?stepData.date:'—';
+    var _sdP=parseDate(_sdRaw),_wiP=parseDate(l.submitted);
+    var _sd=(_sdP&&_wiP&&_sdP<_wiP)?'—':_sdRaw;
     var dateHtml='<div class="st-date '+cls+'">'+_sd+'</div>';
     var noteHtml=stepData?'<div class="st-tcode" title="'+stepData.note+'">'+stepData.note+'</div>':'';
     var tcodeHtml='<div class="st-tcode" style="margin-top:2px;color:#94A3B8;">'+TCODES[i]+'</div>';
@@ -2303,7 +2306,8 @@ function buildDetailContent(l){
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
       var sd=stepData.date, wiD=l.submitted;
-      dateTxt=(wiD&&sd<wiD)?'—':sd;
+      var sdParsed=parseDate(sd), wiParsed=parseDate(wiD);
+      dateTxt=(sdParsed&&wiParsed&&sdParsed<wiParsed)?'—':sd;
       dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
     }
     var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
