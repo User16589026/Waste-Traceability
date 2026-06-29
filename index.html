@@ -1428,11 +1428,6 @@ async function exportPDF(overrideLots,custName){
       var batchName=l.batchName||'';
       var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
       var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
-      var cycleTime='';
-      if(l.blendDate&&l.submitted&&l.submitted!=='—'){
-        var d1=new Date(l.submitted),d2=new Date(l.blendDate);
-        if(!isNaN(d1)&&!isNaN(d2)){var days=Math.round((d2-d1)/(864e5));cycleTime=days>0?days+' days':'—';}
-      }
       return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
         +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
         +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
@@ -1443,17 +1438,11 @@ async function exportPDF(overrideLots,custName){
         +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
         +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
         +'<td style="'+muted+'">'+l.submitted+'</td>'
-        +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
         +'</tr>';
     }
     var batchName=l.batchName||'';
     var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
     var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
-    var cycleTime='';
-    if(l.blendDate&&l.submitted&&l.submitted!=='—'){
-      var d1=new Date(l.submitted),d2=new Date(l.blendDate);
-      if(!isNaN(d1)&&!isNaN(d2)){var days=Math.round((d2-d1)/(864e5));cycleTime=days>0?days+' days':'—';}
-    }
     return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
       +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
       +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
@@ -1464,7 +1453,6 @@ async function exportPDF(overrideLots,custName){
       +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
       +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
       +'<td style="'+muted+'">'+l.submitted+'</td>'
-      +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
       +'</tr>';
   }).join('');
 
@@ -1540,8 +1528,8 @@ async function exportPDF(overrideLots,custName){
     +'<table>'
     +'<thead><tr>'
     +(isCust
-      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Cycle Time</th>'
-      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Cycle Time</th>'
+      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
+      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
     )
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody>'
