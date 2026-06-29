@@ -1684,6 +1684,7 @@ function showStepPopover(l,si,rect){
       gridHtml+='<div class="spop-section"><span class="spop-section-label">'+g.label+'</span><span class="spop-section-line"></span></div>';
       fieldsInGroup.forEach(function(k){
         var val=dict[k];
+        if(k==='Net Weight'&&val&&!isNaN(val)) val=(parseFloat(val)/1000).toFixed(3)+' t';
         var valHtml=(k==='Sold-to Party'&&l.soldToParty)
           ?'<span class="spop-val" style="color:var(--navy);cursor:pointer;text-decoration:underline dotted;" onclick="setChartFilter(\'soldToParty\',\''+l.soldToParty+'\');closePopover();" title="Filter by this Sold-to">'+val+'</span>'
           :'<span class="spop-val">'+val+'</span>';
