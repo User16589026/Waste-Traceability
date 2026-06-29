@@ -735,7 +735,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
                   <th>Pipeline Stage</th>
                   <th>Status</th>
                   <th>Submitted</th>
-                  <th>Last Updated</th>
                   <th></th>
                 </tr>
               </thead>
@@ -1444,7 +1443,6 @@ async function exportPDF(overrideLots,custName){
         +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
         +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
         +'<td style="'+muted+'">'+l.submitted+'</td>'
-        +'<td style="'+muted+'">'+l.lastUpdated+'</td>'
         +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
         +'</tr>';
     }
@@ -1466,7 +1464,6 @@ async function exportPDF(overrideLots,custName){
       +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
       +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
       +'<td style="'+muted+'">'+l.submitted+'</td>'
-      +'<td style="'+muted+'">'+l.lastUpdated+'</td>'
       +'<td style="'+td+'text-align:right;color:#0C2D4A;font-family:monospace;">'+cycleTime+'</td>'
       +'</tr>';
   }).join('');
@@ -1543,8 +1540,8 @@ async function exportPDF(overrideLots,custName){
     +'<table>'
     +'<thead><tr>'
     +(isCust
-      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th><th>Cycle Time</th>'
-      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Last Updated</th><th>Cycle Time</th>'
+      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Cycle Time</th>'
+      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th><th>Cycle Time</th>'
     )
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody>'
@@ -2194,7 +2191,6 @@ function custRenderTable(){
         +'<td>'+custRenderStages(l)+'</td>'
         +'<td>'+custGetBadge(l.status)+'</td>'
         +'<td class="t3">'+l.submitted+'</td>'
-        +'<td class="t3">'+l.lastUpdated+'</td>'
         +'<td><button class="expand-btn" data-id="'+l.id+'"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 6,8 10,4"/></svg></button></td>'
         +'</tr>';
       if(isExp) html+=custRenderDetailRow(l);
