@@ -1323,7 +1323,7 @@ function renderDetailRow(l){
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
-    +(l.wi&&l.wi['Truck ID']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['Truck ID']+'</span></div>':'')
+    +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
@@ -1426,7 +1426,7 @@ async function exportPDF(overrideLots,custName){
     var muted=td+'color:#64748B;white-space:nowrap;';
     if(isCust){
       var batchName=l.batchName||'';
-      var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
+      var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
       var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
       return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
         +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
@@ -1441,7 +1441,7 @@ async function exportPDF(overrideLots,custName){
         +'</tr>';
     }
     var batchName=l.batchName||'';
-    var truckId=(l.wi&&l.wi['Truck ID'])?l.wi['Truck ID']:'';
+    var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
     var vendorName=(l.wi&&l.wi['Vendor Name'])?l.wi['Vendor Name']:'';
     return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
       +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
@@ -1648,7 +1648,7 @@ function showStepPopover(l,si,rect){
     // 1 WA
     [
       {label:'Sample',   keys:['Sample No','Inspection Lot','Manifest No','Sampling Date/Time','Sampling Point','Sample Received','Testing Date','UD Date']},
-      {label:'Vehicle',  keys:['Truck ID','Check In Date','Check In Time','Packing Type','Total Packing','Physical Appearance']},
+      {label:'Vehicle',  keys:['TrnsIDCode','Check In Date','Check In Time','Packing Type','Total Packing','Physical Appearance']},
       {label:'Waste',    keys:['Waste Name','Waste Generator']},
       {label:'Result',   keys:['Judgement','Remark']},
     ],
@@ -2276,7 +2276,7 @@ function buildDetailContent(l){
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
-    +(l.wi&&l.wi['Truck ID']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['Truck ID']+'</span></div>':'')
+    +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
