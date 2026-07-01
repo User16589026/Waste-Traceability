@@ -67,7 +67,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 
 /* ── CHARTS ROW ── */
-.charts-row{display:grid;grid-template-columns:1fr 1.4fr 1.4fr;gap:12px;margin-bottom:20px;}
+.charts-row{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:20px;}
 .chart-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--sh);}
 .chart-title{font-size:.66rem;font-weight:700;color:var(--t);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .chart-title span{font-size:.58rem;color:var(--t3);font-weight:500;}
@@ -99,7 +99,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 /* active chart filter pill */
 .cfilter-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .cfilter-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 12px;border-radius:20px;background:var(--navy);color:#fff;font-size:.62rem;font-weight:600;}
-.cfilter-pill.wt{background:#0369A1;}
 .cfilter-pill.cu{background:#475569;}
 .cfilter-pill button{background:none;border:none;color:rgba(255,255,255,.65);cursor:pointer;font-size:.82rem;line-height:1;padding:0 2px;transition:color .1s;}
 .cfilter-pill button:hover{color:#fff;}
@@ -189,6 +188,11 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .spop-section:first-child{margin-top:0;}
 .spop-section-label{font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);white-space:nowrap;}
 .spop-section-line{flex:1;height:1px;background:var(--b);}
+.spop-mv-table{width:100%;border-collapse:collapse;font-size:.62rem;grid-column:1/-1;margin-top:4px;}
+.spop-mv-table th{text-align:left;font-weight:700;color:var(--t3);text-transform:uppercase;font-size:.5rem;letter-spacing:.06em;padding:4px 8px;border-bottom:1px solid var(--b);}
+.spop-mv-table td{padding:4px 8px;border-bottom:1px solid var(--b);color:var(--t);}
+.spop-mv-pos{color:var(--green,#059669);}
+.spop-mv-neg{color:var(--red,#DC2626);}
 .spop-head{padding:12px 14px 10px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
 .spop-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;}
 .spop-circle.dn{background:var(--green);}
@@ -338,9 +342,9 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 
 /* ── RESPONSIVE ── */
-@media(max-width:1100px){.charts-row{grid-template-columns:1fr 1fr;}.charts-row .chart-card:last-child{grid-column:span 2;}}
+@media(max-width:1100px){.charts-row{grid-template-columns:1fr 1fr;}}
 
-@media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row{grid-template-columns:1fr;}.charts-row .chart-card:last-child{grid-column:auto;}}
+@media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row{grid-template-columns:1fr;}}
 @media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}}
 @media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}}
 
@@ -544,10 +548,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <div class="donut-wrap" id="donutWrap"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Waste Type <span>by batch count</span><button class="chart-clear-btn" id="clearWasteType" style="display:none" onclick="clearChartFilter()">✕ Clear</button></div>
-      <div class="hbar-list" id="wasteChart"></div>
-    </div>
-    <div class="chart-card">
       <div class="chart-title">Top Customers <span>by deliveries</span><button class="chart-clear-btn" id="clearCust" style="display:none" onclick="clearChartFilter()">✕ Clear</button></div>
       <div class="hbar-list" id="custChart"></div>
     </div>
@@ -622,7 +622,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
               <th data-col="id">Delivery <span class="sort-icon">↕</span></th>
               <th data-col="batchId">Batch <span class="sort-icon">↕</span></th>
               <th data-col="batchName">Batch Name <span class="sort-icon">↕</span></th>
-              <th data-col="wasteType">Waste Type <span class="sort-icon">↕</span></th>
               <th data-col="shipTo">Ship-to Name <span class="sort-icon">↕</span></th>
               <th data-col="status">Status <span class="sort-icon">↕</span></th>
               <th>Steps</th>
@@ -697,14 +696,10 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
     <div class="page">
       <div class="kpi-row" id="custKpiRow"></div>
 
-      <div class="charts-row" style="grid-template-columns:1fr 1.4fr;">
+      <div class="charts-row" style="grid-template-columns:1fr;">
         <div class="chart-card">
           <div class="chart-title">Status Distribution <span>% of total</span></div>
           <div class="donut-wrap" id="custDonutWrap"></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Waste Type <span>by batch count</span><button class="chart-clear-btn" id="custClearWaste" style="display:none" onclick="custClearChartFilter()">✕ Clear</button></div>
-          <div class="hbar-list" id="custWasteChart"></div>
         </div>
       </div>
 
@@ -730,7 +725,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
               <thead>
                 <tr>
                   <th>Delivery / Batch</th>
-                  <th>Waste Type</th>
                   <th>Weight (t)</th>
                   <th>Pipeline Stage</th>
                   <th>Status</th>
@@ -923,27 +917,6 @@ function dlItem(col,label,count,pct,st){
 }
 
 /* ═══════════════════════════════
-   WASTE TYPE CHART
-═══════════════════════════════ */
-function renderWasteChart(){
-  var map={};
-  getActiveLots().forEach(function(l){map[l.wasteType]=(map[l.wasteType]||0)+1;});
-  var arr=Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
-  var max=arr[0][1];
-  var colors=["#0C2D4A","#163E64","#1E527F","#1A5A8A","#0369A1","#0284C7","#38BDF8"];
-  var html="";
-  arr.forEach(function(e,i){
-    var w=Math.round(e[1]/max*100);
-    var sel=chartFilter.type==='wasteType'&&chartFilter.value===e[0]?' sel':'';
-    html+='<div class="hbar-item'+sel+'" onclick="setChartFilter(\'wasteType\',\''+e[0].replace(/'/g,"\\'")+'\')" title="Filter: '+e[0]+'">'
-      +'<span class="hbar-label" title="'+e[0]+'">'+e[0]+'</span>'
-      +'<div class="hbar-track"><div class="hbar-fill" style="width:'+w+'%;background:'+colors[i%colors.length]+'"></div></div>'
-      +'<span class="hbar-val">'+e[1]+'</span></div>';
-  });
-  document.getElementById("wasteChart").innerHTML=html;
-}
-
-/* ═══════════════════════════════
    CUSTOMER CHART
 ═══════════════════════════════ */
 function renderCustChart(){
@@ -971,7 +944,6 @@ function renderCustChart(){
 function renderAll(){
   renderKPI();
   renderDonut();
-  renderWasteChart();
   renderCustChart();
   page=1; expandedId=null;
   renderTable();
@@ -1135,12 +1107,11 @@ function getFiltered(){
     if(fpCust!=='all'&&l.shipTo!==fpCust) return false;
     if(fpDFrom&&l.submitted&&l.submitted<fpDFrom) return false;
     if(fpDTo&&l.submitted&&l.submitted>fpDTo) return false;
-    if(chartFilter.type==='wasteType'&&l.wasteType!==chartFilter.value) return false;
     if(chartFilter.type==='shipTo'&&l.shipTo!==chartFilter.value) return false;
     if(chartFilter.type==='soldToParty'&&l.soldToParty!==chartFilter.value) return false;
     if(searchTerm){
       var bname=l.batchName||'';
-      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+l.wasteType+" "+bname).toLowerCase();
+      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+bname).toLowerCase();
       if(h.indexOf(searchTerm)<0) return false;
     }
     return true;
@@ -1217,14 +1188,11 @@ function renderTable(){
   document.getElementById("resultCount").textContent="Showing "+Math.min(total,PAGE_SIZE*(page))+" of "+total+" deliveries";
   document.getElementById("chipAll").textContent=getActiveLots().length;
   document.getElementById("chipClear").style.display=filterStatus!=="all"?"inline-flex":"none";
-  document.getElementById("clearWasteType").style.display=chartFilter.type==="wasteType"?"inline-flex":"none";
   document.getElementById("clearCust").style.display=(chartFilter.type==="shipTo"||chartFilter.type==="soldToParty")?"inline-flex":"none";
 
   // chart filter pill
   var pillHtml='';
-  if(chartFilter.type==='wasteType'){
-    pillHtml='<span class="cfilter-pill wt">'+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
-  } else if(chartFilter.type==='shipTo'){
+  if(chartFilter.type==='shipTo'){
     pillHtml='<span class="cfilter-pill cu">'+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
   } else if(chartFilter.type==='soldToParty'){
     pillHtml='<span class="cfilter-pill" style="background:#7C3AED;">Sold-to: '+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
@@ -1264,7 +1232,6 @@ function renderRow(l,isExp){
     +'<td style="font-size:.72rem;color:var(--t3);font-family:var(--mono);">'+l.id+'</td>'
     +'<td style="font-size:.72rem;font-family:var(--mono);">'+l.batchId+'</td>'
     +'<td><strong style="font-weight:600;font-size:.78rem;color:var(--t);">'+batchName+'</strong></td>'
-    +'<td class="t3" style="font-size:.68rem;">'+l.wasteType+'</td>'
     +'<td class="t2">'+l.shipTo+'</td>'
     +'<td>'+badge+'</td>'
     +'<td><div class="dots7">'+dots+'</div></td>'
@@ -1321,7 +1288,6 @@ function renderDetailRow(l){
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
-    +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
@@ -1432,7 +1398,6 @@ async function exportPDF(overrideLots,custName){
         +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
         +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
         +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
-        +'<td style="'+td+'white-space:nowrap;">'+l.wasteType+'</td>'
         +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
         +'<td style="'+td+'max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+vendorName+'</td>'
         +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
@@ -1447,7 +1412,6 @@ async function exportPDF(overrideLots,custName){
       +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
       +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
       +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
-      +'<td style="'+td+'white-space:nowrap;">'+l.wasteType+'</td>'
       +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
       +'<td style="'+td+'max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+vendorName+'</td>'
       +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
@@ -1493,19 +1457,7 @@ async function exportPDF(overrideLots,custName){
     +'</div>'
     +'</div>'
     +function(){
-      var wmap={};
-      lots.forEach(function(l){wmap[l.wasteType]=(wmap[l.wasteType]||0)+1;});
-      var warr=Object.entries(wmap).sort(function(a,b){return b[1]-a[1];});
-      var wtotal=lots.length||1;
-      var wlist=warr.map(function(e){
-        var pct=Math.round(e[1]/wtotal*100);
-        return '<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid #E2E8F0;">'
-          +'<span style="font-size:7.5px;color:#475569;">'+e[0]+'</span>'
-          +'<span style="font-size:7.5px;font-weight:700;color:#0F172A;">'+e[1]+' <span style="font-weight:400;color:#94A3B8;">('+pct+'%)</span></span>'
-          +'</div>';
-      }).join('');
-      return '<div style="display:flex;gap:10px;margin-bottom:14px;align-items:stretch;">'
-        +'<div class="summary" style="flex:1;margin-bottom:0;">'
+      return '<div class="summary">'
         +donutSvg
         +'<div class="legend">'
         +'<div class="legend-item"><div class="legend-dot" style="background:#059669;"></div>Completed <span class="legend-pct">'+doneL+' ('+pctD+'%)</span></div>'
@@ -1518,18 +1470,13 @@ async function exportPDF(overrideLots,custName){
         +'<div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" style="color:#D97706;">'+activeL+'</div></div>'
         +'<div class="kpi"><div class="kpi-label">Rejected</div><div class="kpi-val" style="color:#DC2626;">'+rejL+'</div></div>'
         +'</div>'
-        +'</div>'
-        +'<div style="padding:12px 14px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;min-width:140px;">'
-        +'<div style="font-size:8px;font-weight:700;color:#0F172A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Waste Type</div>'
-        +wlist
-        +'</div>'
         +'</div>';
     }()
     +'<table>'
     +'<thead><tr>'
     +(isCust
-      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
-      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
+      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
+      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Truck ID</th><th>Vendor Name</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
     )
     +'</tr></thead>'
     +'<tbody>'+rows+'</tbody>'
@@ -1565,10 +1512,11 @@ var STEP_EXTRA=[
 async function fetchDetail(id){
   var lot=LOTS.find(function(x){return x.id===id;});
   if(!lot||lot._detailLoaded) return lot;
-  var res=await db.from('deliveries').select('wi,wa,li,wo').eq('id',id).single();
+  var res=await db.from('deliveries').select('wi,wa,li,wo,li_movements').eq('id',id).single();
   if(!res.error&&res.data){
     lot.wi=res.data.wi||{}; lot.wa=res.data.wa||{};
     lot.li=res.data.li||{}; lot.wo=res.data.wo||{};
+    lot.liMovements=res.data.li_movements||null;
     lot._detailLoaded=true;
   }
   return lot;
@@ -1701,6 +1649,17 @@ function showStepPopover(l,si,rect){
     });
 
     gridHtml+='</div>';
+
+    if(si===2&&l.liMovements&&l.liMovements.length){
+      gridHtml+='<div class="spop-section"><span class="spop-section-label">Movements</span><span class="spop-section-line"></span></div>';
+      gridHtml+='<table class="spop-mv-table"><thead><tr><th>Date</th><th>MvtType</th><th>Qty (t)</th></tr></thead><tbody>';
+      l.liMovements.forEach(function(m){
+        var qtyCls=m.qty<0?'spop-mv-neg':'spop-mv-pos';
+        gridHtml+='<tr><td>'+m.date+'</td><td>'+m.mvtType+'</td><td class="'+qtyCls+'">'+(m.qty>0?'+':'')+m.qty.toFixed(2)+'</td></tr>';
+      });
+      gridHtml+='</tbody></table>';
+    }
+
     bodyEl.outerHTML='<div class="spop-body-scroll" id="spopBody">'+gridHtml+'</div>';
   } else {
     pop.classList.remove('wide');
@@ -1757,7 +1716,6 @@ var db = supabase.createClient(
       shipTo:         r.ship_to || '—',
       soldToParty:    r.sold_to_party,
       soldToName:     r.sold_to_name,
-      wasteType:      r.waste_type,
       material:       r.material,
       status:         r.status,
       currentStep:    r.current_step,
@@ -1784,7 +1742,7 @@ var db = supabase.createClient(
   }
 
   try {
-    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
     var PAGE = 1000;
     document.getElementById('loadingMsg').textContent = 'Loading data…';
 
@@ -1955,7 +1913,6 @@ function custClearDateFilter(){
 function custRenderAll(){
   custRenderKPI();
   custRenderDonut();
-  custRenderWasteChart();
   custPage=1; custExpandedId=null;
   custRenderTable();
   var chips=document.getElementById('custFilterChips');
@@ -2033,22 +1990,6 @@ function custRenderDonut(){
   document.getElementById('custDonutWrap').innerHTML=svg+legend;
 }
 
-/* ── CUST WASTE CHART ── */
-function custRenderWasteChart(){
-  var map={};
-  custGetActive().forEach(function(l){map[l.wasteType]=(map[l.wasteType]||0)+1;});
-  var arr=Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
-  var max=arr[0]?arr[0][1]:1;
-  var colors=["#0C2D4A","#163E64","#1E527F","#1A5A8A","#0369A1","#0284C7","#38BDF8"];
-  var html="";
-  arr.forEach(function(e,i){
-    var w=Math.round(e[1]/max*100);
-    var sel=custChartFilter.type==='wasteType'&&custChartFilter.value===e[0]?' sel':'';
-    html+='<div class="hbar-item'+sel+'" onclick="custSetChartFilter(\'wasteType\',\''+e[0].replace(/'/g,"\\'")+'\')"><span class="hbar-label" title="'+e[0]+'">'+e[0]+'</span><div class="hbar-track"><div class="hbar-fill" style="width:'+w+'%;background:'+colors[i%colors.length]+'"></div></div><span class="hbar-val">'+e[1]+'</span></div>';
-  });
-  document.getElementById('custWasteChart').innerHTML=html;
-}
-
 /* ── CUST FILTER STATE ── */
 function custSetStatus(st){
   custFilterStatus=st; custChartFilter={type:null,value:null};
@@ -2115,12 +2056,11 @@ function custRenderDetailRow(l){
     +'<div class="dm-item"><div class="dm-key">Delivery (DO)</div><div class="dm-val mono" style="font-weight:400;">'+l.id+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Batch</div><div class="dm-val mono" style="font-weight:400;">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Sold-to ID</div><div class="dm-val mono" style="font-weight:400;">'+(l.soldToParty||'—')+'</div></div>'
-    +'<div class="dm-item"><div class="dm-key">Waste Type</div><div class="dm-val" style="font-weight:400;">'+l.wasteType+'</div></div>'
     +'<div class="dm-item"><div class="dm-key">Weight</div><div class="dm-val" style="font-weight:400;">'+l.weight+' t</div></div>'
     +'<div class="dm-item"><div class="dm-key">Submitted</div><div class="dm-val" style="font-weight:400;">'+l.submitted+'</div></div>'
     +'</div>';
   var rejNote=isRej?'<div class="rej-note"><strong>⚠ Off-Spec Rejection'+(l.rejectType?' ('+l.rejectType+')':"")+'</strong>'+l.rejectedReason+'</div>':'';
-  return '<tr class="detail-row"><td colspan="8"><div class="detail-inner">'
+  return '<tr class="detail-row"><td colspan="6"><div class="detail-inner">'
     +'<div class="stepper">'+stepperHtml+'</div>'
     +meta+rejNote
     +'</div></td></tr>';
@@ -2153,8 +2093,7 @@ function custGetFiltered(){
   var q=document.getElementById('custSearchTbl').value.trim().toLowerCase();
   return custGetActive().filter(function(l){
     if(custFilterStatus!=='all'&&l.status!==custFilterStatus) return false;
-    if(custChartFilter.type==='wasteType'&&l.wasteType!==custChartFilter.value) return false;
-    if(q){var h=(l.id+' '+l.po+' '+l.wasteType).toLowerCase();if(h.indexOf(q)<0) return false;}
+    if(q){var h=(l.id+' '+l.po).toLowerCase();if(h.indexOf(q)<0) return false;}
     return true;
   });
 }
@@ -2166,16 +2105,14 @@ function custRenderTable(){
   var slice=filtered.slice((custPage-1)*CUST_PAGE_SIZE,custPage*CUST_PAGE_SIZE);
   document.getElementById('custResultCount').textContent='Showing '+Math.min(total,CUST_PAGE_SIZE*custPage)+' of '+total+' deliveries';
   document.getElementById('custChipAll').textContent=custGetActive().length;
-  document.getElementById('custClearWaste').style.display=custChartFilter.type==='wasteType'?'inline-flex':'none';
   var html='';
   if(slice.length===0){
-    html='<tr><td colspan="8"><div class="cd-empty"><p>No deliveries match the current filter.</p></div></td></tr>';
+    html='<tr><td colspan="6"><div class="cd-empty"><p>No deliveries match the current filter.</p></div></td></tr>';
   } else {
     slice.forEach(function(l){
       var isExp=custExpandedId===l.id;
       html+='<tr class="lot-row'+(isExp?' expanded':'')+'" data-id="'+l.id+'">'
         +'<td>'+l.id+'</td>'
-        +'<td class="t2">'+l.wasteType+'</td>'
         +'<td class="t2">'+l.weight+'</td>'
         +'<td>'+custRenderStages(l)+'</td>'
         +'<td>'+custGetBadge(l.status)+'</td>'
@@ -2275,7 +2212,6 @@ function buildDetailContent(l){
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
-    +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+l.wasteType+'</span></div>'
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
