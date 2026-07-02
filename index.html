@@ -1512,11 +1512,12 @@ var STEP_EXTRA=[
 async function fetchDetail(id){
   var lot=LOTS.find(function(x){return x.id===id;});
   if(!lot||lot._detailLoaded) return lot;
-  var res=await db.from('deliveries').select('wi,wa,li,wo,li_movements').eq('id',id).single();
+  var res=await db.from('deliveries').select('wi,wa,li,wo,li_movements,kc').eq('id',id).single();
   if(!res.error&&res.data){
     lot.wi=res.data.wi||{}; lot.wa=res.data.wa||{};
     lot.li=res.data.li||{}; lot.wo=res.data.wo||{};
     lot.liMovements=res.data.li_movements||null;
+    lot.kc=res.data.kc||{};
     lot._detailLoaded=true;
   }
   return lot;
@@ -1616,7 +1617,8 @@ function showStepPopover(l,si,rect){
     [
       {label:'Dates',    keys:['Kiln First Date','Kiln Last Date']},
       {label:'Quantity', keys:['Recv Qty','Consume Qty','Net Balance']},
-      {label:'Activity', keys:['Movements']},
+      {label:'Activity', keys:['Movements','Blend Batch Used']},
+      {label:'Note',     keys:['Note']},
     ],
   ];
 
