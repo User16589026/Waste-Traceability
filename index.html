@@ -1290,6 +1290,12 @@ function renderDetailRow(l){
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
+    +(function(){
+        var wi=parseDate(l.submitted), pp=parseDate(l.blendDate);
+        if(!wi||!pp) return '';
+        var days=Math.round((pp-wi)/86400000);
+        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
+      })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
@@ -2216,6 +2222,12 @@ function buildDetailContent(l){
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
+    +(function(){
+        var wi=parseDate(l.submitted), pp=parseDate(l.blendDate);
+        if(!wi||!pp) return '';
+        var days=Math.round((pp-wi)/86400000);
+        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
+      })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
