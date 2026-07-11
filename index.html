@@ -1749,31 +1749,147 @@ var db = supabase.createClient(
     };
   }
 
-  try {
-    var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
-    var PAGE = 1000;
-    document.getElementById('loadingMsg').textContent = 'Loading data…';
+  /* ── IndexedDB cache helpers (skip refetching 30k rows when data unchanged) ── */
+  function idbOpen(){
+    return new Promise(function(resolve,reject){
+      var req=indexedDB.open('wtrace-cache',1);
+      req.onupgradeneeded=function(){req.result.createObjectStore('kv');};
+      req.onsuccess=function(){resolve(req.result);};
+      req.onerror=function(){reject(req.error);};
+    });
+  }
+  async function idbGet(key){
+    var d=await idbOpen();
+    return new Promise(function(resolve,reject){
+      var rq=d.transaction('kv','readonly').objectStore('kv').get(key);
+      rq.onsuccess=function(){resolve(rq.result);};
+      rq.onerror=function(){reject(rq.error);};
+    });
+  }
+  async function idbSet(key,val){
+    var d=await idbOpen();
+    return new Promise(function(resolve,reject){
+      var tx=d.transaction('kv','readwrite');
+      tx.objectStore('kv').put(val,key);
+      tx.oncomplete=function(){resolve();};
+      tx.onerror=function(){reject(tx.error);};
+    });
+  }
 
-    // Get total count first
-    var countRes = await db.from('deliveries').select('*', {count:'exact', head:true});
+  var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+  var PAGE = 1000;
+  var loadedRows = 0;
+
+  function setMsg(t){document.getElementById('loadingMsg').textContent=t;}
+
+  /* Run a supabase query, retrying on transient failures (e.g. statement timeout)
+     instead of failing the whole page load. */
+  async function fetchWithRetry(makeQuery, tries){
+    var lastErr=null;
+    for(var a=0;a<tries;a++){
+      try{
+        var r=await makeQuery();
+        if(r.error) throw r.error;
+        return r.data;
+      }catch(e){
+        lastErr=e;
+        await new Promise(function(res){setTimeout(res,500*(a+1));});
+      }
+    }
+    throw lastErr;
+  }
+
+  /* Fast path: fetch by id-range chunks. Each query reads only its own ~PAGE rows
+     via the primary-key index (WHERE id >= lo AND id < hi), unlike OFFSET paging
+     which re-scans from row 1 and blows the 3s anon statement timeout. */
+  async function fetchByBounds(bounds, total){
+    var chunks=bounds.map(function(lo,i){
+      return {lo:lo, hi:(i+1<bounds.length ? bounds[i+1] : null)};
+    });
+    var out=new Array(chunks.length);
+    var next=0, CONCURRENCY=6;
+    async function worker(){
+      while(next<chunks.length){
+        var idx=next++;
+        var c=chunks[idx];
+        out[idx]=await fetchWithRetry(function(){
+          var q=db.from('deliveries').select(COLS).gte('id',c.lo).order('id').limit(PAGE);
+          if(c.hi!==null) q=q.lt('id',c.hi);
+          return q;
+        },3);
+        loadedRows+=out[idx].length;
+        setMsg('Loading data… '+loadedRows.toLocaleString()+(total?' / '+total.toLocaleString():''));
+      }
+    }
+    var workers=[];
+    for(var w=0;w<CONCURRENCY;w++) workers.push(worker());
+    await Promise.all(workers);
+    return [].concat.apply([],out);
+  }
+
+  /* Legacy fallback: OFFSET paging (used only if the delivery_load_info RPC is
+     unavailable). Kept at low concurrency + retry so it degrades gracefully. */
+  async function fetchByOffset(){
+    var countRes=await db.from('deliveries').select('id',{count:'exact',head:true});
     if(countRes.error) throw countRes.error;
-    var total = countRes.count;
-    var pages = Math.ceil(total / PAGE);
+    var total=countRes.count;
+    var pages=Math.ceil(total/PAGE);
+    var out=new Array(pages);
+    var next=0;
+    async function worker(){
+      while(next<pages){
+        var idx=next++;
+        out[idx]=await fetchWithRetry(function(){
+          return db.from('deliveries').select(COLS).order('id').range(idx*PAGE,(idx+1)*PAGE-1);
+        },3);
+        loadedRows+=out[idx].length;
+        setMsg('Loading data… '+loadedRows.toLocaleString()+' / '+total.toLocaleString());
+      }
+    }
+    var workers=[];
+    for(var w=0;w<4;w++) workers.push(worker());
+    await Promise.all(workers);
+    return [].concat.apply([],out);
+  }
 
-    // Fetch all pages in parallel
-    var requests = [];
-    for(var p = 0; p < pages; p++){
-      requests.push(
-        db.from('deliveries').select(COLS).order('id').range(p*PAGE, (p+1)*PAGE - 1)
-      );
+  try {
+    setMsg('Loading data…');
+
+    // 1) Data version stamp (bumped by upload_to_supabase.py) — validates browser cache
+    var version=null;
+    try{
+      var vres=await db.from('meta').select('value').eq('key','data_version').single();
+      if(!vres.error&&vres.data) version=vres.data.value;
+    }catch(e){}
+
+    // 2) Browser cache: if version matches, skip the network load entirely
+    var rows=null;
+    if(version&&window.indexedDB){
+      try{
+        var cached=await idbGet('deliveries');
+        if(cached&&cached.version===version&&cached.cols===COLS&&cached.rows&&cached.rows.length){
+          rows=cached.rows;
+        }
+      }catch(e){}
     }
-    var results = await Promise.all(requests);
-    var all = [];
-    for(var i = 0; i < results.length; i++){
-      if(results[i].error) throw results[i].error;
-      all = all.concat(results[i].data);
+
+    // 3) Network load: id-range chunks (fast path) or legacy OFFSET paging (fallback)
+    if(!rows){
+      var info=null;
+      try{
+        var ir=await db.rpc('delivery_load_info',{chunk_size:PAGE});
+        if(!ir.error&&ir.data&&ir.data.bounds&&ir.data.bounds.length) info=ir.data;
+      }catch(e){}
+      rows=info ? await fetchByBounds(info.bounds,info.total) : await fetchByOffset();
+      if(info&&info.total&&rows.length!==info.total){
+        console.warn('Row count mismatch: got '+rows.length+', expected '+info.total);
+      }
+      if(version&&window.indexedDB){
+        try{await idbSet('deliveries',{version:version,cols:COLS,savedAt:Date.now(),rows:rows});}catch(e){}
+      }
     }
-    LOTS = all.map(dbToLot);
+
+    LOTS = rows.map(dbToLot);
     done     = LOTS.filter(function(l){return l.status==='completed';});
     active   = LOTS.filter(function(l){return l.status==='in-progress';});
     rejected = LOTS.filter(function(l){return l.status==='rejected';});
