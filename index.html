@@ -1248,7 +1248,7 @@ function buildDots(l){
   return STEPS.map(function(_,i){
     var cls="pe";
     if(isRej&&i===l.rejectedStep) cls="rj";
-    else if(i<stepsDone) cls="dn";
+    else if(i<stepsDone&&stepHasDate(l,i)) cls="dn";
     else if(!isRej&&!isDone&&i===stepsDone) cls="cu";
     var clickable=(cls==="dn"||cls==="cu"||cls==="rj");
     return '<button class="dot7 '+cls+'" data-lid="'+l.id+'" data-si="'+i+'" title="'+(i+1)+'. '+STEPS[i]+'"'+(clickable?' onclick="onDotClick(event,this)"':'')+'></button>';
@@ -1305,7 +1305,7 @@ function renderDetailRow(l){
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
     if(isRej&&i===l.rejectedStep){tlCls="tl-rj";dotChar="✕";}
-    else if(i<stepsDone){tlCls="tl-dn";dotChar="✓";}
+    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
     else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
@@ -2160,7 +2160,7 @@ function custRenderDetailRow(l){
     var i=si;
     var cls='pe', connCls='';
     if(isRej&&i===l.rejectedStep){cls='rj';connCls='rj';}
-    else if(i<stepsDone){cls='dn';connCls='dn';}
+    else if(i<stepsDone&&stepHasDate(l,i)){cls='dn';connCls='dn';}
     else if(!isRej&&!isDone&&i===stepsDone) cls='cu';
     var label=cls==='dn'?'✓':cls==='rj'?'✕':(vi+1);
     var stepData=l.steps[i];
@@ -2358,7 +2358,7 @@ function buildDetailContent(l){
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
     if(isRej&&i===l.rejectedStep){tlCls="tl-rj";dotChar="✕";}
-    else if(i<stepsDone){tlCls="tl-dn";dotChar="✓";}
+    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
     else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
