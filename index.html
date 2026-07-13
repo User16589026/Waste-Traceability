@@ -24,7 +24,8 @@
   --font:'Sukhumvit Set','SukhumvitSet','Sarabun','DM Sans',system-ui,sans-serif;
   --mono:'DM Mono',monospace;
 }
-body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+html{overflow-x:hidden;}
+body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100vw;}
 
 /* ── TOPBAR ── */
 .topbar{background:#fff;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 #E2E8F0;flex-wrap:nowrap;gap:12px;}
@@ -134,7 +135,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 /* Table */
 .tbl-wrap{overflow-x:auto;}
-.tbl{width:100%;border-collapse:collapse;font-size:.7rem;table-layout:fixed;}
+.tbl{width:100%;min-width:760px;border-collapse:collapse;font-size:.7rem;table-layout:fixed;}
 .tbl th:nth-child(1),.tbl td:nth-child(1){width:9%;white-space:nowrap;}
 .tbl th:nth-child(2),.tbl td:nth-child(2){width:9%;white-space:nowrap;}
 .tbl th:nth-child(3),.tbl td:nth-child(3){width:20%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -349,7 +350,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 @media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}.dfs{padding:8px 16px;}}
 @media(max-width:640px){.spop,.spop.wide{width:min(92vw,340px);}.spop-grid{grid-template-columns:1fr;}}
 @media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}}
-@media(max-width:480px){.page{padding:12px 10px 40px;}.kpi-val{font-size:1.9rem;}.kpi{padding:14px 16px;}.search-wrap{min-width:0;}.lots-toolbar-right{margin-left:0;}}
+@media(max-width:480px){.page{padding:12px 10px 40px;}.kpi-val{font-size:1.5rem;}.kpi{padding:12px 14px;overflow:visible;}.kpi-label{font-size:.56rem;}.search-wrap{min-width:0;}.lots-toolbar-right{margin-left:0;}}
 
 /* ── TAB NAV ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--b);display:flex;padding:0 28px;gap:0;position:sticky;top:68px;z-index:190;}
