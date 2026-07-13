@@ -596,7 +596,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <span class="fp-toolbar-sep">to</span>
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
       <button id="kilnToggleBtn" onclick="toggleKilnSearch()" style="flex-shrink:0;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;">Batch only</button>
-      <button class="fp-btn" onclick="exportPDF()">↓ Export</button>
+      <button class="fp-btn" onclick="exportPDF(null,null,this)">↓ Export</button>
       <button class="fp-btn" onclick="fpReset()">↺ Reset</button>
       <span class="fp-count" id="fpRecCount"></span>
     </div>
@@ -629,7 +629,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
         <div class="lots-toolbar-right">
           <div class="cfilter-wrap" id="cfilterWrap"></div>
           <span class="result-count" id="resultCount"></span>
-          <button class="btn-sm" onclick="exportPDF()">↓ Export PDF</button>
+          <button class="btn-sm" onclick="exportPDF(null,null,this)">↓ Export PDF</button>
         </div>
       </div>
       <div class="tbl-wrap">
@@ -735,7 +735,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
               <input class="cd-search" id="custSearchTbl" placeholder="Search Delivery, Batch ID or PO…" oninput="custOnFilter()"/>
             </div>
             <span class="cd-count" id="custResultCount"></span>
-            <button class="btn-sm" onclick="custExportPDF()">↓ Export PDF</button>
+            <button class="btn-sm" onclick="custExportPDF(this)">↓ Export PDF</button>
           </div>
           <div style="overflow-x:auto;">
             <table class="cd-tbl" id="custLotsTable">
@@ -1372,19 +1372,24 @@ function goPage(p){page=p;renderTable();}
 /* ═══════════════════════════════
    EXPORT CSV
 ═══════════════════════════════ */
-async function exportPDF(overrideLots,custName){
+async function exportPDF(overrideLots,custName,btnEl){
+  var btnOrigText=btnEl?btnEl.textContent:null;
+  if(btnEl){ btnEl.disabled=true; btnEl.textContent='Preparing…'; }
+  try{
   var lots=overrideLots||getSorted(getFiltered());
   // Report always sorts by Weight In date ascending (oldest first), regardless
   // of whatever sort the on-screen table currently has.
   lots=lots.slice().sort(function(a,b){
-    var da=parseDate(a.submitted),db=parseDate(b.submitted);
-    if(!da&&!db) return 0;
+    var da=parseDate(a.submitted),dbb=parseDate(b.submitted);
+    if(!da&&!dbb) return 0;
     if(!da) return 1;
-    if(!db) return -1;
-    return da-db;
+    if(!dbb) return -1;
+    return da-dbb;
   });
-  // Fetch detail (wi/wa) for any lots not yet loaded
-  await Promise.all(lots.map(function(l){ return fetchDetail(l.id); }));
+  // Fetch detail (wi/wa) for any lots not yet loaded — batched (.in query per
+  // chunk of 500) rather than one request per row, since exporting the full
+  // unfiltered table can mean 30,000+ rows.
+  await fetchDetailsBatch(lots);
   var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' – '+(document.getElementById('dateTo').value||'Jun 2026');
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   var isCust=!!custName;
@@ -1520,6 +1525,9 @@ async function exportPDF(overrideLots,custName){
   w.document.write(html);
   w.document.close();
   w.onload=function(){w.print();};
+  } finally {
+    if(btnEl){ btnEl.disabled=false; btnEl.textContent=btnOrigText; }
+  }
 }
 
 /* ═══════════════════════════════
@@ -1558,6 +1566,42 @@ async function fetchDetail(id){
     lot._detailLoaded=true;
   }
   return lot;
+}
+
+/* Batched version of fetchDetail for bulk operations (e.g. exporting the
+   whole unfiltered table). One-request-per-row via fetchDetail() would fire
+   tens of thousands of concurrent requests and hang the browser; this chunks
+   the ids into .in() queries instead, mirroring the id-range chunking used
+   for the initial page load. */
+async function fetchDetailsBatch(lots){
+  var need=lots.filter(function(l){ return !l._detailLoaded; });
+  if(!need.length) return;
+  var CHUNK=500, CONCURRENCY=6;
+  var chunks=[];
+  for(var i=0;i<need.length;i+=CHUNK) chunks.push(need.slice(i,i+CHUNK));
+  var next=0;
+  async function worker(){
+    while(next<chunks.length){
+      var chunk=chunks[next++];
+      var ids=chunk.map(function(l){return l.id;});
+      var res=await db.from('deliveries').select('id,wi,wa,li,wo,li_movements,kc').in('id',ids);
+      if(!res.error&&res.data){
+        var byId={};
+        res.data.forEach(function(r){ byId[r.id]=r; });
+        chunk.forEach(function(l){
+          var r=byId[l.id];
+          if(r){
+            l.wi=r.wi||{}; l.wa=r.wa||{}; l.li=r.li||{}; l.wo=r.wo||{};
+            l.liMovements=r.li_movements||null; l.kc=r.kc||{};
+            l._detailLoaded=true;
+          }
+        });
+      }
+    }
+  }
+  var workers=[];
+  for(var w=0;w<CONCURRENCY;w++) workers.push(worker());
+  await Promise.all(workers);
 }
 
 async function onDotClick(e,el){
@@ -2331,12 +2375,12 @@ function custInitTableSort(){
   });
 }
 
-function custExportPDF(){
+function custExportPDF(btnEl){
   var lots=custGetFiltered();
   if(!lots||lots.length===0){alert('No deliveries to export.');return;}
   var company=document.getElementById('custCompanySelect').value||document.getElementById('custTbCompany').textContent||'';
   if(company==='—') company='';
-  exportPDF(lots,company||'Customer');
+  exportPDF(lots,company||'Customer',btnEl);
 }
 
 /* ═══════════════════════════════
