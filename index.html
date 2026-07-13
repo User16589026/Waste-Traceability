@@ -1374,6 +1374,15 @@ function goPage(p){page=p;renderTable();}
 ═══════════════════════════════ */
 async function exportPDF(overrideLots,custName){
   var lots=overrideLots||getSorted(getFiltered());
+  // Report always sorts by Weight In date ascending (oldest first), regardless
+  // of whatever sort the on-screen table currently has.
+  lots=lots.slice().sort(function(a,b){
+    var da=parseDate(a.submitted),db=parseDate(b.submitted);
+    if(!da&&!db) return 0;
+    if(!da) return 1;
+    if(!db) return -1;
+    return da-db;
+  });
   // Fetch detail (wi/wa) for any lots not yet loaded
   await Promise.all(lots.map(function(l){ return fetchDetail(l.id); }));
   var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' – '+(document.getElementById('dateTo').value||'Jun 2026');
