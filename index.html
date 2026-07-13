@@ -1500,15 +1500,20 @@ async function exportPDF(overrideLots,custName){
 /* ═══════════════════════════════
    STEP POPOVER
 ═══════════════════════════════ */
+function stepHasDate(l,i){
+  var s=l.steps&&l.steps[i];
+  return !!(s&&s.date&&s.date!=='—'&&s.date!=='In Progress');
+}
 var STEP_EXTRA=[
   function(l){return l.weight?[{k:'Weight In',v:l.weight+' t'},{k:'Batch',v:l.batchId}]:[];},
   function(l){return [{k:'Result',v:l.steps[1]?l.steps[1].note:'—'}];},
   function(l){return l.receivedQty?[{k:'Received',v:l.receivedQty+' t'}]:[];},
   function(l){return [];},
-  function(l){return l.kilnBatchId?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
-  function(l){return l.kilnBatchId?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
+  function(l){return (stepHasDate(l,4)&&l.kilnBatchId)?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
+  function(l){return (stepHasDate(l,5)&&l.kilnBatchId)?[{k:'Blend Batch',v:l.kilnBatchId.split(',').slice(0,2).join(', ')}]:[];},
   function(l){
     var rows=[];
+    if(!stepHasDate(l,6)) return rows;
     if(l.kilnRecv)    rows.push({k:'Kiln Recv',v:l.kilnRecv+' t'});
     if(l.kilnConsume) rows.push({k:'Kiln Consumed',v:l.kilnConsume+' t'});
     if(l.kilnBatchId) rows.push({k:'Kiln Batch',v:l.kilnBatchId.split(',')[0]});
@@ -1819,7 +1824,7 @@ var db = supabase.createClient(
           return q;
         },3);
         loadedRows+=out[idx].length;
-        setMsg('Loading data… '+loadedRows.toLocaleString()+(total?' / '+total.toLocaleString():''));
+        setMsg('Loading data… '+(total?Math.min(100,Math.round(loadedRows/total*100))+'%':loadedRows.toLocaleString()));
       }
     }
     var workers=[];
@@ -1844,7 +1849,7 @@ var db = supabase.createClient(
           return db.from('deliveries').select(COLS).order('id').range(idx*PAGE,(idx+1)*PAGE-1);
         },3);
         loadedRows+=out[idx].length;
-        setMsg('Loading data… '+loadedRows.toLocaleString()+' / '+total.toLocaleString());
+        setMsg('Loading data… '+Math.min(100,Math.round(loadedRows/total*100))+'%');
       }
     }
     var workers=[];
