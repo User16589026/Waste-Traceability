@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>INSEE Ecocycle — Waste Traceability Operations</title>
+<link rel="icon" type="image/png" href="INSEELOGO.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -67,7 +68,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 
 /* ── CHARTS ROW ── */
-.charts-row{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-bottom:20px;}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
 .chart-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--sh);}
 .chart-title{font-size:.66rem;font-weight:700;color:var(--t);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .chart-title span{font-size:.58rem;color:var(--t3);font-weight:500;}
@@ -889,16 +890,16 @@ function renderDonut(){
   var total=dv.lots.length||1;
   var d=dv.done.length, a=dv.active.length, r=dv.rejected.length;
   var pD=d/total,pA=a/total,pR=r/total;
-  var R=50,cx=60,cy=60,circ=2*Math.PI*R;
+  var R=65,cx=75,cy=75,circ=2*Math.PI*R;
   var offD=0,offA=pD*circ,offR=(pD+pA)*circ;
   function arc(pct,offset,color){
-    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="18" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="22" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
   }
-  var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'+
-    '<circle cx="60" cy="60" r="50" fill="none" stroke="#F1F5F9" stroke-width="18"/>'+
+  var svg='<svg class="donut-svg" width="150" height="150" viewBox="0 0 150 150">'+
+    '<circle cx="75" cy="75" r="65" fill="none" stroke="#F1F5F9" stroke-width="22"/>'+
     arc(pD,offD,"#059669")+arc(pA,offA,"#D97706")+arc(pR,offR,"#DC2626")+
-    '<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#0F172A">'+total+'</text>'+
-    '<text x="60" y="70" text-anchor="middle" font-size="9" fill="#94A3B8">LOTS</text>'+
+    '<text x="75" y="71" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">'+total+'</text>'+
+    '<text x="75" y="87" text-anchor="middle" font-size="10" fill="#94A3B8">LOTS</text>'+
     '</svg>';
   var legend='<div class="donut-legend">'+
     dlItem("#059669","Completed",d,Math.round(pD*100)+"%","completed")+
