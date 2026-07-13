@@ -777,8 +777,6 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* ═══════════════════════════════
    CONSTANTS
@@ -1387,10 +1385,11 @@ async function exportPDF(overrideLots,custName){
   });
   // Fetch detail (wi/wa) for any lots not yet loaded
   await Promise.all(lots.map(function(l){ return fetchDetail(l.id); }));
-  var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' - '+(document.getElementById('dateTo').value||'Jun 2026');
+  var dateRange=(document.getElementById('dateFrom').value||'Jan 2025')+' – '+(document.getElementById('dateTo').value||'Jun 2026');
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   var isCust=!!custName;
 
+  // KPI from filtered lots
   var total=lots.length;
   var doneL=lots.filter(function(l){return l.status==='completed';}).length;
   var activeL=lots.filter(function(l){return l.status==='in-progress';}).length;
@@ -1399,108 +1398,128 @@ async function exportPDF(overrideLots,custName){
   var pctA=total?Math.round(activeL/total*100):0;
   var pctR=total?Math.round(rejL/total*100):0;
 
-  var NAVY=[12,45,74], GREEN=[5,150,105], AMBER=[217,119,6], RED=[220,38,38], GRAY=[100,116,139], LIGHT=[226,232,240];
 
-  var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
-  var pageW=doc.internal.pageSize.getWidth();
-  var pageH=doc.internal.pageSize.getHeight();
-  var mL=14, mR=14, usableW=pageW-mL-mR;
-
-  // Header
-  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor.apply(doc,NAVY);
-  doc.text(isCust?('Waste Traceability Report for '+custName):'INSEE Ecocycle - Waste Traceability Report', mL, 16);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor.apply(doc,GRAY);
-  doc.text('Period: '+dateRange+'   |   Generated: '+now, mL, 21.5);
-  doc.setDrawColor.apply(doc,NAVY); doc.setLineWidth(0.7);
-  doc.line(mL, 25, pageW-mR, 25);
-
-  // KPI boxes
-  var kpiY=30, kpiH=16, gap=3;
-  var kpis=[
-    {label:'TOTAL', val:total, color:[15,23,42]},
-    {label:'COMPLETED', val:doneL, color:GREEN},
-    {label:'IN PROGRESS', val:activeL, color:AMBER},
-    {label:'REJECTED', val:rejL, color:RED}
-  ];
-  var kpiW=(usableW-gap*3)/4;
-  kpis.forEach(function(k,i){
-    var x=mL+i*(kpiW+gap);
-    doc.setDrawColor.apply(doc,LIGHT); doc.setFillColor(255,255,255);
-    doc.roundedRect(x,kpiY,kpiW,kpiH,1.5,1.5,'FD');
-    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc,GRAY);
-    doc.text(k.label, x+3, kpiY+5);
-    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor.apply(doc,k.color);
-    doc.text(String(k.val), x+3, kpiY+12.5);
-  });
-
-  // Status stacked bar + legend (replaces the on-screen donut with a simple,
-  // guaranteed-to-render vector bar rather than gambling on jsPDF's arc API)
-  var barY=kpiY+kpiH+6, barH=4.5;
-  if(total>0){
-    var xCur=mL;
-    [{w:doneL/total*usableW,color:GREEN},{w:activeL/total*usableW,color:AMBER},{w:rejL/total*usableW,color:RED}].forEach(function(s){
-      if(s.w>0.01){ doc.setFillColor.apply(doc,s.color); doc.rect(xCur,barY,s.w,barH,'F'); xCur+=s.w; }
-    });
-  } else {
-    doc.setFillColor.apply(doc,LIGHT); doc.rect(mL,barY,usableW,barH,'F');
+  // Donut SVG
+  var C=2*Math.PI*36;
+  var doneArc=doneL/total*C, activeArc=activeL/total*C, rejArc=rejL/total*C;
+  function seg(color,arc,offset){
+    return '<circle cx="50" cy="50" r="36" fill="none" stroke="'+color+'" stroke-width="14"'
+      +' stroke-dasharray="'+arc.toFixed(2)+' '+C.toFixed(2)+'"'
+      +' stroke-dashoffset="'+(-offset).toFixed(2)+'"'
+      +' transform="rotate(-90 50 50)"/>';
   }
-  var legY=barY+barH+5, lx=mL;
-  [
-    {c:GREEN,label:'Completed '+doneL+' ('+pctD+'%)'},
-    {c:AMBER,label:'In Progress '+activeL+' ('+pctA+'%)'},
-    {c:RED,label:'Rejected '+rejL+' ('+pctR+'%)'}
-  ].forEach(function(li){
-    doc.setFillColor.apply(doc,li.c); doc.rect(lx,legY-2.6,2.6,2.6,'F');
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(51,65,85);
-    doc.text(li.label, lx+4, legY);
-    lx+=doc.getTextWidth(li.label)+14;
-  });
+  var donutSvg='<svg width="90" height="90" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    +'<circle cx="50" cy="50" r="36" fill="none" stroke="#E2E8F0" stroke-width="14"/>'
+    +(total>0?seg('#059669',doneArc,0)+seg('#D97706',activeArc,doneArc)+seg('#DC2626',rejArc,doneArc+activeArc):'')
+    +'<text x="50" y="47" text-anchor="middle" font-size="13" font-weight="700" fill="#0F172A" font-family="Segoe UI,Arial,sans-serif">'+total+'</text>'
+    +'<text x="50" y="58" text-anchor="middle" font-size="6.5" fill="#94A3B8" font-family="Segoe UI,Arial,sans-serif">LOTS</text>'
+    +'</svg>';
 
-  // Table
-  var head=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Weight-in'];
-  var body=lots.map(function(l){
+  var statusColor={'completed':'#059669','in-progress':'#D97706','rejected':'#DC2626'};
+  var rows=lots.map(function(l,i){
+    var isDone=l.status==='completed',isRej=l.status==='rejected';
+    var sc=statusColor[l.status]||'#94A3B8';
+    var td='padding:5px 7px;font-size:8px;';
+    var mono=td+'font-family:monospace;';
+    var muted=td+'color:#64748B;white-space:nowrap;';
+    if(isCust){
+      var batchName=l.batchName||'';
+      var description=(l.wi&&l.wi['Description'])?l.wi['Description']:'';
+      var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
+      return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
+        +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
+        +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
+        +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
+        +'<td style="'+td+'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+description+'</td>'
+        +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
+        +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
+        +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+        +'<td style="'+muted+'">'+l.submitted+'</td>'
+        +'</tr>';
+    }
     var batchName=l.batchName||'';
     var description=(l.wi&&l.wi['Description'])?l.wi['Description']:'';
     var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
-    return [l.id,l.batchId,batchName,description,truckId,String(l.weight),l.status,l.submitted];
-  });
-  var statusColorMap={'completed':GREEN,'in-progress':AMBER,'rejected':RED};
+    return '<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+';page-break-inside:avoid;">'
+      +'<td style="'+mono+'color:#0C2D4A;white-space:nowrap;">'+l.id+'</td>'
+      +'<td style="'+mono+'white-space:nowrap;">'+l.batchId+'</td>'
+      +'<td style="'+td+'max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+batchName+'</td>'
+      +'<td style="'+td+'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+description+'</td>'
+      +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
+      +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
+      +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+      +'<td style="'+muted+'">'+l.submitted+'</td>'
+      +'</tr>';
+  }).join('');
 
-  doc.autoTable({
-    startY: legY+6,
-    margin:{left:mL,right:mR},
-    head:[head],
-    body: body,
-    theme:'grid',
-    styles:{fontSize:7.2,cellPadding:1.6,textColor:[15,23,42],lineColor:LIGHT,lineWidth:0.1},
-    headStyles:{fillColor:NAVY,textColor:255,fontStyle:'bold',fontSize:7.2},
-    alternateRowStyles:{fillColor:[248,250,252]},
-    columnStyles:{
-      0:{cellWidth:20,font:'courier'},
-      1:{cellWidth:20,font:'courier'},
-      4:{cellWidth:20},
-      5:{cellWidth:16,halign:'right',font:'courier'},
-      6:{cellWidth:20},
-      7:{cellWidth:20}
-    },
-    didParseCell:function(data){
-      if(data.section==='body' && data.column.index===6){
-        data.cell.styles.textColor=statusColorMap[data.cell.raw]||GRAY;
-        data.cell.styles.fontStyle='bold';
-      }
-    },
-    didDrawPage:function(data){
-      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor.apply(doc,GRAY);
-      doc.text('INSEE Ecocycle', mL, pageH-8);
-      doc.text('Page '+data.pageNumber, pageW-mR-15, pageH-8);
-    }
-  });
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"/>'
+    +'<title>IECO Waste Traceability Report</title>'
+    +'<style>'
+    +'@page{size:A4 portrait;margin:12mm 14mm;margin-top:8mm;}'
++'@page{size:A4 portrait;-webkit-print-color-adjust:exact;}'
++'html{-webkit-print-color-adjust:exact;}'
++'@media print{@page{margin-top:8mm;} html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}'
+    +'body{font-family:"Segoe UI",Arial,sans-serif;color:#0F172A;}'
+    +'.hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #0C2D4A;}'
+    +'.hd-title{font-size:14px;font-weight:700;color:#0C2D4A;}'
+    +'.hd-sub{font-size:9px;color:#64748B;margin-top:3px;}'
+    +'.summary{display:flex;align-items:center;gap:20px;margin-bottom:14px;padding:12px 16px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;}'
+    +'.kpi-group{display:flex;gap:10px;flex:1;}'
+    +'.kpi{background:#fff;border:1px solid #E2E8F0;border-radius:6px;padding:8px 14px;}'
+    +'.kpi-label{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94A3B8;margin-bottom:3px;white-space:nowrap;}'
+    +'.kpi-val{font-size:18px;font-weight:700;color:#0F172A;line-height:1;}'
+    +'.legend{display:flex;flex-direction:column;gap:5px;}'
+    +'.legend-item{display:flex;align-items:center;gap:6px;font-size:8px;color:#334155;white-space:nowrap;}'
++'.legend-pct{color:#94A3B8;margin-left:2px;}'
+    +'.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}'
+    +'.legend-pct{margin-left:auto;font-weight:700;color:#64748B;}'
+    +'table{width:100%;border-collapse:collapse;}'
+    +'thead tr{background:#0C2D4A;}'
+    +'thead th{padding:6px 7px;font-size:8px;font-weight:700;color:#fff;text-align:left;white-space:nowrap;}'
+    +'.footer{margin-top:10px;display:flex;align-items:center;gap:7px;border-top:1px solid #E2E8F0;padding-top:7px;}'
++'.footer-txt{font-size:7px;color:#94A3B8;}'
++'.footer-right{margin-left:auto;font-size:7px;color:#94A3B8;}'
+    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+    +'</style></head><body>'
+    +'<div class="hd">'
+    +'<div>'
+    +'<div class="hd-title">'+(isCust?'Waste Traceability Report for '+custName:'INSEE Ecocycle - Waste Traceability Report')+'</div>'
+    +'<div class="hd-sub">Period: '+dateRange+' &nbsp;·&nbsp; Generated: '+now+'</div>'
+    +'</div>'
+    +'</div>'
+    +function(){
+      return '<div class="summary">'
+        +donutSvg
+        +'<div class="legend">'
+        +'<div class="legend-item"><div class="legend-dot" style="background:#059669;"></div>Completed <span class="legend-pct">'+doneL+' ('+pctD+'%)</span></div>'
+        +'<div class="legend-item"><div class="legend-dot" style="background:#D97706;"></div>In Progress <span class="legend-pct">'+activeL+' ('+pctA+'%)</span></div>'
+        +'<div class="legend-item"><div class="legend-dot" style="background:#DC2626;"></div>Rejected <span class="legend-pct">'+rejL+' ('+pctR+'%)</span></div>'
+        +'</div>'
+        +'<div class="kpi-group">'
+        +'<div class="kpi"><div class="kpi-label">Total</div><div class="kpi-val">'+total+'</div></div>'
+        +'<div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" style="color:#059669;">'+doneL+'</div></div>'
+        +'<div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" style="color:#D97706;">'+activeL+'</div></div>'
+        +'<div class="kpi"><div class="kpi-label">Rejected</div><div class="kpi-val" style="color:#DC2626;">'+rejL+'</div></div>'
+        +'</div>'
+        +'</div>';
+    }()
+    +'<table>'
+    +'<thead><tr>'
+    +(isCust
+      ?'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Description</th><th>Truck ID</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
+      :'<th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Description</th><th>Truck ID</th><th>Weight(t)</th><th>Status</th><th>Weight-in</th>'
+    )
+    +'</tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'</table>'
+    +'<div class="footer"><img src="data:image/png;base64,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" style="height:16px;width:auto;"/><span class="footer-txt">INSEE Ecocycle</span><span class="footer-right">'+now+'</span></div>'
+    +'</body></html>';
 
-  var stamp=now.replace(/\s+/g,'');
-  var fname=isCust
-    ? ('Waste_Traceability_Report_'+custName.replace(/[^a-z0-9]+/gi,'_')+'_'+stamp+'.pdf')
-    : ('INSEE_Waste_Traceability_Report_'+stamp+'.pdf');
-  doc.save(fname);
+  var w=window.open('','_blank','width=1100,height=800');
+  w.document.write(html);
+  w.document.close();
+  w.onload=function(){w.print();};
 }
 
 /* ═══════════════════════════════
