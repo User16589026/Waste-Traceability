@@ -1009,6 +1009,15 @@ function renderVolumeChart(){
 
   var n=data.length;
   var barW=42, gap=20, padL=8, padR=8, padT=26, padB=36;
+  var containerW=el.clientWidth||0;
+  var naturalW=padL+padR+n*barW+(n-1)*gap;
+  if(containerW>naturalW && n>0){
+    var avail=containerW-padL-padR;
+    var gapRatio=gap/barW;
+    var idealBarW=avail/(n+(n-1)*gapRatio);
+    barW=Math.min(Math.max(idealBarW,28),100);
+    gap=barW*gapRatio;
+  }
   var chartW=n*(barW+gap)-gap;
   var W=padL+chartW+padR, H=210;
   var chartH=H-padT-padB;
@@ -1052,10 +1061,10 @@ function renderVolumeChart(){
   });
   var line=volShowRejected?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#F87171" stroke-width="2"/>':'';
 
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+Math.max(W,300)+'" height="'+H+'" style="display:block;">'
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+Math.max(W,300)+'" height="'+H+'" style="display:block;flex-shrink:0;">'
     +bars+yearMarks+line+markers+labels+yearLabels
     +'</svg>';
-  el.innerHTML='<div style="overflow-x:auto;">'+svg+'</div>';
+  el.innerHTML='<div style="overflow-x:auto;display:flex;justify-content:center;">'+svg+'</div>';
 }
 
 
