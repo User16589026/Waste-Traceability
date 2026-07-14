@@ -564,14 +564,19 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
   <div class="kpi-row" id="kpiRow"></div>
 
   <!-- CHARTS ROW -->
-  <div class="charts-row">
+  <div class="charts-row" style="grid-template-columns:0.7fr 1.3fr;">
     <div class="chart-card">
       <div class="chart-title">Status Distribution <span>% of total</span></div>
       <div class="donut-wrap" id="donutWrap"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Top Customers <span>by deliveries</span><button class="chart-clear-btn" id="clearCust" style="display:none" onclick="clearChartFilter()">✕ Clear</button></div>
-      <div class="hbar-list" id="custChart"></div>
+      <div class="chart-title">Monthly Weight In Volume
+        <span style="display:flex;align-items:center;gap:10px;font-weight:600;color:var(--t3);">
+          <select id="volYearSel" onchange="setVolYear(this.value)" style="font-size:.66rem;font-weight:600;padding:3px 6px;border:1px solid var(--b2);border-radius:6px;background:var(--s);color:var(--t2);cursor:pointer;font-family:var(--font);"><option value="all">All Years</option></select>
+          <span onclick="toggleVolReject()" title="Click to toggle Rejected line" style="cursor:pointer;user-select:none;"><span style="color:#2E5372;">●</span> Net Weight (t) &nbsp; <span id="volRejLegend" style="color:#94A3B8;">— Rejected</span></span>
+        </span>
+      </div>
+      <div id="volumeChart"></div>
     </div>
   </div>
 
@@ -929,16 +934,16 @@ function renderDonut(){
   var total=dv.lots.length||1;
   var d=dv.done.length, a=dv.active.length, r=dv.rejected.length;
   var pD=d/total,pA=a/total,pR=r/total;
-  var R=65,cx=75,cy=75,circ=2*Math.PI*R;
+  var R=50,cx=60,cy=60,circ=2*Math.PI*R;
   var offD=0,offA=pD*circ,offR=(pD+pA)*circ;
   function arc(pct,offset,color){
-    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="22" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="18" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
   }
-  var svg='<svg class="donut-svg" width="150" height="150" viewBox="0 0 150 150">'+
-    '<circle cx="75" cy="75" r="65" fill="none" stroke="#F1F5F9" stroke-width="22"/>'+
+  var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'+
+    '<circle cx="60" cy="60" r="50" fill="none" stroke="#F1F5F9" stroke-width="18"/>'+
     arc(pD,offD,"#059669")+arc(pA,offA,"#D97706")+arc(pR,offR,"#DC2626")+
-    '<text x="75" y="71" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">'+total+'</text>'+
-    '<text x="75" y="87" text-anchor="middle" font-size="10" fill="#94A3B8">LOTS</text>'+
+    '<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#0F172A">'+total+'</text>'+
+    '<text x="60" y="70" text-anchor="middle" font-size="8.5" fill="#94A3B8">LOTS</text>'+
     '</svg>';
   var legend='<div class="donut-legend">'+
     dlItem("#059669","Completed",d,Math.round(pD*100)+"%","completed")+
@@ -957,24 +962,100 @@ function dlItem(col,label,count,pct,st){
 }
 
 /* ═══════════════════════════════
-   CUSTOMER CHART
+   MONTHLY VOLUME & REJECTION CHART
 ═══════════════════════════════ */
-function renderCustChart(){
-  var map={};
-  getActiveLots().forEach(function(l){map[l.shipTo]=(map[l.shipTo]||0)+1;});
-  var arr=Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,7);
-  var max=arr[0][1];
-  var html="";
-  arr.forEach(function(e,i){
-    var w=Math.round(e[1]/max*100);
-    var col=i===0?"#0C2D4A":i<3?"#163E64":"#475569";
-    var sel=chartFilter.type==='shipTo'&&chartFilter.value===e[0]?' sel':'';
-    html+='<div class="hbar-item'+sel+'" onclick="setChartFilter(\'shipTo\',\''+e[0].replace(/'/g,"\\'")+'\')" title="Filter: '+e[0]+'">'
-      +'<span class="hbar-label" title="'+e[0]+'">'+e[0]+'</span>'
-      +'<div class="hbar-track"><div class="hbar-fill" style="width:'+w+'%;background:'+col+'"></div></div>'
-      +'<span class="hbar-val">'+e[1]+'</span></div>';
+var volYearFilter='2026';
+var volShowRejected=false;
+function setVolYear(v){ volYearFilter=v; renderVolumeChart(); }
+function toggleVolReject(){ volShowRejected=!volShowRejected; renderVolumeChart(); }
+
+function renderVolumeChart(){
+  var lots=getActiveLots();
+  var allYears=[];
+  lots.forEach(function(l){
+    var d=parseDate(l.submitted);
+    if(d && allYears.indexOf(d.getFullYear())===-1) allYears.push(d.getFullYear());
   });
-  document.getElementById("custChart").innerHTML=html;
+  allYears.sort();
+  if(volYearFilter!=='all' && allYears.indexOf(+volYearFilter)===-1) volYearFilter='all';
+
+  var selEl=document.getElementById('volYearSel');
+  if(selEl){
+    selEl.innerHTML='<option value="all">All Years</option>'+allYears.map(function(y){
+      return '<option value="'+y+'"'+(String(y)===volYearFilter?' selected':'')+'>'+y+'</option>';
+    }).join('');
+    selEl.value=volYearFilter;
+  }
+  var rlEl=document.getElementById('volRejLegend');
+  if(rlEl) rlEl.style.color=volShowRejected?'#F87171':'#94A3B8';
+
+  var map={};
+  lots.forEach(function(l){
+    var d=parseDate(l.submitted);
+    if(!d) return;
+    if(volYearFilter!=='all' && d.getFullYear()!==+volYearFilter) return;
+    var k=monthKey(d);
+    if(!map[k]) map[k]={weight:0,rejected:0,year:d.getFullYear(),month:d.getMonth()};
+    map[k].weight+=l.weight||0;
+    if(l.status==='rejected') map[k].rejected++;
+  });
+  var keys=Object.keys(map).sort();
+  var el=document.getElementById('volumeChart');
+  if(!keys.length){ el.innerHTML=''; return; }
+  var data=keys.map(function(k){
+    var m=map[k];
+    return {label:monthLabel(k).split(" '")[0],year:m.year,month:m.month,weight:Math.round(m.weight),rejected:m.rejected};
+  });
+
+  var n=data.length;
+  var barW=42, gap=20, padL=8, padR=8, padT=26, padB=36;
+  var chartW=n*(barW+gap)-gap;
+  var W=padL+chartW+padR, H=210;
+  var chartH=H-padT-padB;
+  var maxW=Math.max.apply(null,data.map(function(d){return d.weight;}))||1;
+  var maxR=Math.max.apply(null,data.map(function(d){return d.rejected;}))||1;
+  function x(i){ return padL+i*(barW+gap); }
+  function yR(v){ return padT+chartH-(v/maxR*chartH*0.85); }
+
+  var bars='', labels='', pts=[], markers='', yearMarks='';
+  var prevYear=null;
+  data.forEach(function(d,i){
+    var bx=x(i), bh=(d.weight/maxW*chartH), by=padT+chartH-bh;
+    bars+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="3" fill="#2E5372"/>';
+    labels+='<text x="'+(bx+barW/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="9.5" fill="#475569" font-weight="600">'+d.weight.toLocaleString()+'</text>';
+    labels+='<text x="'+(bx+barW/2)+'" y="'+(H-padB+15)+'" text-anchor="middle" font-size="9" fill="#64748B">'+d.label+'</text>';
+    if(volShowRejected){
+      var cx=bx+barW/2, cy=yR(d.rejected);
+      pts.push(cx+','+cy);
+      if(d.rejected>0){
+        markers+='<rect x="'+(cx-12)+'" y="'+(cy-10)+'" width="24" height="15" rx="7.5" fill="#F87171"/>';
+        markers+='<text x="'+cx+'" y="'+(cy+1)+'" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">'+d.rejected+'</text>';
+      } else {
+        markers+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="#F87171"/>';
+      }
+    }
+    if(d.year!==prevYear){
+      if(prevYear!==null) yearMarks+='<line x1="'+(bx-gap/2)+'" y1="'+(padT-8)+'" x2="'+(bx-gap/2)+'" y2="'+(H-padB+6)+'" stroke="#E2E8F0" stroke-dasharray="2,2"/>';
+      prevYear=d.year;
+    }
+  });
+  var groups=[];
+  data.forEach(function(d,i){
+    var g=groups[groups.length-1];
+    if(!g||g.year!==d.year) groups.push({year:d.year,start:i,end:i});
+    else g.end=i;
+  });
+  var yearLabels='';
+  groups.forEach(function(g){
+    var cx=(x(g.start)+x(g.end)+barW)/2;
+    yearLabels+='<text x="'+cx+'" y="'+(H-6)+'" text-anchor="middle" font-size="8.5" fill="#94A3B8">'+g.year+'</text>';
+  });
+  var line=volShowRejected?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#F87171" stroke-width="2"/>':'';
+
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+Math.max(W,300)+'" height="'+H+'" style="display:block;">'
+    +bars+yearMarks+line+markers+labels+yearLabels
+    +'</svg>';
+  el.innerHTML='<div style="overflow-x:auto;">'+svg+'</div>';
 }
 
 
@@ -984,7 +1065,7 @@ function renderCustChart(){
 function renderAll(){
   renderKPI();
   renderDonut();
-  renderCustChart();
+  renderVolumeChart();
   page=1; expandedId=null;
   renderTable();
 }
@@ -1228,7 +1309,6 @@ function renderTable(){
   document.getElementById("resultCount").textContent="Showing "+Math.min(total,PAGE_SIZE*(page))+" of "+total+" deliveries";
   document.getElementById("chipAll").textContent=getActiveLots().length;
   document.getElementById("chipClear").style.display=filterStatus!=="all"?"inline-flex":"none";
-  document.getElementById("clearCust").style.display=(chartFilter.type==="shipTo"||chartFilter.type==="soldToParty")?"inline-flex":"none";
 
   // chart filter pill
   var pillHtml='';
