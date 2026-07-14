@@ -34,7 +34,11 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .tb-tag{font-size:.58rem;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:20px;background:#EFF6FF;color:var(--navy);white-space:nowrap;}
 .tb-right{display:flex;align-items:center;gap:16px;font-size:.66rem;color:var(--t3);flex-shrink:1;min-width:0;white-space:nowrap;}
 .tb-right span{white-space:nowrap;}
-.hamburger-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;margin-left:8px;color:var(--navy);flex-shrink:0;}
+.hamburger-btn{display:none;align-items:center;justify-content:center;width:40px;height:40px;background:#fff;border:1px solid var(--b);border-radius:50%;cursor:pointer;color:var(--navy);flex-shrink:0;margin-left:8px;transition:background .15s;}
+.hamburger-btn:hover{background:var(--s3);}
+.hamburger-btn .hb-close{display:none;}
+.hamburger-btn.open .hb-open{display:none;}
+.hamburger-btn.open .hb-close{display:block;}
 .tb-right .ldot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10B981;margin-right:5px;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
@@ -70,6 +74,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 /* ── CHARTS ROW ── */
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.charts-row.ops-split{grid-template-columns:0.7fr 1.3fr;}
 .chart-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--sh);min-width:0;overflow:hidden;}
 .chart-title{font-size:.66rem;font-weight:700;color:var(--t);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .chart-title span{font-size:.58rem;color:var(--t3);font-weight:500;}
@@ -80,8 +85,8 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .donut-legend{display:flex;flex-direction:column;gap:10px;flex:0 1 auto;width:220px;max-width:100%;}
 .dl-item{display:flex;align-items:center;gap:8px;font-size:.66rem;}
 .dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.dl-label{color:var(--t2);flex:1;}
-.dl-val{font-family:var(--mono);font-weight:600;color:var(--t);}
+.dl-label{color:var(--t2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dl-val{font-family:var(--mono);font-weight:600;color:var(--t);flex-shrink:0;white-space:nowrap;margin-left:auto;padding-left:6px;}
 
 /* Horizontal bars */
 .hbar-list{display:flex;flex-direction:column;gap:6px;}
@@ -306,6 +311,13 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .fp-btn{padding:6px 14px;font-size:.68rem;font-weight:600;border:1px solid var(--b2);border-radius:var(--r);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .12s;font-family:var(--font);}
 .fp-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
 .fp-count{font-size:.65rem;color:var(--t3);white-space:nowrap;margin-left:4px;}
+.kiln-toggle-wrap{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;}
+.info-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;background:none;border:none;padding:2px;cursor:pointer;color:var(--t3);line-height:0;}
+.info-btn:hover{color:var(--navy);}
+.info-tip{display:none;position:fixed;width:230px;max-width:calc(100vw - 24px);background:var(--navy);color:#fff;font-size:.66rem;font-weight:500;line-height:1.5;text-align:left;padding:10px 12px;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,.25);z-index:300;white-space:normal;}
+.info-tip.show{display:block;}
+.info-tip code{background:rgba(255,255,255,.18);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:.62rem;}
+.info-tip b{color:#fff;}
 .export-wrap{position:relative;display:inline-block;}
 .export-menu{display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--s);border:1px solid var(--b);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:60;min-width:110px;overflow:hidden;}
 .export-menu.open{display:block;}
@@ -348,18 +360,15 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 
 
 /* ── RESPONSIVE ── */
-@media(max-width:1100px){.charts-row{grid-template-columns:1fr 1fr;}}
+@media(max-width:1100px){.charts-row,.charts-row.ops-split{grid-template-columns:1fr 1fr;}}
 
-@media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row{grid-template-columns:1fr;}.page{padding:16px 16px 48px;}.fp-flow-track{overflow-x:auto;}.fp-flow-nodes{min-width:600px;}.fp-flow-line{display:none;}}
-@media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}.dfs{padding:8px 16px;}
+@media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row,.charts-row.ops-split{grid-template-columns:1fr;}.page{padding:16px 16px 48px;}.fp-flow-track{overflow-x:auto;}.fp-flow-nodes{min-width:600px;}.fp-flow-line{display:none;}}
+@media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;z-index:206;}.tb-logo img{height:36px !important;}.dfs{padding:8px 16px;}
   .hamburger-btn{display:flex;align-items:center;justify-content:center;}
-  .tab-nav{display:none;flex-direction:column;padding:6px 0;gap:2px;}
-  .tab-nav.mobile-open{display:flex;}
-  .tab-btn{width:100%;justify-content:flex-start;padding:12px 20px;border-bottom:none;border-left:3px solid transparent;margin-bottom:0;}
-  .tab-btn.active{border-left-color:var(--navy);background:var(--s3);}
+  .nav-backdrop.open{display:block;}
 }
 @media(max-width:640px){.spop,.spop.wide{width:min(92vw,340px);}.spop-grid{grid-template-columns:1fr;}}
-@media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}.tab-nav{padding:0 12px;}.tab-btn{padding:10px 14px;}}
+@media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}}
 @media(max-width:480px){.page{padding:12px 10px 40px;}.kpi-val{font-size:1.5rem;}.kpi{padding:12px 14px;overflow:hidden;}.kpi-label{font-size:.56rem;}.search-wrap{min-width:0;}.lots-toolbar-right{margin-left:0;}
   .topbar{height:auto;min-height:56px;padding:8px 14px;}
   .tb-right{font-size:.6rem;gap:8px;}
@@ -376,18 +385,28 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
   #fpCustSearch{width:100% !important;box-sizing:border-box;}
   .fp-toolbar select#fpStatusSel{flex:1 1 46%;min-width:0;}
   .fp-toolbar input[type=date]{flex:1 1 40%;min-width:0;box-sizing:border-box;}
-  .dl-item{flex-wrap:wrap;}
-  .dl-label{min-width:0;}
   .vol-title{flex-wrap:wrap;row-gap:8px;}
   .vol-controls{width:100%;justify-content:space-between;flex-wrap:wrap;row-gap:6px;}
 }
 
 /* ── TAB NAV ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--b);display:flex;padding:0 28px;gap:0;position:sticky;top:68px;z-index:190;}
+.nav-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.14);z-index:208;}
 .tab-btn{padding:10px 22px;font-size:.68rem;font-weight:700;letter-spacing:.04em;border:none;background:none;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;font-family:var(--font);display:flex;align-items:center;gap:7px;}
 .tab-btn:hover{color:var(--t);}
 .tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);}
 .tab-btn svg{flex-shrink:0;}
+/* Mobile nav dropdown card — placed after the base .tab-nav rules above so these
+   win on equal specificity (the shared media-query block up top sits BEFORE these
+   defs). Styled as a rounded card that drops down from under the topbar. */
+@media(max-width:700px){
+  .tab-nav{position:fixed;top:64px;left:14px;right:14px;bottom:auto;flex-direction:column;padding:8px;gap:2px;background:#fff;border:1px solid var(--b);border-radius:16px;box-shadow:0 16px 40px rgba(15,23,42,.16);z-index:210;opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .18s ease,transform .18s ease,visibility .18s;}
+  .tab-nav.mobile-open{opacity:1;visibility:visible;transform:translateY(0);}
+  .tab-btn{width:100%;justify-content:flex-start;gap:12px;padding:15px 16px;font-size:.82rem;font-weight:600;color:var(--t);border:none;border-bottom:none;border-radius:10px;margin-bottom:0;letter-spacing:0;}
+  .tab-btn svg{width:16px;height:16px;}
+  .tab-btn:hover{background:var(--s3);color:var(--t);}
+  .tab-btn.active{border-bottom-color:transparent;background:var(--s3);color:var(--navy);}
+}
 
 /* ── CUSTOMER TAB ── */
 #tab-customer{display:none;min-height:calc(100vh - 68px - 41px);}
@@ -548,11 +567,13 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
     <span id="clock">—</span>
   </div>
   <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav()" aria-label="Menu">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <svg class="hb-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <svg class="hb-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   </button>
 </div>
 
 <!-- TAB NAV -->
+<div class="nav-backdrop" id="navBackdrop" onclick="closeMobileNav()"></div>
 <div class="tab-nav" id="tabNav">
   <button class="tab-btn active" id="tabOpsBtn" onclick="switchTab('ops')">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -579,7 +600,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
   <div class="kpi-row" id="kpiRow"></div>
 
   <!-- CHARTS ROW -->
-  <div class="charts-row" style="grid-template-columns:0.7fr 1.3fr;">
+  <div class="charts-row ops-split">
     <div class="chart-card">
       <div class="chart-title">Status Distribution <span>% of total</span></div>
       <div class="donut-wrap" id="donutWrap"></div>
@@ -620,7 +641,13 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <input type="date" id="fpDateFrom" onchange="fpApplyFilters()"/>
       <span class="fp-toolbar-sep">to</span>
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
-      <button id="kilnToggleBtn" onclick="toggleKilnSearch()" style="flex-shrink:0;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;">Batch only</button>
+      <span class="kiln-toggle-wrap">
+        <button id="kilnToggleBtn" onclick="toggleKilnSearch()" style="flex-shrink:0;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;">Batch only</button>
+        <button class="info-btn" type="button" aria-label="อธิบายปุ่มนี้" onclick="toggleInfoTip(event,this)" onmouseenter="showInfoTip(this)" onmouseleave="hideInfoTip(this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke-width="1.5"/></svg>
+          <span class="info-tip">When on, search also matches <b>Kiln Batch</b> codes (e.g. <code>43SF06226</code>).</span>
+        </button>
+      </span>
       <div class="export-wrap">
         <button class="fp-btn" onclick="toggleExportMenu(event,this)">↓ Export</button>
         <div class="export-menu">
@@ -1025,14 +1052,17 @@ function renderVolumeChart(){
   var n=data.length;
   var barW=42, gap=20, padL=8, padR=8, padT=26, padB=36;
   var containerW=el.clientWidth||0;
-  var naturalW=padL+padR+n*barW+(n-1)*gap;
-  if(containerW>naturalW && n>0){
-    var avail=containerW-padL-padR;
+  if(containerW>0 && n>0){
+    // Fit bars to the container in both directions (grow on desktop, shrink on
+    // mobile). Below the 20px floor it stops shrinking and scrolls instead.
     var gapRatio=gap/barW;
+    var avail=containerW-padL-padR;
     var idealBarW=avail/(n+(n-1)*gapRatio);
-    barW=Math.min(Math.max(idealBarW,28),100);
+    barW=Math.min(Math.max(idealBarW,20),100);
     gap=barW*gapRatio;
   }
+  var valFont=barW<30?8:9.5;
+  var lblFont=barW<26?8:9;
   var chartW=n*(barW+gap)-gap;
   var W=padL+chartW+padR, H=210;
   var chartH=H-padT-padB;
@@ -1046,8 +1076,8 @@ function renderVolumeChart(){
   data.forEach(function(d,i){
     var bx=x(i), bh=(d.weight/maxW*chartH), by=padT+chartH-bh;
     bars+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="3" fill="#2E5372"/>';
-    labels+='<text x="'+(bx+barW/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="9.5" fill="#475569" font-weight="600">'+d.weight.toLocaleString()+'</text>';
-    labels+='<text x="'+(bx+barW/2)+'" y="'+(H-padB+15)+'" text-anchor="middle" font-size="9" fill="#64748B">'+d.label+'</text>';
+    labels+='<text x="'+(bx+barW/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="'+valFont+'" fill="#475569" font-weight="600">'+d.weight.toLocaleString()+'</text>';
+    labels+='<text x="'+(bx+barW/2)+'" y="'+(H-padB+15)+'" text-anchor="middle" font-size="'+lblFont+'" fill="#64748B">'+d.label+'</text>';
     if(volShowRejected){
       var cx=bx+barW/2, cy=yR(d.rejected);
       pts.push(cx+','+cy);
@@ -1672,6 +1702,44 @@ function closeExportMenus(){
 }
 document.addEventListener('click', closeExportMenus);
 
+function showInfoTip(btn){
+  var tip=btn.querySelector('.info-tip');
+  if(!tip) return;
+  tip.classList.add('show');
+  var br=btn.getBoundingClientRect();
+  var tw=tip.offsetWidth, th=tip.offsetHeight;
+  // Right-align to the icon, then clamp within the viewport (12px margins).
+  var left=br.right-tw;
+  left=Math.max(12,Math.min(left,window.innerWidth-tw-12));
+  var top=br.bottom+8;
+  if(top+th>window.innerHeight-8) top=br.top-th-8; // flip above if no room below
+  tip.style.left=left+'px';
+  tip.style.top=top+'px';
+}
+function hideInfoTip(btn){
+  var tip=btn.querySelector('.info-tip');
+  if(tip) tip.classList.remove('show');
+}
+function toggleInfoTip(e,btn){
+  e.stopPropagation();
+  var tip=btn.querySelector('.info-tip');
+  var wasOpen=tip&&tip.classList.contains('show');
+  document.querySelectorAll('.info-tip.show').forEach(function(t){ t.classList.remove('show'); });
+  if(!wasOpen) showInfoTip(btn);
+}
+document.addEventListener('click', function(){
+  document.querySelectorAll('.info-tip.show').forEach(function(t){ t.classList.remove('show'); });
+});
+
+// Re-fit the volume chart's bars when the viewport changes (rotation, resize).
+var _volResizeTimer=null;
+window.addEventListener('resize', function(){
+  clearTimeout(_volResizeTimer);
+  _volResizeTimer=setTimeout(function(){
+    if(LOTS.length && document.getElementById('tab-ops').style.display!=='none') renderVolumeChart();
+  },150);
+});
+
 function csvEscape(v){
   v=(v===null||v===undefined)?'':String(v);
   if(/[",\n]/.test(v)) v='"'+v.replace(/"/g,'""')+'"';
@@ -2172,10 +2240,21 @@ function switchTab(tab){
   document.getElementById('tabOpsBtn').classList.toggle('active',isOps);
   document.getElementById('tabCustBtn').classList.toggle('active',!isOps);
   if(!isOps && !custInitDone) custInit();
-  document.getElementById('tabNav').classList.remove('mobile-open');
+  closeMobileNav();
 }
 function toggleMobileNav(){
-  document.getElementById('tabNav').classList.toggle('mobile-open');
+  var nav=document.getElementById('tabNav');
+  if(nav.classList.contains('mobile-open')){ closeMobileNav(); return; }
+  var tb=document.querySelector('.topbar');
+  nav.style.top=((tb?tb.offsetHeight:64)-4)+'px';
+  nav.classList.add('mobile-open');
+  document.getElementById('navBackdrop').classList.add('open');
+  document.getElementById('hamburgerBtn').classList.add('open');
+}
+function closeMobileNav(){
+  document.getElementById('tabNav').classList.remove('mobile-open');
+  document.getElementById('navBackdrop').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('open');
 }
 
 /* ═══════════════════════════════
