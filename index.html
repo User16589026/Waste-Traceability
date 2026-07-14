@@ -643,7 +643,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <input type="date" id="fpDateTo" onchange="fpApplyFilters()"/>
       <span class="kiln-toggle-wrap">
         <button id="kilnToggleBtn" onclick="toggleKilnSearch()" style="flex-shrink:0;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--b2);background:var(--s);color:var(--t2);cursor:pointer;white-space:nowrap;">Batch only</button>
-        <button class="info-btn" type="button" aria-label="อธิบายปุ่มนี้" onclick="toggleInfoTip(event,this)" onmouseenter="showInfoTip(this)" onmouseleave="hideInfoTip(this)">
+        <button class="info-btn" type="button" aria-label="อธิบายปุ่มนี้" onclick="toggleInfoTip(event,this)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke-width="1.5"/></svg>
           <span class="info-tip">When on, search also matches <b>Kiln Batch</b> codes (e.g. <code>43SF06226</code>).</span>
         </button>
@@ -1730,6 +1730,20 @@ function toggleInfoTip(e,btn){
 document.addEventListener('click', function(){
   document.querySelectorAll('.info-tip.show').forEach(function(t){ t.classList.remove('show'); });
 });
+// Close on scroll — the tip is position:fixed so it won't follow the button if
+// the page scrolls, which would otherwise leave it floating over unrelated content.
+window.addEventListener('scroll', function(){
+  document.querySelectorAll('.info-tip.show').forEach(function(t){ t.classList.remove('show'); });
+}, true);
+// Hover-to-show is only wired up on devices with a real mouse. On touch devices,
+// hover/click firing together (touch synthesizes mouse events) is what made the
+// tooltip feel "stuck" — tap-to-toggle alone is the reliable interaction there.
+if(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+  document.querySelectorAll('.info-btn').forEach(function(btn){
+    btn.addEventListener('mouseenter', function(){ showInfoTip(btn); });
+    btn.addEventListener('mouseleave', function(){ hideInfoTip(btn); });
+  });
+}
 
 // Re-fit the volume chart's bars when the viewport changes (rotation, resize).
 var _volResizeTimer=null;
