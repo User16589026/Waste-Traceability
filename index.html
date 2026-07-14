@@ -34,6 +34,7 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 .tb-tag{font-size:.58rem;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:20px;background:#EFF6FF;color:var(--navy);white-space:nowrap;}
 .tb-right{display:flex;align-items:center;gap:16px;font-size:.66rem;color:var(--t3);flex-shrink:1;min-width:0;white-space:nowrap;}
 .tb-right span{white-space:nowrap;}
+.hamburger-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;margin-left:8px;color:var(--navy);flex-shrink:0;}
 .tb-right .ldot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#10B981;margin-right:5px;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
@@ -350,7 +351,13 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
 @media(max-width:1100px){.charts-row{grid-template-columns:1fr 1fr;}}
 
 @media(max-width:800px){.kpi-row{grid-template-columns:repeat(2,1fr) 0.6fr;}.charts-row{grid-template-columns:1fr;}.page{padding:16px 16px 48px;}.fp-flow-track{overflow-x:auto;}.fp-flow-nodes{min-width:600px;}.fp-flow-line{display:none;}}
-@media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}.dfs{padding:8px 16px;}}
+@media(max-width:700px){#clock{display:none;}.topbar{padding:0 16px;}.tb-logo img{height:36px !important;}.dfs{padding:8px 16px;}
+  .hamburger-btn{display:flex;align-items:center;justify-content:center;}
+  .tab-nav{display:none;flex-direction:column;padding:6px 0;gap:2px;}
+  .tab-nav.mobile-open{display:flex;}
+  .tab-btn{width:100%;justify-content:flex-start;padding:12px 20px;border-bottom:none;border-left:3px solid transparent;margin-bottom:0;}
+  .tab-btn.active{border-left-color:var(--navy);background:var(--s3);}
+}
 @media(max-width:640px){.spop,.spop.wide{width:min(92vw,340px);}.spop-grid{grid-template-columns:1fr;}}
 @media(max-width:560px){.kpi-row{grid-template-columns:1fr 1fr;}.tb-tag{display:none;}#lotCount{display:none;}.tab-nav{padding:0 12px;}.tab-btn{padding:10px 14px;}}
 @media(max-width:480px){.page{padding:12px 10px 40px;}.kpi-val{font-size:1.5rem;}.kpi{padding:12px 14px;overflow:hidden;}.kpi-label{font-size:.56rem;}.search-wrap{min-width:0;}.lots-toolbar-right{margin-left:0;}
@@ -368,7 +375,12 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
   #custDropWrap{flex:1 1 46%;}
   #fpCustSearch{width:100% !important;box-sizing:border-box;}
   .fp-toolbar select#fpStatusSel{flex:1 1 46%;min-width:0;}
-  .fp-toolbar input[type=date]{flex:1 1 40%;min-width:0;box-sizing:border-box;}}
+  .fp-toolbar input[type=date]{flex:1 1 40%;min-width:0;box-sizing:border-box;}
+  .dl-item{flex-wrap:wrap;}
+  .dl-label{min-width:0;}
+  .vol-title{flex-wrap:wrap;row-gap:8px;}
+  .vol-controls{width:100%;justify-content:space-between;flex-wrap:wrap;row-gap:6px;}
+}
 
 /* ── TAB NAV ── */
 .tab-nav{background:#fff;border-bottom:1px solid var(--b);display:flex;padding:0 28px;gap:0;position:sticky;top:68px;z-index:190;}
@@ -535,10 +547,13 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
     <span id="lotCount">—</span>
     <span id="clock">—</span>
   </div>
+  <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileNav()" aria-label="Menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <!-- TAB NAV -->
-<div class="tab-nav">
+<div class="tab-nav" id="tabNav">
   <button class="tab-btn active" id="tabOpsBtn" onclick="switchTab('ops')">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     Ops Dashboard
@@ -570,10 +585,10 @@ body{font-family:var(--font);background:var(--s3);color:var(--t);line-height:1.5
       <div class="donut-wrap" id="donutWrap"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Monthly Weight In Volume
-        <span style="display:flex;align-items:center;gap:10px;font-weight:600;color:var(--t3);">
+      <div class="chart-title vol-title">Monthly Weight In Volume
+        <span class="vol-controls" style="display:flex;align-items:center;gap:10px;font-weight:600;color:var(--t3);">
           <select id="volYearSel" onchange="setVolYear(this.value)" style="font-size:.66rem;font-weight:600;padding:3px 6px;border:1px solid var(--b2);border-radius:6px;background:var(--s);color:var(--t2);cursor:pointer;font-family:var(--font);"><option value="all">All Years</option></select>
-          <span onclick="toggleVolReject()" title="Click to toggle Rejected line" style="cursor:pointer;user-select:none;"><span style="color:#2E5372;">●</span> Net Weight (t) &nbsp; <span id="volRejLegend" style="color:#94A3B8;">— Rejected</span></span>
+          <span onclick="toggleVolReject()" title="Click to toggle Rejected line" style="cursor:pointer;user-select:none;white-space:nowrap;"><span style="color:#2E5372;">●</span> Net Weight (t) &nbsp; <span id="volRejLegend" style="color:#94A3B8;">— Rejected</span></span>
         </span>
       </div>
       <div id="volumeChart"></div>
@@ -2157,6 +2172,10 @@ function switchTab(tab){
   document.getElementById('tabOpsBtn').classList.toggle('active',isOps);
   document.getElementById('tabCustBtn').classList.toggle('active',!isOps);
   if(!isOps && !custInitDone) custInit();
+  document.getElementById('tabNav').classList.remove('mobile-open');
+}
+function toggleMobileNav(){
+  document.getElementById('tabNav').classList.toggle('mobile-open');
 }
 
 /* ═══════════════════════════════
