@@ -1300,6 +1300,10 @@ function getSorted(arr){
     if(sortCol==="batchName"){va=a.batchName||"";vb=b.batchName||"";}
     else{va=a[sortCol]||"";vb=b[sortCol]||"";}
     if(sortCol==="weight"){va=+va;vb=+vb;}
+    else if(sortCol==="submitted"){
+      var da=parseDate(a.submitted),db=parseDate(b.submitted);
+      va=da?da.getTime():-Infinity; vb=db?db.getTime():-Infinity;
+    }
     if(va<vb) return -sortDir;
     if(va>vb) return sortDir;
     return 0;
