@@ -1533,28 +1533,20 @@ function goPage(p){page=p;renderTable();}
 /* ═══════════════════════════════
    EXPORT CSV
 ═══════════════════════════════ */
-function cycleDays(l){
-  var wi=parseDate(l.submitted), bd=parseDate(l.blendDate);
-  return (wi&&bd)?Math.round((bd-wi)/86400000):null;
-}
-function sortByCycleTime(lots){
-  // Reports always sort by Cycle Time ascending (fewest days first), regardless
-  // of whatever sort the on-screen table currently has. Rows with no cycle time
-  // (not yet blended) sink to the bottom rather than being treated as 0 days.
-  return lots.slice().sort(function(a,b){
-    var ca=cycleDays(a), cb=cycleDays(b);
-    if(ca===null&&cb===null) return 0;
-    if(ca===null) return 1;
-    if(cb===null) return -1;
-    return ca-cb;
-  });
-}
 async function exportPDF(overrideLots,custName,btnEl){
   var btnOrigText=btnEl?btnEl.textContent:null;
   if(btnEl){ btnEl.disabled=true; btnEl.textContent='Preparing…'; }
   try{
   var lots=overrideLots||getSorted(getFiltered());
-  lots=sortByCycleTime(lots);
+  // Report always sorts by Weight In date ascending (oldest first), regardless
+  // of whatever sort the on-screen table currently has.
+  lots=lots.slice().sort(function(a,b){
+    var da=parseDate(a.submitted),dbb=parseDate(b.submitted);
+    if(!da&&!dbb) return 0;
+    if(!da) return 1;
+    if(!dbb) return -1;
+    return da-dbb;
+  });
   // Fetch detail (wi/wa) for any lots not yet loaded — batched (.in query per
   // chunk of 500) rather than one request per row, since exporting the full
   // unfiltered table can mean 30,000+ rows.
@@ -1776,7 +1768,13 @@ async function exportCSV(overrideLots,custName,btnEl){
   if(btnEl){ btnEl.disabled=true; btnEl.textContent='Preparing…'; }
   try{
   var lots=overrideLots||getSorted(getFiltered());
-  lots=sortByCycleTime(lots);
+  lots=lots.slice().sort(function(a,b){
+    var da=parseDate(a.submitted),dbb=parseDate(b.submitted);
+    if(!da&&!dbb) return 0;
+    if(!da) return 1;
+    if(!dbb) return -1;
+    return da-dbb;
+  });
   if(!lots||lots.length===0){alert('No deliveries to export.');return;}
   await fetchDetailsBatch(lots);
   var headers=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Weight-in'];
