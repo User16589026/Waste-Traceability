@@ -65,7 +65,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .page{max-width:1520px;margin:0 auto;padding:22px 24px 64px;}
 
 /* ── KPI ROW ── */
-.kpi-row{display:grid;grid-template-columns:repeat(3,1fr) 0.6fr;gap:12px;margin-bottom:22px;}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;}
 .kpi{background:var(--s);border:1px solid var(--b);border-radius:var(--r2);padding:18px 20px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;min-width:0;}
 .kpi-label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);margin-bottom:10px;}
 .kpi-val{font-family:var(--display);font-size:2.55rem;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--t);font-variant-numeric:tabular-nums;}
@@ -432,6 +432,25 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 /* ── CUSTOMER TAB ── */
 #tab-customer{display:none;min-height:calc(100vh - 68px - 43px);}
 
+/* ── OFF-SPEC TAB ── */
+#tab-offspec{display:none;min-height:calc(100vh - 68px - 43px);}
+.offspec-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+#offspecTblBody tr{cursor:pointer;}
+#offspecTable{table-layout:fixed;min-width:760px;}
+#offspecTable th:nth-child(1),#offspecTable td:nth-child(1){width:13%;white-space:nowrap;}
+#offspecTable th:nth-child(2),#offspecTable td:nth-child(2){width:11%;white-space:nowrap;}
+#offspecTable th:nth-child(3),#offspecTable td:nth-child(3){width:17%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#offspecTable th:nth-child(4),#offspecTable td:nth-child(4){width:31%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#offspecTable th:nth-child(5),#offspecTable td:nth-child(5){width:14%;white-space:nowrap;}
+#offspecTable th:nth-child(6),#offspecTable td:nth-child(6){width:14%;white-space:nowrap;}
+#offspecTable thead th{cursor:pointer;user-select:none;position:sticky;top:0;}
+#offspecTable thead th.sorted{color:var(--navy2);}
+#offspecTable thead th .sort-icon{margin-left:4px;opacity:.4;font-size:.55rem;}
+#offspecTable thead th.sorted .sort-icon{opacity:1;}
+@media(max-width:640px){
+  #offspecTable th:first-child,#offspecTable td:first-child{position:sticky;left:0;background:var(--s);z-index:1;box-shadow:1px 0 0 var(--b);}
+}
+
 /* customer login */
 #custLogin{display:flex;align-items:stretch;min-height:calc(100vh - 111px);}
 #custLogin.hidden{display:none;}
@@ -575,7 +594,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 }
 @media(max-width:900px){
   .charts-row,.charts-row.ops-split{grid-template-columns:1fr;}
-  .kpi-row{grid-template-columns:1fr 1fr;}
+  .kpi-row{grid-template-columns:1fr;}
   .page{padding:18px 16px 52px;}
 }
 @media(max-width:800px){
@@ -698,6 +717,10 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     Ops Dashboard
   </button>
+  <button class="tab-btn" id="tabOffspecBtn" onclick="switchTab('offspec')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Off-Spec
+  </button>
   <button class="tab-btn" id="tabCustBtn" onclick="switchTab('customer')">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     Customer View
@@ -728,7 +751,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
       <div class="chart-title vol-title">Monthly Weight In Volume
         <span class="vol-controls" style="display:flex;align-items:center;gap:10px;font-weight:600;color:var(--t3);">
           <select id="volYearSel" class="vol-year-sel" onchange="setVolYear(this.value)"><option value="all">All Years</option></select>
-          <span onclick="toggleVolReject()" title="Click to toggle Rejected line" style="cursor:pointer;user-select:none;white-space:nowrap;"><span style="color:#1F5C8F;">●</span> Net Weight (t) &nbsp; <span id="volRejLegend" style="color:#7F91A8;">— Rejected</span></span>
+          <span onclick="toggleVolReject()" title="Click to toggle Off-Spec line" style="cursor:pointer;user-select:none;white-space:nowrap;"><span style="color:#1F5C8F;">●</span> Net Weight (t) &nbsp; <span id="volRejLegend" style="color:#7F91A8;">— Off-Spec</span></span>
         </span>
       </div>
       <div id="volumeChart"></div>
@@ -754,7 +777,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
         <option value="all">All Status</option>
         <option value="in-progress">In Progress</option>
         <option value="completed">Completed</option>
-        <option value="rejected">Rejected</option>
+        <option value="rejected">Off-Spec</option>
       </select>
       <input type="date" id="fpDateFrom" onchange="fpApplyFilters()"/>
       <span class="fp-toolbar-sep">to</span>
@@ -795,7 +818,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
           <button class="chip active" data-f="all">All <span id="chipAll"></span></button>
           <button class="chip c-active" data-f="in-progress">In Progress</button>
           <button class="chip c-done" data-f="completed">Completed</button>
-          <button class="chip c-reject" data-f="rejected">Rejected</button>
+          <button class="chip c-reject" data-f="rejected">Off-Spec</button>
           <button class="chip-clear" id="chipClear" style="display:none" onclick="clearStatusFilter()">✕ Clear</button>
         </div>
 <div class="search-wrap">
@@ -821,6 +844,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
               <th data-col="id">Delivery <span class="sort-icon">↕</span></th>
               <th data-col="batchId">Batch <span class="sort-icon">↕</span></th>
               <th data-col="batchName">Batch Name <span class="sort-icon">↕</span></th>
+              <th data-col="wasteType">Waste Type <span class="sort-icon">↕</span></th>
               <th data-col="shipTo">Ship-to Name <span class="sort-icon">↕</span></th>
               <th data-col="status">Status <span class="sort-icon">↕</span></th>
               <th>Steps</th>
@@ -910,7 +934,6 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
               <button class="cd-chip active" data-f="all">All <span id="custChipAll"></span></button>
               <button class="cd-chip" data-f="completed">Completed</button>
               <button class="cd-chip" data-f="in-progress">In Progress</button>
-              <button class="cd-chip" data-f="rejected">Rejected</button>
             </div>
             <div class="cd-search-wrap">
               <svg class="cd-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg>
@@ -947,6 +970,82 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   </div>
 
 </div><!-- /tab-customer -->
+
+<!-- OFF-SPEC TAB -->
+<div id="tab-offspec">
+  <div class="page">
+    <div class="offspec-kpi-row" id="offspecSummaryRow"></div>
+
+    <div class="charts-row ops-split">
+      <div class="chart-card">
+        <div class="chart-title">Off-Spec Breakdown <span>% of off-spec</span></div>
+        <div class="donut-wrap" id="offspecDonutWrap"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top Ship-to by Off-Spec <span>click to filter</span></div>
+        <div id="offspecTopCustWrap"></div>
+      </div>
+    </div>
+
+    <!-- FP TOOLBAR -->
+    <div class="fp-toolbar">
+      <input type="text" id="offspecSearchInput" placeholder="Search Delivery, Batch ID, Judgement…" oninput="offspecOnFilter()" autocomplete="off"/>
+      <div id="offspecCustDropWrap" style="position:relative;flex-shrink:0;">
+        <input id="offspecCustSearch" class="fp-cust-search" autocomplete="off" placeholder="All Customers"
+          oninput="offspecCustDropFilter()" onfocus="offspecCustDropOpen()" onblur="setTimeout(offspecCustDropClose,150)"/>
+        <div id="offspecCustDropList" class="cust-drop-list" style="display:none;"></div>
+      </div>
+      <select id="offspecStatusSel" onchange="offspecApplyToolbarFilters()">
+        <option value="all">All Status</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+      <input type="date" id="offspecDateFrom" onchange="offspecApplyToolbarFilters()"/>
+      <span class="fp-toolbar-sep">to</span>
+      <input type="date" id="offspecDateTo" onchange="offspecApplyToolbarFilters()"/>
+      <span class="kiln-toggle-wrap">
+        <button id="offspecKilnToggleBtn" class="fp-btn" onclick="offspecToggleKilnSearch()" style="flex-shrink:0;">Batch only</button>
+        <button class="info-btn" type="button" aria-label="อธิบายปุ่มนี้" onclick="toggleInfoTip(event,this)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke-width="1.5"/></svg>
+          <span class="info-tip">When on, search also matches <b>Kiln Batch</b> codes (e.g. <code>43SF06226</code>).</span>
+        </button>
+      </span>
+      <div class="export-wrap">
+        <button class="fp-btn" onclick="toggleExportMenu(event,this)">↓ Export</button>
+        <div class="export-menu">
+          <div class="export-menu-item" onclick="closeExportMenus();offspecExportCSV(exportMenuBtn(this));">CSV</div>
+        </div>
+      </div>
+      <button class="fp-btn" onclick="offspecToolbarReset()">↺ Reset</button>
+      <span class="fp-count" id="offspecResultCount"></span>
+    </div>
+
+    <div class="section">
+      <div class="cd-table-card">
+        <div class="cd-table-toolbar">
+          <span class="cd-table-title">Off-Spec Deliveries</span>
+          <div id="offspecFilterPillWrap"></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="cd-tbl" id="offspecTable">
+            <thead>
+              <tr>
+                <th data-col="id">Delivery <span class="sort-icon">↕</span></th>
+                <th data-col="batchId">Batch <span class="sort-icon">↕</span></th>
+                <th data-col="batchName">Batch Name <span class="sort-icon">↕</span></th>
+                <th data-col="judgement">Judgement <span class="sort-icon">↕</span></th>
+                <th data-col="status">Status <span class="sort-icon">↕</span></th>
+                <th data-col="submitted">Weight In <span class="sort-icon">↕</span></th>
+              </tr>
+            </thead>
+            <tbody id="offspecTblBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="offspecPagination"></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-offspec -->
 
 <!-- STEP POPOVER -->
 <div class="spop-overlay" id="spopOverlay" onclick="closePopover()"></div>
@@ -1036,7 +1135,7 @@ function getDerived(){
     lots: al,
     done: al.filter(function(l){return l.status==='completed';}),
     active: al.filter(function(l){return l.status==='in-progress';}),
-    rejected: al.filter(function(l){return l.status==='rejected';}),
+    rejected: al.filter(function(l){return !!l.rejectType;}),
     totalW: al.reduce(function(s,l){return s+l.weight;},0)
   };
 }
@@ -1062,12 +1161,10 @@ function renderKPI(){
   var total=d.lots.length||1;
   var pD=Math.round(d.done.length/total*100);
   var pA=Math.round(d.active.length/total*100);
-  var pR=(d.rejected.length/total*100).toFixed(1);
   document.getElementById("kpiRow").innerHTML=
     kpiCard("total","TOTAL DELIVERIES",d.lots.length.toLocaleString(),"","","")+
     kpiCard("done","COMPLETED",d.done.length.toLocaleString(),'<span class="pct-badge g">'+pD+'%</span>',"","of total")+
-    kpiCard("active","IN PROGRESS",d.active.length.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>',"","currently active")+
-    kpiCardSmall("reject","REJECTED",d.rejected.length,pR+'%');
+    kpiCard("active","IN PROGRESS",d.active.length.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>',"","currently active");
 }
 function kpiCard(cls,label,val,badge,_,sub){
   var stMap={done:'completed',active:'in-progress',total:'all'};
@@ -1075,14 +1172,6 @@ function kpiCard(cls,label,val,badge,_,sub){
   var sel=st&&filterStatus===st?' sel':'';
   var click=st?'onclick="setStatusFilter(\''+st+'\')"':'';
   return '<div class="kpi '+cls+sel+'" '+click+'><div class="kpi-label">'+label+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+badge+(sub?'<span>'+sub+'</span>':'')+'</div></div>';
-}
-function kpiCardSmall(cls,label,val,pct){
-  var sel=filterStatus==='rejected'?' sel':'';
-  return '<div class="kpi '+cls+sel+'" onclick="setStatusFilter(\'rejected\')" style="display:flex;flex-direction:column;justify-content:center;padding:14px 16px;">'
-    +'<div class="kpi-label" style="margin-bottom:4px;">'+label+'</div>'
-    +'<div style="font-family:var(--display);font-size:1.5rem;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--t);font-variant-numeric:tabular-nums;">'+val+'</div>'
-    +'<div class="kpi-sub" style="margin-top:5px;"><span class="pct-badge r">'+pct+'</span></div>'
-    +'</div>';
 }
 
 
@@ -1092,23 +1181,22 @@ function kpiCardSmall(cls,label,val,pct){
 function renderDonut(){
   var dv=getDerived();
   var total=dv.lots.length||1;
-  var d=dv.done.length, a=dv.active.length, r=dv.rejected.length;
-  var pD=d/total,pA=a/total,pR=r/total;
+  var d=dv.done.length, a=dv.active.length;
+  var pD=d/total,pA=a/total;
   var R=50,cx=60,cy=60,circ=2*Math.PI*R;
-  var offD=0,offA=pD*circ,offR=(pD+pA)*circ;
+  var offD=0,offA=pD*circ;
   function arc(pct,offset,color){
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="18" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
   }
   var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'+
     '<circle cx="60" cy="60" r="50" fill="none" stroke="#EFF3F8" stroke-width="18"/>'+
-    arc(pD,offD,"#0E8A62")+arc(pA,offA,"#C77B0E")+arc(pR,offR,"#D93444")+
+    arc(pD,offD,"#0E8A62")+arc(pA,offA,"#C77B0E")+
     '<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#101C2C">'+total+'</text>'+
     '<text x="60" y="70" text-anchor="middle" font-size="8.5" fill="#7F91A8">LOTS</text>'+
     '</svg>';
   var legend='<div class="donut-legend">'+
     dlItem("#0E8A62","Completed",d,Math.round(pD*100)+"%","completed")+
     dlItem("#C77B0E","In Progress",a,Math.round(pA*100)+"%","in-progress")+
-    dlItem("#D93444","Rejected",r,Math.round(pR*100)+"%","rejected")+
     '</div>';
   document.getElementById("donutWrap").innerHTML=svg+legend;
 }
@@ -1157,7 +1245,7 @@ function renderVolumeChart(){
     var k=monthKey(d);
     if(!map[k]) map[k]={weight:0,rejected:0,year:d.getFullYear(),month:d.getMonth()};
     map[k].weight+=l.weight||0;
-    if(l.status==='rejected') map[k].rejected++;
+    if(l.rejectType) map[k].rejected++;
   });
   var keys=Object.keys(map).sort();
   var el=document.getElementById('volumeChart');
@@ -1396,7 +1484,8 @@ function fpRenderFlow(filtered){
 
 function getFiltered(){
   return getActiveLots().filter(function(l){
-    if(filterStatus!=="all"&&l.status!==filterStatus) return false;
+    if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
+    else if(filterStatus!=="all"&&l.status!==filterStatus) return false;
     if(fpCust!=='all'&&l.shipTo!==fpCust) return false;
     if(fpDFrom&&l.submitted&&l.submitted<fpDFrom) return false;
     if(fpDTo&&l.submitted&&l.submitted>fpDTo) return false;
@@ -1404,7 +1493,7 @@ function getFiltered(){
     if(chartFilter.type==='soldToParty'&&l.soldToParty!==chartFilter.value) return false;
     if(searchTerm){
       var bname=l.batchName||'';
-      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+bname).toLowerCase();
+      var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+bname+" "+(l.wasteType||"")).toLowerCase();
       if(h.indexOf(searchTerm)<0) return false;
     }
     return true;
@@ -1497,7 +1586,7 @@ function renderTable(){
 
   var html="";
   if(slice.length===0){
-    html='<tr><td colspan="9"><div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg><p>No deliveries match current filters.</p></div></td></tr>';
+    html='<tr><td colspan="10"><div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg><p>No deliveries match current filters.</p></div></td></tr>';
   } else {
     slice.forEach(function(l){
       html+=renderRow(l,false);
@@ -1528,6 +1617,7 @@ function renderRow(l,isExp){
     +'<td style="font-size:.72rem;color:var(--t3);font-family:var(--mono);">'+l.id+'</td>'
     +'<td style="font-size:.72rem;font-family:var(--mono);">'+l.batchId+'</td>'
     +'<td><strong style="font-weight:600;font-size:.78rem;color:var(--t);">'+batchName+'</strong></td>'
+    +'<td class="t2" title="'+(l.wasteType||'')+'">'+(l.wasteType||'—')+'</td>'
     +'<td class="t2">'+l.shipTo+'</td>'
     +'<td>'+badge+'</td>'
     +'<td><div class="dots7">'+dots+'</div></td>'
@@ -1538,30 +1628,28 @@ function renderRow(l,isExp){
 }
 
 function buildDots(l){
-  var isDone=l.status==="completed",isRej=l.status==="rejected";
-  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
+  var isDone=l.status==="completed";
+  var stepsDone=isDone?7:l.currentStep;
   return STEPS.map(function(_,i){
     var cls="pe";
-    if(isRej&&i===l.rejectedStep) cls="rj";
-    else if(i<stepsDone&&stepHasDate(l,i)) cls="dn";
-    else if(!isRej&&!isDone&&i===stepsDone) cls="cu";
-    var clickable=(cls==="dn"||cls==="cu"||cls==="rj");
+    if(i<stepsDone&&stepHasDate(l,i)) cls="dn";
+    else if(!isDone&&i===stepsDone) cls="cu";
+    var clickable=(cls==="dn"||cls==="cu");
     return '<button class="dot7 '+cls+'" data-lid="'+l.id+'" data-si="'+i+'" title="'+(i+1)+'. '+STEPS[i]+'"'+(clickable?' onclick="onDotClick(event,this)"':'')+'></button>';
   }).join("");
 }
 
 function buildBadge(st){
   if(st==="completed") return '<span class="badge bd-done">Complete</span>';
-  if(st==="in-progress") return '<span class="badge bd-act">In Progress</span>';
-  return '<span class="badge bd-rej">Rejected</span>';
+  return '<span class="badge bd-act">In Progress</span>';
 }
 
 function renderDetailRow(l){
-  var isDone=l.status==="completed",isRej=l.status==="rejected";
-  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
-  var iconCls=isDone?'dn':isRej?'rj':'cu';
-  var iconEmoji=isDone?'✓':isRej?'✕':'●';
-  var statusLabel=isDone?'Complete':isRej?'Rejected':'In Progress';
+  var isDone=l.status==="completed",isRej=!!l.rejectType;
+  var stepsDone=isDone?7:l.currentStep;
+  var iconCls=isDone?'dn':'cu';
+  var iconEmoji=isDone?'✓':'●';
+  var statusLabel=isDone?'Complete':'In Progress';
   var batchName=l.batchName||'—';
 
   var descHtml='';
@@ -1574,8 +1662,8 @@ function renderDetailRow(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':isRej?'red':'amber')+'">'+statusLabel+'</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':isRej?l.rejectedStep:l.currentStep)+' / 7</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':l.currentStep)+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
     +'<div class="bs-fields">'
@@ -1583,6 +1671,7 @@ function renderDetailRow(l){
     +'<div class="bs-field"><span class="bs-fkey">Sold-to ID</span><span class="bs-fval">'+(l.soldToParty||'—')+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+(l.wasteType||'—')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
@@ -1599,17 +1688,16 @@ function renderDetailRow(l){
   var tlHtml='<div class="bs-timeline-title">Traceability Progress</div><div class="bs-timeline">';
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
-    if(isRej&&i===l.rejectedStep){tlCls="tl-rj";dotChar="✕";}
-    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
-    else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
+    if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
+    else if(!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
       var sd=stepData.date, wiD=l.submitted;
       var sdParsed=parseDate(sd), wiParsed=parseDate(wiD);
       dateTxt=(sdParsed&&wiParsed&&sdParsed<wiParsed)?'—':sd;
-      dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
+      dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':'';
     }
-    var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
+    var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu");
     tlHtml+='<div class="bs-tl-row '+tlCls+'">'
       +(clickable
         ?'<button class="bs-tl-dot '+tlCls+'" data-lid="'+l.id+'" data-si="'+i+'" onclick="onDotClick(event,this)">'+dotChar+'</button>'
@@ -1649,6 +1737,256 @@ function renderPagination(total,pages){
 function goPage(p){page=p;renderTable();}
 
 /* ═══════════════════════════════
+   OFF-SPEC DETAIL TAB
+═══════════════════════════════ */
+var OFFSPEC_PAGE_SIZE=15;
+var offspecPage=1, offspecSearch='', offspecTypeFilter=null;
+var offspecSortCol=null, offspecSortDir=1;
+var offspecCust='all', offspecStatus='all', offspecDateFrom='', offspecDateTo='', offspecIncludeKiln=false;
+var _offspecCustList=[];
+var OFFSPEC_COLORS=["#D93444","#C77B0E","#5B54C4","#1F5C8F","#0E8A62","#B85450"];
+
+function offspecOnFilter(){
+  offspecSearch=document.getElementById('offspecSearchInput').value.trim().toLowerCase();
+  offspecPage=1;
+  renderOffspec();
+}
+function offspecGoPage(p){ offspecPage=p; renderOffspec(); }
+
+/* ── FP TOOLBAR (customer/status/date/kiln) ── */
+function offspecGetFiltered(all){
+  return all.filter(function(l){
+    if(offspecTypeFilter && l.rejectType!==offspecTypeFilter) return false;
+    if(offspecCust!=='all' && l.shipTo!==offspecCust) return false;
+    if(offspecStatus!=='all' && l.status!==offspecStatus) return false;
+    var df=parseDate(offspecDateFrom), dt=parseDate(offspecDateTo), ds=parseDate(l.submitted);
+    if(df && ds && ds<df) return false;
+    if(dt && ds && ds>dt) return false;
+    if(offspecSearch){
+      var h=(l.id+' '+l.batchId+' '+(l.batchName||'')+' '+(l.rejectedReason||'')+' '+(l.shipTo||'')+' '+(offspecIncludeKiln?(l.kilnBatchId||''):'')).toLowerCase();
+      if(h.indexOf(offspecSearch)<0) return false;
+    }
+    return true;
+  });
+}
+function offspecCustDropOpen(){ offspecCustDropFilter(); document.getElementById('offspecCustDropList').style.display='block'; }
+function offspecCustDropClose(){ document.getElementById('offspecCustDropList').style.display='none'; }
+function offspecCustDropFilter(){
+  var q=document.getElementById('offspecCustSearch').value.toLowerCase();
+  var items=q?_offspecCustList.filter(function(c){return c.toLowerCase().indexOf(q)>=0;}):_offspecCustList;
+  var html='<div style="padding:7px 12px;cursor:pointer;color:var(--t2);" onmousedown="offspecCustDropSelect(\'all\')">All Customers</div>';
+  items.forEach(function(c){
+    html+='<div style="padding:7px 12px;cursor:pointer;border-top:1px solid var(--b);" onmousedown="offspecCustDropSelect(\''+c.replace(/'/g,"\\'")+'\')" title="'+c+'">'+c+'</div>';
+  });
+  document.getElementById('offspecCustDropList').innerHTML=html;
+}
+function offspecCustDropSelect(val){
+  offspecCust=val;
+  document.getElementById('offspecCustSearch').value=val==='all'?'':val;
+  document.getElementById('offspecCustDropList').style.display='none';
+  offspecPage=1; renderOffspec();
+}
+function offspecApplyToolbarFilters(){
+  offspecStatus=document.getElementById('offspecStatusSel').value;
+  offspecDateFrom=document.getElementById('offspecDateFrom').value;
+  offspecDateTo=document.getElementById('offspecDateTo').value;
+  offspecPage=1; renderOffspec();
+}
+function offspecToggleKilnSearch(){
+  offspecIncludeKiln=!offspecIncludeKiln;
+  var btn=document.getElementById('offspecKilnToggleBtn');
+  btn.textContent=offspecIncludeKiln?'Batch + Kiln':'Batch only';
+  btn.style.background=offspecIncludeKiln?'var(--navy)':'var(--s)';
+  btn.style.color=offspecIncludeKiln?'#fff':'var(--t2)';
+  btn.style.borderColor=offspecIncludeKiln?'var(--navy)':'var(--b2)';
+  offspecPage=1; renderOffspec();
+}
+function offspecToolbarReset(){
+  document.getElementById('offspecSearchInput').value='';
+  document.getElementById('offspecCustSearch').value='';
+  document.getElementById('offspecStatusSel').value='all';
+  document.getElementById('offspecDateFrom').value='';
+  document.getElementById('offspecDateTo').value='';
+  offspecCust='all'; offspecStatus='all'; offspecDateFrom=''; offspecDateTo='';
+  offspecSearch=''; offspecTypeFilter=null;
+  offspecPage=1; renderOffspec();
+}
+function offspecExportCSV(btnEl){
+  var all=getDerived().rejected;
+  exportCSV(getSortedOffspec(offspecGetFiltered(all)),null,btnEl);
+}
+function getSortedOffspec(arr){
+  if(!offspecSortCol) return arr;
+  return arr.slice().sort(function(a,b){
+    var va,vb;
+    if(offspecSortCol==='judgement'){va=a.rejectedReason||a.rejectType||'';vb=b.rejectedReason||b.rejectType||'';}
+    else if(offspecSortCol==='submitted'){
+      var da=parseDate(a.submitted),db=parseDate(b.submitted);
+      va=da?da.getTime():-Infinity; vb=db?db.getTime():-Infinity;
+    }
+    else{va=a[offspecSortCol]||'';vb=b[offspecSortCol]||'';}
+    if(va<vb) return -offspecSortDir;
+    if(va>vb) return offspecSortDir;
+    return 0;
+  });
+}
+document.getElementById('offspecTable').querySelector('thead').addEventListener('click',function(e){
+  var th=e.target.closest('th[data-col]');
+  if(!th) return;
+  var col=th.dataset.col;
+  if(offspecSortCol===col) offspecSortDir*=-1; else{offspecSortCol=col;offspecSortDir=1;}
+  document.querySelectorAll('#offspecTable thead th').forEach(function(t){t.classList.remove('sorted');});
+  th.classList.add('sorted');
+  th.querySelector('.sort-icon').textContent=offspecSortDir===1?'↑':'↓';
+  offspecPage=1;
+  renderOffspec();
+});
+function offspecSetTypeFilter(t){
+  offspecTypeFilter=(offspecTypeFilter===t)?null:t;
+  offspecPage=1;
+  renderOffspec();
+}
+function offspecClearTypeFilter(){ offspecTypeFilter=null; offspecPage=1; renderOffspec(); }
+function offspecFilterByCustomer(name){
+  offspecCust=name;
+  document.getElementById('offspecCustSearch').value=name;
+  offspecPage=1;
+  renderOffspec();
+}
+
+function renderOffspec(){
+  var d=getDerived();
+  var all=d.rejected;
+  var totalAll=d.lots.length||1;
+
+  // ── customer dropdown options (only customers with off-spec deliveries) ──
+  var seenCust={};
+  all.forEach(function(l){ if(l.shipTo) seenCust[l.shipTo]=1; });
+  _offspecCustList=Object.keys(seenCust).sort();
+
+  // ── group by judgement type (rejectType), keep one full raw label per type ──
+  var byType={}, byTypeLabel={};
+  all.forEach(function(l){
+    var t=l.rejectType||'Other';
+    byType[t]=(byType[t]||0)+1;
+    if(!byTypeLabel[t]) byTypeLabel[t]=l.rejectedReason||t;
+  });
+  var types=Object.keys(byType).sort(function(a,b){return byType[b]-byType[a];});
+
+  // ── KPI cards: Total Off-Spec + one per type, all as % of total deliveries ──
+  var pctTotal=(all.length/totalAll*100);
+  var cardsHtml='<div class="kpi'+(!offspecTypeFilter?' sel':'')+'" onclick="offspecClearTypeFilter()">'
+    +'<div class="kpi-label">TOTAL OFF-SPEC</div><div class="kpi-val">'+all.length.toLocaleString()+'</div>'
+    +'<div class="kpi-sub"><span class="pct-badge r">'+pctTotal.toFixed(1)+'%</span><span>of all deliveries</span></div></div>';
+  types.forEach(function(t,i){
+    var pct=(byType[t]/totalAll*100);
+    var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
+    var sel=offspecTypeFilter===t?' sel':'';
+    cardsHtml+='<div class="kpi'+sel+'" style="'+(sel?'box-shadow:0 0 0 2px '+col+',var(--sh2);':'')+'" onclick="offspecSetTypeFilter(\''+t+'\')">'
+      +'<div class="kpi-label" style="white-space:normal;line-height:1.4;">'+byTypeLabel[t]+'</div><div class="kpi-val">'+byType[t].toLocaleString()+'</div>'
+      +'<div class="kpi-sub"><span class="pct-badge" style="background:'+col+'22;color:'+col+';">'+pct.toFixed(1)+'%</span><span>of all deliveries</span></div></div>';
+  });
+  document.getElementById('offspecSummaryRow').innerHTML=cardsHtml;
+
+  // ── donut chart: breakdown by type ──
+  var R=50,cx=60,cy=60,circ=2*Math.PI*R;
+  var acc=0,arcsHtml='';
+  types.forEach(function(t,i){
+    var frac=all.length?byType[t]/all.length:0;
+    var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
+    arcsHtml+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="18" stroke-dasharray="'+(frac*circ)+' '+(circ*(1-frac))+'" stroke-dashoffset="-'+(acc*circ)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    acc+=frac;
+  });
+  var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'
+    +'<circle cx="60" cy="60" r="50" fill="none" stroke="#EFF3F8" stroke-width="18"/>'
+    +arcsHtml
+    +'<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#101C2C">'+all.length+'</text>'
+    +'<text x="60" y="70" text-anchor="middle" font-size="8.5" fill="#7F91A8">OFF-SPEC</text>'
+    +'</svg>';
+  var legend='<div class="donut-legend" style="width:auto;max-width:340px;">';
+  types.forEach(function(t,i){
+    var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
+    var pct=Math.round(byType[t]/(all.length||1)*100);
+    var sel=offspecTypeFilter===t?' sel':'';
+    legend+='<div class="dl-item'+sel+'" style="align-items:flex-start;" onclick="offspecSetTypeFilter(\''+t+'\')" title="Filter: '+byTypeLabel[t]+'">'
+      +'<div class="dl-dot" style="background:'+col+';margin-top:4px;flex-shrink:0;"></div>'
+      +'<span class="dl-label" style="white-space:normal;overflow:visible;text-overflow:clip;">'+byTypeLabel[t]+'</span>'
+      +'<span class="dl-val" style="flex-shrink:0;">'+byType[t]+' <span style="font-size:.58rem;color:#7F91A8;">'+pct+'%</span></span>'
+      +'</div>';
+  });
+  legend+='</div>';
+  document.getElementById('offspecDonutWrap').innerHTML=svg+legend;
+
+  // ── top ship-to by off-spec count (horizontal bar list, reuses .hbar-* from the old Top Customers chart) ──
+  var byCust={};
+  all.forEach(function(l){
+    var c=l.shipTo||'—';
+    byCust[c]=(byCust[c]||0)+1;
+  });
+  var custList=Object.keys(byCust).map(function(c){return {name:c,count:byCust[c]};})
+    .sort(function(a,b){return b.count-a.count;}).slice(0,8);
+  var maxCust=custList.length?custList[0].count:1;
+  var custHtml='<div class="hbar-list">';
+  custList.forEach(function(c){
+    var pct=Math.round(c.count/maxCust*100);
+    custHtml+='<div class="hbar-item" onclick="offspecFilterByCustomer(\''+c.name.replace(/'/g,"\\'")+'\')" title="Filter: '+c.name+'">'
+      +'<div class="hbar-label">'+c.name+'</div>'
+      +'<div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:#D93444;"></div></div>'
+      +'<div class="hbar-val">'+c.count+'</div>'
+      +'</div>';
+  });
+  custHtml+=custList.length?'</div>':'</div><p style="font-size:.7rem;color:var(--t3);">No data.</p>';
+  document.getElementById('offspecTopCustWrap').innerHTML=custHtml;
+
+  // ── filter pill (shows when a type is selected) ──
+  document.getElementById('offspecFilterPillWrap').innerHTML=offspecTypeFilter
+    ?'<span class="cfilter-pill" style="background:var(--navy3);">Type: '+offspecTypeFilter+'<button onclick="offspecClearTypeFilter()" title="Clear filter">✕</button></span>'
+    :'';
+
+  // ── filter + search (type, customer, status, date range, kiln toggle) ──
+  var filtered=offspecGetFiltered(all);
+
+  var sorted=getSortedOffspec(filtered);
+  var total=sorted.length;
+  var pages=Math.ceil(total/OFFSPEC_PAGE_SIZE)||1;
+  if(offspecPage>pages) offspecPage=pages;
+  var slice=sorted.slice((offspecPage-1)*OFFSPEC_PAGE_SIZE,offspecPage*OFFSPEC_PAGE_SIZE);
+
+  document.getElementById('offspecResultCount').textContent='Showing '+Math.min(total,OFFSPEC_PAGE_SIZE*offspecPage)+' of '+total+' off-spec deliveries';
+
+  var html='';
+  if(slice.length===0){
+    html='<tr><td colspan="6"><div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg><p>No off-spec deliveries match current filters.</p></div></td></tr>';
+  } else {
+    slice.forEach(function(l){
+      var judgeText=l.rejectedReason||l.rejectType||'—';
+      html+='<tr class="lot-row" data-id="'+l.id+'">'
+        +'<td style="font-family:var(--mono);font-size:.72rem;">'+l.id+'</td>'
+        +'<td style="font-family:var(--mono);font-size:.72rem;">'+l.batchId+'</td>'
+        +'<td title="'+(l.batchName||'—')+'"><strong style="font-weight:600;font-size:.78rem;">'+(l.batchName||'—')+'</strong></td>'
+        +'<td class="t2" title="'+judgeText+'">'+judgeText+'</td>'
+        +'<td>'+buildBadge(l.status)+'</td>'
+        +'<td class="t3">'+l.submitted+'</td>'
+        +'</tr>';
+    });
+  }
+  document.getElementById('offspecTblBody').innerHTML=html;
+  document.querySelectorAll('#offspecTblBody tr.lot-row').forEach(function(tr){
+    tr.addEventListener('click',function(){ openModal(tr.dataset.id); });
+  });
+
+  var from=total===0?0:(offspecPage-1)*OFFSPEC_PAGE_SIZE+1, to=Math.min(offspecPage*OFFSPEC_PAGE_SIZE,total);
+  var info=total===0?'No results':'Showing '+from+'–'+to+' of '+total;
+  var btns='<button class="pag-btn" '+(offspecPage<=1?'disabled':'')+' onclick="offspecGoPage(1)">« First</button>';
+  btns+='<button class="pag-btn" '+(offspecPage<=1?'disabled':'')+' onclick="offspecGoPage('+(offspecPage-1)+')">‹ Prev</button>';
+  var start=Math.max(1,offspecPage-2),end=Math.min(pages,offspecPage+2);
+  for(var p=start;p<=end;p++) btns+='<button class="pag-btn'+(p===offspecPage?' act':'')+'" onclick="offspecGoPage('+p+')">'+p+'</button>';
+  btns+='<button class="pag-btn" '+(offspecPage>=pages?'disabled':'')+' onclick="offspecGoPage('+(offspecPage+1)+')">Next ›</button>';
+  btns+='<button class="pag-btn" '+(offspecPage>=pages?'disabled':'')+' onclick="offspecGoPage('+pages+')">Last »</button>';
+  document.getElementById('offspecPagination').innerHTML='<span>'+info+'</span><div class="pag-btns" style="align-items:center;">'+btns+'</div>';
+}
+
+/* ═══════════════════════════════
    EXPORT CSV
 ═══════════════════════════════ */
 async function exportPDF(overrideLots,custName,btnEl){
@@ -1677,7 +2015,7 @@ async function exportPDF(overrideLots,custName,btnEl){
   var total=lots.length;
   var doneL=lots.filter(function(l){return l.status==='completed';}).length;
   var activeL=lots.filter(function(l){return l.status==='in-progress';}).length;
-  var rejL=lots.filter(function(l){return l.status==='rejected';}).length;
+  var rejL=lots.filter(function(l){return !!l.rejectType;}).length;
   var pctD=total?Math.round(doneL/total*100):0;
   var pctA=total?Math.round(activeL/total*100):0;
   var pctR=total?Math.round(rejL/total*100):0;
@@ -1701,7 +2039,7 @@ async function exportPDF(overrideLots,custName,btnEl){
 
   var statusColor={'completed':'#059669','in-progress':'#D97706','rejected':'#DC2626'};
   var rows=lots.map(function(l,i){
-    var isDone=l.status==='completed',isRej=l.status==='rejected';
+    var isDone=l.status==='completed',isRej=!!l.rejectType;
     var sc=statusColor[l.status]||'#94A3B8';
     var td='padding:5px 7px;font-size:8px;';
     var mono=td+'font-family:monospace;';
@@ -1778,13 +2116,13 @@ async function exportPDF(overrideLots,custName,btnEl){
         +'<div class="legend">'
         +'<div class="legend-item"><div class="legend-dot" style="background:#059669;"></div>Completed <span class="legend-pct">'+doneL+' ('+pctD+'%)</span></div>'
         +'<div class="legend-item"><div class="legend-dot" style="background:#D97706;"></div>In Progress <span class="legend-pct">'+activeL+' ('+pctA+'%)</span></div>'
-        +'<div class="legend-item"><div class="legend-dot" style="background:#DC2626;"></div>Rejected <span class="legend-pct">'+rejL+' ('+pctR+'%)</span></div>'
+        +'<div class="legend-item"><div class="legend-dot" style="background:#DC2626;"></div>Off-Spec <span class="legend-pct">'+rejL+' ('+pctR+'%)</span></div>'
         +'</div>'
         +'<div class="kpi-group">'
         +'<div class="kpi"><div class="kpi-label">Total</div><div class="kpi-val">'+total+'</div></div>'
         +'<div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-val" style="color:#059669;">'+doneL+'</div></div>'
         +'<div class="kpi"><div class="kpi-label">In Progress</div><div class="kpi-val" style="color:#D97706;">'+activeL+'</div></div>'
-        +'<div class="kpi"><div class="kpi-label">Rejected</div><div class="kpi-val" style="color:#DC2626;">'+rejL+'</div></div>'
+        +'<div class="kpi"><div class="kpi-label">Off-Spec</div><div class="kpi-val" style="color:#DC2626;">'+rejL+'</div></div>'
         +'</div>'
         +'</div>';
     }()
@@ -1895,12 +2233,12 @@ async function exportCSV(overrideLots,custName,btnEl){
   });
   if(!lots||lots.length===0){alert('No deliveries to export.');return;}
   await fetchDetailsBatch(lots);
-  var headers=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Weight-in'];
+  var headers=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Reject Type','Weight-in'];
   var rows=lots.map(function(l){
     var batchName=l.batchName||'';
     var description=(l.wi&&l.wi['Description'])?l.wi['Description']:'';
     var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
-    return [l.id,l.batchId,batchName,description,truckId,l.weight,l.status,l.submitted].map(csvEscape).join(',');
+    return [l.id,l.batchId,batchName,description,truckId,l.weight,l.status,l.rejectedReason||'',l.submitted].map(csvEscape).join(',');
   });
   var csv=headers.map(csvEscape).join(',')+'\r\n'+rows.join('\r\n');
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
@@ -2000,15 +2338,14 @@ async function onDotClick(e,el){
 }
 
 function showStepPopover(l,si,rect){
-  var isDone=l.status==="completed",isRej=l.status==="rejected";
-  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
+  var isDone=l.status==="completed";
+  var stepsDone=isDone?7:l.currentStep;
   var cls="dn";
-  if(isRej&&si===l.rejectedStep) cls="rj";
-  else if(si>=stepsDone&&!(isDone)) cls="cu";
+  if(si>=stepsDone&&!(isDone)) cls="cu";
 
   var stepData=l.steps[si];
   var label=cls==="dn"?"✓":cls==="rj"?"✕":(si+1);
-  var statusText=cls==="dn"?"Completed":cls==="rj"?"Rejected":cls==="cu"?"In Progress":"—";
+  var statusText=cls==="dn"?"Completed":cls==="rj"?"Off-Spec":cls==="cu"?"In Progress":"—";
   var statusColor=cls==="dn"?'var(--green)':cls==="rj"?'var(--red)':'var(--amber)';
 
   // Head
@@ -2186,6 +2523,7 @@ var db = supabase.createClient(
       shipTo:         r.ship_to || '—',
       soldToParty:    r.sold_to_party,
       soldToName:     r.sold_to_name,
+      wasteType:      r.waste_type,
       material:       r.material,
       status:         r.status,
       currentStep:    r.current_step,
@@ -2194,7 +2532,7 @@ var db = supabase.createClient(
       lastUpdated:    r.last_updated || '—',
       rejectedStep:   r.rejected_step,
       rejectedReason: r.rejected_reason,
-      rejectType:     null,
+      rejectType:     r.rejected_reason ? r.rejected_reason.split(':')[0] : null,
       nDeliveries:    r.n_deliveries,
       receivedQty:    r.received_qty,
       blendDate:      r.blend_date,
@@ -2238,7 +2576,7 @@ var db = supabase.createClient(
     });
   }
 
-  var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+  var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
   var PAGE = 1000;
   var loadedRows = 0;
 
@@ -2354,7 +2692,7 @@ var db = supabase.createClient(
     LOTS = rows.map(dbToLot);
     done     = LOTS.filter(function(l){return l.status==='completed';});
     active   = LOTS.filter(function(l){return l.status==='in-progress';});
-    rejected = LOTS.filter(function(l){return l.status==='rejected';});
+    rejected = LOTS.filter(function(l){return !!l.rejectType;});
     totalW   = LOTS.reduce(function(s,l){return s+l.weight;},0);
     document.getElementById('lotCount').textContent = LOTS.length.toLocaleString()+' deliveries';
     document.getElementById('loadingOverlay').style.display = 'none';
@@ -2370,12 +2708,14 @@ var db = supabase.createClient(
    TAB SWITCHING
 ═══════════════════════════════ */
 function switchTab(tab){
-  var isOps=tab==='ops';
-  document.getElementById('tab-ops').style.display=isOps?'block':'none';
-  document.getElementById('tab-customer').style.display=isOps?'none':'block';
-  document.getElementById('tabOpsBtn').classList.toggle('active',isOps);
-  document.getElementById('tabCustBtn').classList.toggle('active',!isOps);
-  if(!isOps && !custInitDone) custInit();
+  document.getElementById('tab-ops').style.display=tab==='ops'?'block':'none';
+  document.getElementById('tab-customer').style.display=tab==='customer'?'block':'none';
+  document.getElementById('tab-offspec').style.display=tab==='offspec'?'block':'none';
+  document.getElementById('tabOpsBtn').classList.toggle('active',tab==='ops');
+  document.getElementById('tabCustBtn').classList.toggle('active',tab==='customer');
+  document.getElementById('tabOffspecBtn').classList.toggle('active',tab==='offspec');
+  if(tab==='customer' && !custInitDone) custInit();
+  if(tab==='offspec') renderOffspec();
   closeMobileNav();
 }
 function toggleMobileNav(){
@@ -2534,10 +2874,8 @@ function custRenderKPI(){
   var total=al.length||1;
   var done=al.filter(function(l){return l.status==='completed';}).length;
   var active=al.filter(function(l){return l.status==='in-progress';}).length;
-  var rej=al.filter(function(l){return l.status==='rejected';}).length;
   var pD=Math.round(done/total*100);
   var pA=Math.round(active/total*100);
-  var pR=(rej/total*100).toFixed(1);
   function kpi(cls,label,val,badge,sub){
     var stMap={done:'completed',active:'in-progress',total:'all'};
     var st=stMap[cls]||null;
@@ -2545,15 +2883,10 @@ function custRenderKPI(){
     var click=st?'onclick="custSetStatus(\''+st+'\')"':'';
     return '<div class="kpi '+cls+sel+'" '+click+'><div class="kpi-label">'+label+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+(badge||'')+(sub?'<span>'+sub+'</span>':'')+'</div></div>';
   }
-  var rejCard='<div class="kpi reject'+(custFilterStatus==='rejected'?' sel':'')+'" onclick="custSetStatus(\'rejected\')" style="display:flex;flex-direction:column;justify-content:center;padding:14px 16px;">'
-    +'<div class="kpi-label" style="margin-bottom:4px;">REJECTED</div>'
-    +'<div style="font-family:var(--display);font-size:1.5rem;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--t);font-variant-numeric:tabular-nums;">'+rej+'</div>'
-    +'<div class="kpi-sub" style="margin-top:5px;"><span class="pct-badge r">'+pR+'%</span></div></div>';
   document.getElementById('custKpiRow').innerHTML=
     kpi('total','TOTAL DELIVERIES',al.length.toLocaleString(),'','')+
     kpi('done','COMPLETED',done.toLocaleString(),'<span class="pct-badge g">'+pD+'%</span>','of total')+
-    kpi('active','IN PROGRESS',active.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>','currently active')+
-    rejCard;
+    kpi('active','IN PROGRESS',active.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>','currently active');
 }
 
 /* ── CUST DONUT ── */
@@ -2562,16 +2895,15 @@ function custRenderDonut(){
   var total=al.length||1;
   var done=al.filter(function(l){return l.status==='completed';}).length;
   var active=al.filter(function(l){return l.status==='in-progress';}).length;
-  var rej=al.filter(function(l){return l.status==='rejected';}).length;
-  var pD=done/total,pA=active/total,pR=rej/total;
+  var pD=done/total,pA=active/total;
   var R=50,cx=60,cy=60,circ=2*Math.PI*R;
-  var offD=0,offA=pD*circ,offR=(pD+pA)*circ;
+  var offD=0,offA=pD*circ;
   function arc(pct,offset,color){
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="18" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
   }
   var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'
     +'<circle cx="60" cy="60" r="50" fill="none" stroke="#EFF3F8" stroke-width="18"/>'
-    +arc(pD,offD,"#0E8A62")+arc(pA,offA,"#C77B0E")+arc(pR,offR,"#D93444")
+    +arc(pD,offD,"#0E8A62")+arc(pA,offA,"#C77B0E")
     +'<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#101C2C">'+total+'</text>'
     +'<text x="60" y="70" text-anchor="middle" font-size="9" fill="#7F91A8">LOTS</text>'
     +'</svg>';
@@ -2586,7 +2918,6 @@ function custRenderDonut(){
   var legend='<div class="donut-legend">'
     +dlItem("#0E8A62","Completed",done,Math.round(pD*100)+"%","completed")
     +dlItem("#C77B0E","In Progress",active,Math.round(pA*100)+"%","in-progress")
-    +dlItem("#D93444","Rejected",rej,Math.round(pR*100)+"%","rejected")
     +'</div>';
   document.getElementById('custDonutWrap').innerHTML=svg+legend;
 }
@@ -2623,16 +2954,15 @@ var CUST_STEP_IDX=[0,1,4,5]; // Weight In, Waste Analysis, Pre-process, Finish G
 var CUST_STEP_NAMES=['Weight In','Waste Analysis','Pre-process','Finish Goods'];
 
 function custRenderDetailRow(l){
-  var isDone=l.status==='completed', isRej=l.status==='rejected';
-  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
+  var isDone=l.status==='completed', isRej=!!l.rejectType;
+  var stepsDone=isDone?7:l.currentStep;
   var stepperHtml='';
   CUST_STEP_IDX.forEach(function(si,vi){
     var name=CUST_STEP_NAMES[vi];
     var i=si;
     var cls='pe', connCls='';
-    if(isRej&&i===l.rejectedStep){cls='rj';connCls='rj';}
-    else if(i<stepsDone&&stepHasDate(l,i)){cls='dn';connCls='dn';}
-    else if(!isRej&&!isDone&&i===stepsDone) cls='cu';
+    if(i<stepsDone&&stepHasDate(l,i)){cls='dn';connCls='dn';}
+    else if(!isDone&&i===stepsDone) cls='cu';
     var label=cls==='dn'?'✓':cls==='rj'?'✕':(vi+1);
     var stepData=l.steps[i];
     var _sdRaw=stepData?stepData.date:'—';
@@ -2668,32 +2998,30 @@ function custRenderDetailRow(l){
 }
 function custGetStage(lot){
   if(lot.status==='completed') return 4;
-  if(lot.status==='rejected') return lot.rejectedStep||1;
   if(lot.currentStep>=3) return 3;
   if(lot.currentStep>=2) return 2;
   return 1;
 }
 function custRenderStages(lot){
   var stageNum=custGetStage(lot);
-  var isRej=lot.status==='rejected';
   var html='<div class="cd-stages">';
   for(var i=1;i<=4;i++){
     var cls='cd-stage-step';
     if(i<stageNum) cls+=' done';
-    else if(i===stageNum){cls+=(isRej?' rejected':lot.status==='completed'?' done':' current');}
+    else if(i===stageNum){cls+=(lot.status==='completed'?' done':' current');}
     html+='<div class="'+cls+'"><div class="cd-stage-dot"></div><div class="cd-stage-label">'+CUST_STAGE_LABELS[i-1]+'</div></div>';
   }
   return html+'</div>';
 }
 function custGetBadge(st){
   if(st==='completed') return '<span class="cd-badge cd-bd-done"><span class="cd-badge-dot"></span>Complete</span>';
-  if(st==='in-progress') return '<span class="cd-badge cd-bd-act"><span class="cd-badge-dot"></span>In Progress</span>';
-  return '<span class="cd-badge cd-bd-rej"><span class="cd-badge-dot"></span>Rejected</span>';
+  return '<span class="cd-badge cd-bd-act"><span class="cd-badge-dot"></span>In Progress</span>';
 }
 function custGetFiltered(){
   var q=document.getElementById('custSearchTbl').value.trim().toLowerCase();
   return custGetActive().filter(function(l){
-    if(custFilterStatus!=='all'&&l.status!==custFilterStatus) return false;
+    if(custFilterStatus==='rejected'){ if(!l.rejectType) return false; }
+    else if(custFilterStatus!=='all'&&l.status!==custFilterStatus) return false;
     if(q){var h=(l.id+' '+l.po).toLowerCase();if(h.indexOf(q)<0) return false;}
     return true;
   });
@@ -2796,11 +3124,11 @@ function custExportCSV(btnEl){
    DETAIL MODAL
 ═══════════════════════════════ */
 function buildDetailContent(l){
-  var isDone=l.status==="completed",isRej=l.status==="rejected";
-  var stepsDone=isDone?7:(l.rejectedStep!==null?l.rejectedStep:l.currentStep);
-  var iconCls=isDone?'dn':isRej?'rj':'cu';
-  var iconEmoji=isDone?'✓':isRej?'✕':'●';
-  var statusLabel=isDone?'Complete':isRej?'Rejected':'In Progress';
+  var isDone=l.status==="completed",isRej=!!l.rejectType;
+  var stepsDone=isDone?7:l.currentStep;
+  var iconCls=isDone?'dn':'cu';
+  var iconEmoji=isDone?'✓':'●';
+  var statusLabel=isDone?'Complete':'In Progress';
   var batchName=l.batchName||'—';
 
   var leftHtml=''
@@ -2810,8 +3138,8 @@ function buildDetailContent(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':isRej?'red':'amber')+'">'+statusLabel+'</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':isRej?l.rejectedStep:l.currentStep)+' / 7</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':l.currentStep)+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
     +'<div class="bs-fields">'
@@ -2819,6 +3147,7 @@ function buildDetailContent(l){
     +'<div class="bs-field"><span class="bs-fkey">Sold-to ID</span><span class="bs-fval">'+(l.soldToParty||'—')+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Delivery (DO)</span><span class="bs-fval">'+l.id+'</span></div>'
     +'<div class="bs-field"><span class="bs-fkey">Batch</span><span class="bs-fval">'+l.batchId+(l.nDeliveries>1?' ('+l.nDeliveries+' trips)':'')+'</span></div>'
+    +'<div class="bs-field"><span class="bs-fkey">Waste Type</span><span class="bs-fval">'+(l.wasteType||'—')+'</span></div>'
     +(l.kilnBatchId?'<div class="bs-field" style="align-items:flex-start;"><span class="bs-fkey">Kiln Batch</span><span class="bs-fval" style="text-align:left;word-break:break-all;max-width:60%;">'+l.kilnBatchId+'</span></div>':'')
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
@@ -2835,17 +3164,16 @@ function buildDetailContent(l){
   var tlHtml='<div class="bs-timeline-title">Traceability Progress</div><div class="bs-timeline">';
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
-    if(isRej&&i===l.rejectedStep){tlCls="tl-rj";dotChar="✕";}
-    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
-    else if(!isRej&&!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
+    if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
+    else if(!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
       var sd=stepData.date, wiD=l.submitted;
       var sdParsed=parseDate(sd), wiParsed=parseDate(wiD);
       dateTxt=(sdParsed&&wiParsed&&sdParsed<wiParsed)?'—':sd;
-      dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':tlCls==='tl-rj'?'red':'';
+      dateCls=tlCls==='tl-dn'?'green':tlCls==='tl-cu'?'amber':'';
     }
-    var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu"||tlCls==="tl-rj");
+    var clickable=(tlCls==="tl-dn"||tlCls==="tl-cu");
     tlHtml+='<div class="bs-tl-row '+tlCls+'">'
       +(clickable
         ?'<button class="bs-tl-dot '+tlCls+'" data-lid="'+l.id+'" data-si="'+i+'" onclick="onDotClick(event,this)">'+dotChar+'</button>'
