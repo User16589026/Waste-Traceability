@@ -90,8 +90,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .section-action{font-size:.64rem;color:var(--navy3);font-weight:600;cursor:pointer;text-decoration:none;}
 
 /* ── CHARTS ROW ── */
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;align-items:start;}
 .charts-row.ops-split{grid-template-columns:0.7fr 1.3fr;}
+.charts-row.offspec-split{grid-template-columns:1fr 1.1fr;align-items:stretch;}
+.charts-row.offspec-split .chart-card{display:flex;flex-direction:column;}
+.charts-row.offspec-split .donut-wrap{flex:1;}
 .chart-card{background:var(--s);border:1px solid var(--b);border-radius:var(--r2);padding:20px 22px;box-shadow:var(--sh);min-width:0;overflow:hidden;}
 .chart-title{font-size:.68rem;font-weight:700;color:var(--t);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:8px;letter-spacing:.01em;}
 .chart-title span{font-size:.58rem;color:var(--t3);font-weight:500;}
@@ -104,6 +107,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .donut-wrap{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;}
 .donut-svg{flex-shrink:0;}
 .donut-legend{display:flex;flex-direction:column;gap:10px;flex:0 1 auto;width:220px;max-width:100%;}
+
+/* Status single-bar (replaces the 2-slice donut — only 2 categories, a bar reads faster) */
+.status-block{display:flex;flex-direction:column;gap:14px;width:100%;}
+.status-bar{display:flex;width:100%;height:26px;border-radius:8px;overflow:hidden;background:var(--s3);}
+.status-seg{height:100%;transition:width .5s ease;}
 .dl-item{display:flex;align-items:center;gap:9px;font-size:.68rem;}
 .dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 .dl-label{color:var(--t2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;}
@@ -117,7 +125,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .hbar-label{width:80px;font-size:.62rem;font-weight:600;color:var(--t2);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .hbar-track{flex:1;min-width:0;height:18px;background:var(--s3);border-radius:5px;overflow:hidden;}
 .hbar-fill{height:100%;border-radius:5px;transition:width .5s ease;}
-.hbar-val{width:28px;font-size:.62rem;font-weight:700;font-family:var(--mono);color:var(--t);text-align:right;flex-shrink:0;}
+.hbar-val{width:56px;font-size:.62rem;font-weight:700;font-family:var(--mono);color:var(--t);text-align:right;flex-shrink:0;white-space:nowrap;}
 
 /* donut legend clickable */
 .dl-item{cursor:pointer;border-radius:7px;padding:4px 8px;margin:0 -8px;transition:background .12s;}
@@ -437,11 +445,11 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 .offspec-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
 #offspecTblBody tr{cursor:pointer;}
 #offspecTable{table-layout:fixed;min-width:760px;}
-#offspecTable th:nth-child(1),#offspecTable td:nth-child(1){width:13%;white-space:nowrap;}
-#offspecTable th:nth-child(2),#offspecTable td:nth-child(2){width:11%;white-space:nowrap;}
-#offspecTable th:nth-child(3),#offspecTable td:nth-child(3){width:17%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#offspecTable th:nth-child(4),#offspecTable td:nth-child(4){width:31%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#offspecTable th:nth-child(5),#offspecTable td:nth-child(5){width:14%;white-space:nowrap;}
+#offspecTable th:nth-child(1),#offspecTable td:nth-child(1){width:11%;white-space:nowrap;}
+#offspecTable th:nth-child(2),#offspecTable td:nth-child(2){width:10%;white-space:nowrap;}
+#offspecTable th:nth-child(3),#offspecTable td:nth-child(3){width:30%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#offspecTable th:nth-child(4),#offspecTable td:nth-child(4){width:22%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#offspecTable th:nth-child(5),#offspecTable td:nth-child(5){width:13%;white-space:nowrap;}
 #offspecTable th:nth-child(6),#offspecTable td:nth-child(6){width:14%;white-space:nowrap;}
 #offspecTable thead th{cursor:pointer;user-select:none;position:sticky;top:0;}
 #offspecTable thead th.sorted{color:var(--navy2);}
@@ -585,7 +593,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 /* ═══ RESPONSIVE — all media queries live BELOW every base rule so equal-
    specificity overrides actually win (this file bit us on that before) ═══ */
 @media(max-width:1100px){
-  .charts-row,.charts-row.ops-split{grid-template-columns:1fr 1fr;}
+  .charts-row,.charts-row.ops-split,.charts-row.offspec-split{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:960px){
   .cl-left{display:none;}
@@ -593,7 +601,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   .cd-charts-row{grid-template-columns:1fr;}
 }
 @media(max-width:900px){
-  .charts-row,.charts-row.ops-split{grid-template-columns:1fr;}
+  .charts-row,.charts-row.ops-split,.charts-row.offspec-split{grid-template-columns:1fr;}
   .kpi-row{grid-template-columns:1fr;}
   .page{padding:18px 16px 52px;}
 }
@@ -746,6 +754,8 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
     <div class="chart-card">
       <div class="chart-title">Status Distribution <span>% of total</span></div>
       <div class="donut-wrap" id="donutWrap"></div>
+      <div class="chart-title" style="margin-top:18px;">Waste Type</div>
+      <div id="wasteTypeWrap"></div>
     </div>
     <div class="chart-card">
       <div class="chart-title vol-title">Monthly Weight In Volume
@@ -976,7 +986,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   <div class="page">
     <div class="offspec-kpi-row" id="offspecSummaryRow"></div>
 
-    <div class="charts-row ops-split">
+    <div class="charts-row offspec-split">
       <div class="chart-card">
         <div class="chart-title">Off-Spec Breakdown <span>% of off-spec</span></div>
         <div class="donut-wrap" id="offspecDonutWrap"></div>
@@ -1143,6 +1153,15 @@ function getDerived(){
 // legacy aliases — populated after async load
 var done=[], active=[], rejected=[], totalW=0;
 
+/* KPI cards + Status Distribution bar deliberately stay put when filterStatus
+   changes — they ARE the click-to-filter control, so collapsing them to
+   100%/0% the instant one is clicked removes the very split they exist to
+   show. They still move for every OTHER filter (customer/date/search/chart-
+   click, including a Waste Type click). See getFilteredScoped() for the
+   shared filter core all three of getFiltered()/getOverviewLots()/
+   getWasteTypeLots() delegate to. */
+function getOverviewLots(){ return getFilteredScoped({skipStatus:true}); }
+
 /* ═══════════════════════════════
    CLOCK
 ═══════════════════════════════ */
@@ -1157,7 +1176,8 @@ document.getElementById("lotCount").textContent="Loading…";
    KPI ROW
 ═══════════════════════════════ */
 function renderKPI(){
-  var d=getDerived();
+  var ovLots=getOverviewLots();
+  var d={lots:ovLots,done:ovLots.filter(function(l){return l.status==='completed';}),active:ovLots.filter(function(l){return l.status==='in-progress';})};
   var total=d.lots.length||1;
   var pD=Math.round(d.done.length/total*100);
   var pA=Math.round(d.active.length/total*100);
@@ -1176,29 +1196,52 @@ function kpiCard(cls,label,val,badge,_,sub){
 
 
 /* ═══════════════════════════════
-   DONUT CHART (SVG)
+   STATUS BAR + WASTE TYPE BREAKDOWN
 ═══════════════════════════════ */
 function renderDonut(){
-  var dv=getDerived();
+  var ovLots=getOverviewLots();
+  var dv={lots:ovLots,done:ovLots.filter(function(l){return l.status==='completed';}),active:ovLots.filter(function(l){return l.status==='in-progress';})};
   var total=dv.lots.length||1;
   var d=dv.done.length, a=dv.active.length;
-  var pD=d/total,pA=a/total;
-  var R=50,cx=60,cy=60,circ=2*Math.PI*R;
-  var offD=0,offA=pD*circ;
-  function arc(pct,offset,color){
-    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+color+'" stroke-width="18" stroke-dasharray="'+(pct*circ)+' '+(circ*(1-pct))+'" stroke-dashoffset="-'+offset+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
-  }
-  var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'+
-    '<circle cx="60" cy="60" r="50" fill="none" stroke="#EFF3F8" stroke-width="18"/>'+
-    arc(pD,offD,"#0E8A62")+arc(pA,offA,"#C77B0E")+
-    '<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#101C2C">'+total+'</text>'+
-    '<text x="60" y="70" text-anchor="middle" font-size="8.5" fill="#7F91A8">LOTS</text>'+
-    '</svg>';
+  var pD=Math.round(d/total*100), pA=Math.round(a/total*100);
+  var bar='<div class="status-bar">'
+    +'<div class="status-seg" style="width:'+pD+'%;background:#0E8A62;"></div>'
+    +'<div class="status-seg" style="width:'+pA+'%;background:#C77B0E;"></div>'
+    +'</div>';
   var legend='<div class="donut-legend">'+
-    dlItem("#0E8A62","Completed",d,Math.round(pD*100)+"%","completed")+
-    dlItem("#C77B0E","In Progress",a,Math.round(pA*100)+"%","in-progress")+
+    dlItem("#0E8A62","Completed",d,pD+"%","completed")+
+    dlItem("#C77B0E","In Progress",a,pA+"%","in-progress")+
     '</div>';
-  document.getElementById("donutWrap").innerHTML=svg+legend;
+  document.getElementById("donutWrap").innerHTML='<div class="status-block">'+bar+legend+'</div>';
+
+  // ── Waste Type breakdown (ranked horizontal bars, reuses .hbar-* from Off-Spec's
+  //    Top Ship-to chart) — reacts to the status filter (unlike the KPI/bar
+  //    above) but skips its OWN chartFilter so clicking a bar doesn't collapse
+  //    the breakdown onto itself; each bar is clickable to filter the table ──
+  var wtLots=getWasteTypeLots();
+  var wtTotal=wtLots.length||1;
+  var byType={};
+  wtLots.forEach(function(l){
+    var t=l.wasteType||'Unknown';
+    byType[t]=(byType[t]||0)+1;
+  });
+  var typeList=Object.keys(byType).map(function(t){return {name:t,count:byType[t]};})
+    .sort(function(a,b){return b.count-a.count;});
+  var maxType=typeList.length?typeList[0].count:1;
+  var wtHtml='<div class="hbar-list">';
+  typeList.forEach(function(t,i){
+    var pct=Math.round(t.count/maxType*100);
+    var pctOfTotal=Math.round(t.count/wtTotal*100);
+    var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
+    var sel=(chartFilter.type==='wasteType'&&chartFilter.value===t.name)?' sel':'';
+    wtHtml+='<div class="hbar-item'+sel+'" onclick="setChartFilter(\'wasteType\',\''+t.name.replace(/'/g,"\\'")+'\')" title="Filter: '+t.name+'">'
+      +'<div class="hbar-label">'+t.name+'</div>'
+      +'<div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+col+';"></div></div>'
+      +'<div class="hbar-val">'+t.count+' <span style="font-weight:500;color:var(--t3);">'+pctOfTotal+'%</span></div>'
+      +'</div>';
+  });
+  wtHtml+=typeList.length?'</div>':'</div><p style="font-size:.7rem;color:var(--t3);">No data.</p>';
+  document.getElementById("wasteTypeWrap").innerHTML=wtHtml;
 }
 function dlItem(col,label,count,pct,st){
   var sel=filterStatus===st?' sel':'';
@@ -1270,7 +1313,23 @@ function renderVolumeChart(){
   var valFont=barW<30?8:9.5;
   var lblFont=barW<26?8:9;
   var chartW=n*(barW+gap)-gap;
-  var W=padL+chartW+padR, H=210;
+  var W=padL+chartW+padR;
+  // match the Status Distribution / Waste Type card's real rendered height
+  // instead of a fixed H, so this card doesn't end up shorter (or, if
+  // stretched, leave dead space below a fixed-height SVG) — see README
+  // Log 3 Aug 2026 for the "empty space below the volume chart" bug.
+  var H=210;
+  var statusCard=document.getElementById('wasteTypeWrap');
+  statusCard=statusCard&&statusCard.closest('.chart-card');
+  var volCard=el.closest('.chart-card');
+  if(statusCard&&volCard){
+    var statusH=statusCard.getBoundingClientRect().height;
+    var padV=(parseFloat(getComputedStyle(volCard).paddingTop)||0)+(parseFloat(getComputedStyle(volCard).paddingBottom)||0);
+    var titleEl=volCard.querySelector('.chart-title');
+    var titleH=titleEl?(titleEl.getBoundingClientRect().height+(parseFloat(getComputedStyle(titleEl).marginBottom)||0)):0;
+    var avail=statusH-padV-titleH;
+    if(avail>120) H=Math.min(avail,480);
+  }
   var chartH=H-padT-padB;
   var maxW=Math.max.apply(null,data.map(function(d){return d.weight;}))||1;
   var maxR=Math.max.apply(null,data.map(function(d){return d.rejected;}))||1;
@@ -1482,15 +1541,28 @@ function fpRenderFlow(filtered){
   if(rec) rec.textContent='';
 }
 
-function getFiltered(){
+/* Shared filter core. skipStatus/skipWasteType let a chart omit the ONE
+   filter dimension it itself represents, so clicking part of that chart
+   narrows everything else without collapsing the chart onto itself:
+   - getFiltered() (table): every filter, no exclusions.
+   - getOverviewLots() (KPI cards + Status bar): skips filterStatus — it IS
+     the status control, collapsing it to 100/0 on click removes the split.
+   - getWasteTypeLots() (Waste Type breakdown): skips the wasteType
+     chartFilter for the same reason, but still honors filterStatus (a
+     different, cross-dimension filter — no self-reference issue there). */
+function getFilteredScoped(opts){
+  opts=opts||{};
   return getActiveLots().filter(function(l){
-    if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
-    else if(filterStatus!=="all"&&l.status!==filterStatus) return false;
+    if(!opts.skipStatus){
+      if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
+      else if(filterStatus!=="all"&&l.status!==filterStatus) return false;
+    }
     if(fpCust!=='all'&&l.shipTo!==fpCust) return false;
     if(fpDFrom&&l.submitted&&l.submitted<fpDFrom) return false;
     if(fpDTo&&l.submitted&&l.submitted>fpDTo) return false;
     if(chartFilter.type==='shipTo'&&l.shipTo!==chartFilter.value) return false;
     if(chartFilter.type==='soldToParty'&&l.soldToParty!==chartFilter.value) return false;
+    if(!opts.skipWasteType&&chartFilter.type==='wasteType'&&(l.wasteType||'Unknown')!==chartFilter.value) return false;
     if(searchTerm){
       var bname=l.batchName||'';
       var h=(l.id+" "+l.shipTo+" "+l.po+" "+l.batchId+" "+(includeKiln?(l.kilnBatchId||""):"")+" "+bname+" "+(l.wasteType||"")).toLowerCase();
@@ -1499,6 +1571,8 @@ function getFiltered(){
     return true;
   });
 }
+function getFiltered(){ return getFilteredScoped(); }
+function getWasteTypeLots(){ return getFilteredScoped({skipWasteType:true}); }
 
 function getSorted(arr){
   if(!sortCol) return arr;
@@ -1581,6 +1655,8 @@ function renderTable(){
     pillHtml='<span class="cfilter-pill cu">'+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
   } else if(chartFilter.type==='soldToParty'){
     pillHtml='<span class="cfilter-pill" style="background:var(--navy3);">Sold-to: '+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
+  } else if(chartFilter.type==='wasteType'){
+    pillHtml='<span class="cfilter-pill" style="background:var(--navy3);">Waste Type: '+chartFilter.value+'<button onclick="clearChartFilter()" title="Clear filter">✕</button></span>';
   }
   document.getElementById("cfilterWrap").innerHTML=pillHtml;
 
@@ -1676,9 +1752,11 @@ function renderDetailRow(l){
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(function(){
-        var wi=parseDate(l.submitted), pp=parseDate(l.blendDate);
-        if(!wi||!pp) return '';
-        var days=Math.round((pp-wi)/86400000);
+        var wi=parseDate(l.submitted);
+        var kilnStep=l.steps&&l.steps[6];
+        var kd=kilnStep?parseDate(kilnStep.date):null;
+        if(!wi||!kd) return '';
+        var days=Math.round((kd-wi)/86400000);
         return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
       })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
@@ -1889,21 +1967,21 @@ function renderOffspec(){
   document.getElementById('offspecSummaryRow').innerHTML=cardsHtml;
 
   // ── donut chart: breakdown by type ──
-  var R=50,cx=60,cy=60,circ=2*Math.PI*R;
+  var R=60,cx=70,cy=70,circ=2*Math.PI*R;
   var acc=0,arcsHtml='';
   types.forEach(function(t,i){
     var frac=all.length?byType[t]/all.length:0;
     var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
-    arcsHtml+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="18" stroke-dasharray="'+(frac*circ)+' '+(circ*(1-frac))+'" stroke-dashoffset="-'+(acc*circ)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    arcsHtml+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+col+'" stroke-width="20" stroke-dasharray="'+(frac*circ)+' '+(circ*(1-frac))+'" stroke-dashoffset="-'+(acc*circ)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
     acc+=frac;
   });
-  var svg='<svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">'
-    +'<circle cx="60" cy="60" r="50" fill="none" stroke="#EFF3F8" stroke-width="18"/>'
+  var svg='<svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">'
+    +'<circle cx="70" cy="70" r="60" fill="none" stroke="#EFF3F8" stroke-width="20"/>'
     +arcsHtml
-    +'<text x="60" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#101C2C">'+all.length+'</text>'
-    +'<text x="60" y="70" text-anchor="middle" font-size="8.5" fill="#7F91A8">OFF-SPEC</text>'
+    +'<text x="70" y="66" text-anchor="middle" font-size="19" font-weight="700" fill="#101C2C">'+all.length+'</text>'
+    +'<text x="70" y="83" text-anchor="middle" font-size="9.5" fill="#7F91A8">OFF-SPEC</text>'
     +'</svg>';
-  var legend='<div class="donut-legend" style="width:auto;max-width:340px;">';
+  var legend='<div class="donut-legend" style="width:auto;max-width:420px;">';
   types.forEach(function(t,i){
     var col=OFFSPEC_COLORS[i%OFFSPEC_COLORS.length];
     var pct=Math.round(byType[t]/(all.length||1)*100);
@@ -3152,9 +3230,11 @@ function buildDetailContent(l){
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(function(){
-        var wi=parseDate(l.submitted), pp=parseDate(l.blendDate);
-        if(!wi||!pp) return '';
-        var days=Math.round((pp-wi)/86400000);
+        var wi=parseDate(l.submitted);
+        var kilnStep=l.steps&&l.steps[6];
+        var kd=kilnStep?parseDate(kilnStep.date):null;
+        if(!wi||!kd) return '';
+        var days=Math.round((kd-wi)/86400000);
         return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
       })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
