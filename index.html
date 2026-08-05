@@ -1132,6 +1132,9 @@ svg.flow text{font-family:var(--mono);}
           <option value="in-progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
+        <select id="flowTypeSel" onchange="flowTbType=this.value;flowTbPage=1;flowTbRender();">
+          <option value="all">All Waste Types</option>
+        </select>
         <input type="date" id="flowDateFrom" onchange="flowTbFrom=this.value;flowTbPage=1;flowTbRender();"/>
         <span class="fp-toolbar-sep">to</span>
         <input type="date" id="flowDateTo" onchange="flowTbTo=this.value;flowTbPage=1;flowTbRender();"/>
@@ -1192,6 +1195,23 @@ var LOTS = [];
 function parseDate(s){
   if(!s||s==='—') return null;
   var d=new Date(s); return isNaN(d.getTime())?null:d;
+}
+/* Cycle Time in days = Kiln Consumption date − Weight In date, or null when we
+   can't honestly say. Only counts if steps[6].exact is true, i.e. the kiln date
+   came from the BlendBatch actually matched to THIS delivery. With no match the
+   pipeline falls back to the earliest kiln date of the whole Batch — a Batch
+   takes deliveries for over a year, so that date can belong to a truck that came
+   long before this one. Measured 2026-08-05: every one of the 1,260 negative
+   cycle times came from that fallback, none from an exact match. Unknown shows
+   "—", never a guessed number and never 0 (0 would still land in the ≤7 days
+   bucket and still drag the average). Single source for all 4 call sites. */
+function cycleDays(l){
+  var s7=l&&l.steps&&l.steps[6];
+  if(!s7||s7.exact===false) return null;
+  var wi=parseDate(l.submitted), kd=parseDate(s7.date);
+  if(!wi||!kd) return null;
+  var d=Math.round((kd-wi)/86400000);
+  return d<0?null:d;   // guard for browsers still serving pre-2026-08-05 cache (no .exact)
 }
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthLabel(k){
@@ -1857,12 +1877,10 @@ function renderDetailRow(l){
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(function(){
-        var wi=parseDate(l.submitted);
-        var kilnStep=l.steps&&l.steps[6];
-        var kd=kilnStep?parseDate(kilnStep.date):null;
-        if(!wi||!kd) return '';
-        var days=Math.round((kd-wi)/86400000);
-        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
+        var s7=l.steps&&l.steps[6];
+        if(!s7||!parseDate(s7.date)) return '';   // ยังไม่ถึงเตา — ซ่อนแถวเหมือนเดิม
+        var days=cycleDays(l);                    // null = วันเผาเป็นค่าประมาณระดับ Batch
+        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+(days===null?'—':days+' days')+'</span></div>';
       })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
@@ -3338,12 +3356,10 @@ function buildDetailContent(l){
     +(l.wi&&l.wi['Description']?'<div class="bs-field"><span class="bs-fkey">Description</span><span class="bs-fval" style="text-align:left;max-width:100%;">'+l.wi['Description']+'</span></div>':'')
     +(l.wi&&l.wi['TrnsIDCode']?'<div class="bs-field"><span class="bs-fkey">Truck ID</span><span class="bs-fval">'+l.wi['TrnsIDCode']+'</span></div>':'')
     +(function(){
-        var wi=parseDate(l.submitted);
-        var kilnStep=l.steps&&l.steps[6];
-        var kd=kilnStep?parseDate(kilnStep.date):null;
-        if(!wi||!kd) return '';
-        var days=Math.round((kd-wi)/86400000);
-        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+days+' days</span></div>';
+        var s7=l.steps&&l.steps[6];
+        if(!s7||!parseDate(s7.date)) return '';   // ยังไม่ถึงเตา — ซ่อนแถวเหมือนเดิม
+        var days=cycleDays(l);                    // null = วันเผาเป็นค่าประมาณระดับ Batch
+        return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+(days===null?'—':days+' days')+'</span></div>';
       })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
@@ -3403,7 +3419,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()
    FLOW TAB — Delivery → Kiln flow
 ═══════════════════════════════ */
 var flowSelId=null, flowInitDone=false;
-var flowTbPage=1, flowTbQ='', flowTbStatus='all', flowTbFrom='', flowTbTo='';
+var flowTbPage=1, flowTbQ='', flowTbStatus='all', flowTbType='all', flowTbFrom='', flowTbTo='';
 var flowGdates=[];
 
 /* fixed palette (app is light-only) */
@@ -3419,8 +3435,19 @@ function flowInit(){
   var cand=null;
   for(var i=0;i<LOTS.length;i++){ if(LOTS[i].status==='completed'&&LOTS[i].kilnBatchId){ cand=LOTS[i]; break; } }
   if(cand) flowSelect(cand.id); else if(LOTS.length) flowSelect(LOTS[0].id);
+  flowPopulateTypeSel();
   flowTbRender();
   flowInitDone=true;
+}
+function flowPopulateTypeSel(){
+  var seen={};
+  for(var i=0;i<LOTS.length;i++){ var wt=LOTS[i].wasteType; if(wt) seen[wt]=1; }
+  var html='<option value="all">All Waste Types</option>';
+  Object.keys(seen).sort().forEach(function(t){
+    html+='<option value="'+t.replace(/"/g,'&quot;').replace(/'/g,'&#39;')+'">'+t+'</option>';
+  });
+  var sel=document.getElementById('flowTypeSel');
+  if(sel){ sel.innerHTML=html; sel.value=flowTbType; }
 }
 /* Flow-tab KPI cards: values stay global (like ops) but clicking filters the
    flow TABLE via flowTbStatus, with the active card highlighted .sel */
@@ -3461,10 +3488,11 @@ function flowView(l){
   var kc=l.kc||{};
   var sib=LOTS.filter(function(x){return x.batchId===l.batchId;});
   var trips=l.nDeliveries||sib.length;
-  // mirror the modal's Cycle Time: steps[6] (Kiln Consumption) minus Weight In
+  // mirror the modal's Cycle Time: steps[6] (Kiln Consumption) minus Weight In.
+  // kFirst still falls back to kc for DISPLAY, but the cycle number does not —
+  // cycleDays() refuses to compute one from the Batch-wide estimate (see its comment).
   var kFirst=(l.steps&&l.steps[6]&&l.steps[6].date)||(kc['Kiln First Date'])||'—';
-  var cycle=null, fD=flowPDate(kFirst), sD=flowPDate(l.submitted);
-  if(fD&&sD) cycle=Math.max(0,Math.round((fD-sD)/86400000));
+  var cycle=cycleDays(l);
   return {
     id:l.id, batchId:l.batchId, batchName:l.batchName, wasteType:l.wasteType, shipTo:l.shipTo,
     wi:{date:l.submitted||'—', time:(l.wi&&l.wi['WI Time'])||'', net:parseFloat(l.weight)||0},
@@ -3753,8 +3781,7 @@ function flowSelect(id){
 /* identity chips for the selected delivery (fills in dict fields after fetchDetail) */
 function flowChips(l){
   var acc=!l.rejectedReason;
-  var cycle=null, fD=flowPDate((l.steps&&l.steps[6]&&l.steps[6].date)||(l.kc&&l.kc['Kiln First Date'])||null), sD=flowPDate(l.submitted);
-  if(fD&&sD) cycle=Math.max(0,Math.round((fD-sD)/86400000));
+  var cycle=cycleDays(l);
   var desc=(l.wi&&l.wi['Description'])||(l.wa&&l.wa['Waste Name'])||l.batchName||'—';
   var truck=(l.wa&&l.wa['Truck ID'])||(l.wi&&l.wi['TrnsIDCode'])||'—';
   var sold=(l.soldToName)||'—';
@@ -3796,6 +3823,7 @@ function flowTbRender(){
   var rows=LOTS.filter(function(l){
     if(flowTbQ && (l.id+' '+l.batchId+' '+(l.batchName||'')+' '+(l.shipTo||'')+' '+(l.po||'')).toLowerCase().indexOf(flowTbQ.toLowerCase())===-1) return false;
     if(flowTbStatus!=='all'&&l.status!==flowTbStatus) return false;
+    if(flowTbType!=='all'&&(l.wasteType||'')!==flowTbType) return false;
     if(flowTbFrom){ var d=flowPDate(l.submitted); if(!d||d<flowPDate(flowTbFrom)) return false; }
     if(flowTbTo){ var d2=flowPDate(l.submitted); if(!d2||d2>flowPDate(flowTbTo)) return false; }
     return true;
@@ -3816,19 +3844,24 @@ function flowTbRender(){
     btn.addEventListener('click',function(e){ e.stopPropagation(); openModal(btn.dataset.id); });
   });
   document.getElementById('flowRecCount').textContent=rows.length.toLocaleString()+' deliveries';
+  var from=(flowTbPage-1)*PAGE+1,to=Math.min(flowTbPage*PAGE,rows.length);
+  var info=rows.length===0?"No results":"Showing "+from+"–"+to+" of "+rows.length;
   var pg='<button class="pag-btn" '+(flowTbPage<=1?'disabled':'')+' onclick="flowGo(1)">« First</button>'
-    +'<button class="pag-btn" '+(flowTbPage<=1?'disabled':'')+' onclick="flowGo('+(flowTbPage-1)+')">‹ Prev</button>'
-    +'<span class="pag-info" style="font-size:.62rem;color:var(--t3);">Page '+flowTbPage+' of '+pages+'</span>'
-    +'<button class="pag-btn" '+(flowTbPage>=pages?'disabled':'')+' onclick="flowGo('+(flowTbPage+1)+')">Next ›</button>'
+    +'<button class="pag-btn" '+(flowTbPage<=1?'disabled':'')+' onclick="flowGo('+(flowTbPage-1)+')">‹ Prev</button>';
+  var pStart=Math.max(1,flowTbPage-2),pEnd=Math.min(pages,flowTbPage+2);
+  for(var p=pStart;p<=pEnd;p++) pg+='<button class="pag-btn'+(p===flowTbPage?' act':'')+'" onclick="flowGo('+p+')">'+p+'</button>';
+  pg+='<button class="pag-btn" '+(flowTbPage>=pages?'disabled':'')+' onclick="flowGo('+(flowTbPage+1)+')">Next ›</button>'
     +'<button class="pag-btn" '+(flowTbPage>=pages?'disabled':'')+' onclick="flowGo('+pages+')">Last »</button>';
-  document.getElementById('flowPagination').innerHTML=pg;
+  var jump='<input class="jump-pg" id="flowJumpInput" type="number" min="1" max="'+pages+'" placeholder="pg" title="Jump to page" onkeydown="if(event.key===\'Enter\'){var v=+this.value;if(v>=1&&v<='+pages+')flowGo(v);}" />';
+  document.getElementById('flowPagination').innerHTML='<span>'+info+'</span><div class="pag-btns" style="align-items:center;">'+pg+jump+'</div>';
 }
 function flowGo(p){ flowTbPage=p; flowTbRender(); }
 function flowTbOnSearch(){ flowTbQ=document.getElementById('flowTbSearch').value; flowTbPage=1; flowTbRender(); }
 function flowTbReset(){
-  flowTbQ=''; flowTbStatus='all'; flowTbFrom=''; flowTbTo=''; flowTbPage=1;
+  flowTbQ=''; flowTbStatus='all'; flowTbType='all'; flowTbFrom=''; flowTbTo=''; flowTbPage=1;
   document.getElementById('flowTbSearch').value='';
   document.getElementById('flowStatusSel').value='all';
+  document.getElementById('flowTypeSel').value='all';
   document.getElementById('flowDateFrom').value='';
   document.getElementById('flowDateTo').value='';
   flowTbRender();
