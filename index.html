@@ -107,6 +107,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .donut-wrap{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap;}
 .donut-svg{flex-shrink:0;}
 .donut-legend{display:flex;flex-direction:column;gap:10px;flex:0 1 auto;width:220px;max-width:100%;}
+/* Status Distribution's legend only has 2 items (Completed/In Progress) and sits
+   full-width with no donut circle beside it, so stack-them-in-a-column wastes the
+   row — set side by side. Scoped to #donutWrap (not the shared .donut-legend class)
+   because Off-Spec's type-breakdown legend can have many long-named entries and must
+   stay stacked. flex-wrap lets it fall back to stacked if the card gets too narrow. */
+#donutWrap .donut-legend{flex-direction:row;flex-wrap:wrap;width:auto;gap:8px 26px;}
 
 /* Status single-bar (replaces the 2-slice donut — only 2 categories, a bar reads faster) */
 .status-block{display:flex;flex-direction:column;gap:14px;width:100%;}
@@ -695,6 +701,38 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
   html{scroll-behavior:auto;}
 }
+
+/* ── FLOW TAB: Delivery → Kiln flow ── */
+.flow-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.flow-chip{display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:6px 11px;font-size:.72rem;color:var(--t2);}
+.flow-chip b{color:var(--t);font-weight:600;}
+.flow-chip .fc-k{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);}
+.flow-chip .fc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.flow-chip.hero{border-color:var(--navy3);background:color-mix(in srgb,var(--navy3) 8%,var(--s));}
+.flow-chip.wide{flex-basis:100%;}
+.flow-scroll{overflow-x:auto;overflow-y:hidden;}
+.flow-inner{min-width:920px;}
+svg.flow{display:block;width:100%;height:auto;}
+svg.flow text{font-family:var(--mono);}
+.flow-hit{cursor:pointer;}
+@keyframes flowIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+.flow-anim{animation:flowIn .5s ease both;}
+
+/* Traceability Progress step cards (Flow tab) */
+.stgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.stcard{background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:13px 14px 12px;position:relative;}
+.stcard .stnum{font-family:var(--display);font-size:.7rem;font-weight:700;color:var(--t3);background:var(--s3);width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:9px;}
+.stcard .stnum.st-off{background:var(--amber);color:#fff;}
+.stcard .stnum.st-kiln{background:#E0651A;color:#fff;}
+.stcard h4{font-size:.7rem;font-weight:700;color:var(--t);margin-bottom:3px;line-height:1.3;}
+.stcard .st-date{font-family:var(--mono);font-size:.6rem;color:var(--t3);margin-bottom:9px;}
+.stcard .st-more{margin-top:5px;padding:3px 11px;font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--b2);border-radius:20px;background:var(--s);color:var(--t3);cursor:pointer;transition:all .13s;display:inline-block;}
+.stcard .st-more:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+/* Flow tooltip */
+#flowTip{position:fixed;z-index:1200;pointer-events:none;background:var(--t);color:var(--s);font-size:.68rem;line-height:1.5;padding:8px 11px;border-radius:9px;max-width:240px;box-shadow:0 8px 28px -8px rgba(0,0,0,.5);opacity:0;transition:opacity .12s;}
+#flowTip .ft{font-family:var(--mono);font-weight:600;margin-bottom:2px;display:block;}
+#flowTip.on{opacity:1;}
 </style>
 </head>
 <body>
@@ -728,6 +766,10 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   <button class="tab-btn" id="tabOffspecBtn" onclick="switchTab('offspec')">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     Off-Spec
+  </button>
+  <button class="tab-btn" id="tabFlowBtn" onclick="switchTab('flow')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v4a4 4 0 0 0 4 4h8"/><polyline points="12 8 16 12 12 16"/><path d="M20 20v-4a4 4 0 0 0-4-4H8"/><polyline points="16 16 12 12 16 8"/></svg>
+    Flow
   </button>
   <button class="tab-btn" id="tabCustBtn" onclick="switchTab('customer')">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -1057,6 +1099,64 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
   </div>
 </div><!-- /tab-offspec -->
 
+<!-- FLOW TAB -->
+<div id="tab-flow" style="display:none;">
+  <div class="page">
+
+    <!-- KPI ROW (clickable filters) -->
+    <div class="kpi-row" id="kpiRowFlow"></div>
+
+    <!-- DELIVERY → KILN FLOW -->
+    <div class="chart-card">
+      <div class="chart-title">Delivery → Kiln flow <span>search a delivery</span></div>
+      <div class="search-wrap" style="margin-bottom:12px;max-width:420px;">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="20" y1="20" x2="17" y2="17"/></svg>
+        <input class="search-input" id="flowSearchInput" placeholder="Search Delivery ID or Batch…" oninput="flowOnSearch()" autocomplete="off"/>
+      </div>
+      <div class="flow-chips" id="flowChips"></div>
+      <div class="flow-scroll">
+        <div class="flow-inner">
+          <svg class="flow" id="flowSvg" viewBox="0 0 1120 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Delivery to kiln flow diagram"></svg>
+        </div>
+      </div>
+      <div class="bs-timeline-title" style="margin-top:16px;">Traceability Progress</div>
+      <div class="stgrid" id="flowProgressList"></div>
+    </div>
+
+    <!-- FLOW TABLE -->
+    <div class="section" style="margin-top:16px;">
+      <div class="fp-toolbar">
+        <input type="text" id="flowTbSearch" placeholder="Search Delivery, Batch, PO, customer…" oninput="flowTbOnSearch()" autocomplete="off"/>
+        <select id="flowStatusSel" onchange="flowTbStatus=this.value;flowTbPage=1;flowTbRender();">
+          <option value="all">All Status</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+        <input type="date" id="flowDateFrom" onchange="flowTbFrom=this.value;flowTbPage=1;flowTbRender();"/>
+        <span class="fp-toolbar-sep">to</span>
+        <input type="date" id="flowDateTo" onchange="flowTbTo=this.value;flowTbPage=1;flowTbRender();"/>
+        <button class="fp-btn" onclick="flowTbReset()">↺ Reset</button>
+        <span class="fp-count" id="flowRecCount"></span>
+      </div>
+      <div class="lots-card">
+        <div class="tbl-wrap">
+          <table class="tbl" id="flowTable">
+            <thead>
+              <tr>
+                <th>Delivery</th><th>Batch</th><th>Batch Name</th><th>Waste Type</th><th>Ship-to</th>
+                <th>Status</th><th>Steps</th><th>Net Wt (T)</th><th>Weight In</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="flowTblBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="flowPagination"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /tab-flow -->
+
 <!-- STEP POPOVER -->
 <div class="spop-overlay" id="spopOverlay" onclick="closePopover()"></div>
 <div class="spop" id="spop">
@@ -1260,7 +1360,12 @@ var volShowRejected=false;
 function setVolYear(v){ volYearFilter=v; renderVolumeChart(); }
 function toggleVolReject(){ volShowRejected=!volShowRejected; renderVolumeChart(); }
 
-function renderVolumeChart(){
+function renderVolumeChart(vysId,rejId,chId,yearF,showRej){
+  // optional target ids/state so the Flow tab can reuse this chart (defaults = Ops)
+  vysId=vysId||'volYearSel'; rejId=rejId||'volRejLegend'; chId=chId||'volumeChart';
+  if(yearF===undefined) yearF=volYearFilter;
+  if(showRej===undefined) showRej=volShowRejected;
+
   var lots=getActiveLots();
   var allYears=[];
   lots.forEach(function(l){
@@ -1268,30 +1373,30 @@ function renderVolumeChart(){
     if(d && allYears.indexOf(d.getFullYear())===-1) allYears.push(d.getFullYear());
   });
   allYears.sort();
-  if(volYearFilter!=='all' && allYears.indexOf(+volYearFilter)===-1) volYearFilter='all';
+  if(yearF!=='all' && allYears.indexOf(+yearF)===-1) yearF='all';
 
-  var selEl=document.getElementById('volYearSel');
+  var selEl=document.getElementById(vysId);
   if(selEl){
     selEl.innerHTML='<option value="all">All Years</option>'+allYears.map(function(y){
-      return '<option value="'+y+'"'+(String(y)===volYearFilter?' selected':'')+'>'+y+'</option>';
+      return '<option value="'+y+'"'+(String(y)===yearF?' selected':'')+'>'+y+'</option>';
     }).join('');
-    selEl.value=volYearFilter;
+    selEl.value=yearF;
   }
-  var rlEl=document.getElementById('volRejLegend');
-  if(rlEl) rlEl.style.color=volShowRejected?'#E5484D':'#7F91A8';
+  var rlEl=document.getElementById(rejId);
+  if(rlEl) rlEl.style.color=showRej?'#E5484D':'#7F91A8';
 
   var map={};
   lots.forEach(function(l){
     var d=parseDate(l.submitted);
     if(!d) return;
-    if(volYearFilter!=='all' && d.getFullYear()!==+volYearFilter) return;
+    if(yearF!=='all' && d.getFullYear()!==+yearF) return;
     var k=monthKey(d);
     if(!map[k]) map[k]={weight:0,rejected:0,year:d.getFullYear(),month:d.getMonth()};
     map[k].weight+=l.weight||0;
     if(l.rejectType) map[k].rejected++;
   });
   var keys=Object.keys(map).sort();
-  var el=document.getElementById('volumeChart');
+  var el=document.getElementById(chId);
   if(!keys.length){ el.innerHTML=''; return; }
   var data=keys.map(function(k){
     var m=map[k];
@@ -1343,7 +1448,7 @@ function renderVolumeChart(){
     bars+='<rect x="'+bx+'" y="'+by+'" width="'+barW+'" height="'+bh+'" rx="3" fill="#1F5C8F"/>';
     labels+='<text x="'+(bx+barW/2)+'" y="'+(by-6)+'" text-anchor="middle" font-size="'+valFont+'" fill="#41546E" font-weight="600">'+d.weight.toLocaleString()+'</text>';
     labels+='<text x="'+(bx+barW/2)+'" y="'+(H-padB+15)+'" text-anchor="middle" font-size="'+lblFont+'" fill="#6B7E96">'+d.label+'</text>';
-    if(volShowRejected){
+    if(showRej){
       var cx=bx+barW/2, cy=yR(d.rejected);
       pts.push(cx+','+cy);
       if(d.rejected>0){
@@ -1369,7 +1474,7 @@ function renderVolumeChart(){
     var cx=(x(g.start)+x(g.end)+barW)/2;
     yearLabels+='<text x="'+cx+'" y="'+(H-6)+'" text-anchor="middle" font-size="8.5" fill="#8FA0B5">'+g.year+'</text>';
   });
-  var line=volShowRejected?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#E5484D" stroke-width="2"/>':'';
+  var line=showRej?'<polyline points="'+pts.join(' ')+'" fill="none" stroke="#E5484D" stroke-width="2"/>':'';
 
   var svg='<svg viewBox="0 0 '+W+' '+H+'" width="'+Math.max(W,300)+'" height="'+H+'" style="display:block;flex-shrink:0;">'
     +bars+yearMarks+line+markers+labels+yearLabels
@@ -2789,11 +2894,14 @@ function switchTab(tab){
   document.getElementById('tab-ops').style.display=tab==='ops'?'block':'none';
   document.getElementById('tab-customer').style.display=tab==='customer'?'block':'none';
   document.getElementById('tab-offspec').style.display=tab==='offspec'?'block':'none';
+  document.getElementById('tab-flow').style.display=tab==='flow'?'block':'none';
   document.getElementById('tabOpsBtn').classList.toggle('active',tab==='ops');
   document.getElementById('tabCustBtn').classList.toggle('active',tab==='customer');
   document.getElementById('tabOffspecBtn').classList.toggle('active',tab==='offspec');
+  document.getElementById('tabFlowBtn').classList.toggle('active',tab==='flow');
   if(tab==='customer' && !custInitDone) custInit();
   if(tab==='offspec') renderOffspec();
+  if(tab==='flow' && !flowInitDone) flowInit();
   closeMobileNav();
 }
 function toggleMobileNav(){
@@ -3290,6 +3398,441 @@ function closeModal(){
   document.body.style.overflow='';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+
+/* ═══════════════════════════════
+   FLOW TAB — Delivery → Kiln flow
+═══════════════════════════════ */
+var flowSelId=null, flowInitDone=false;
+var flowTbPage=1, flowTbQ='', flowTbStatus='all', flowTbFrom='', flowTbTo='';
+var flowGdates=[];
+
+/* fixed palette (app is light-only) */
+var FLOW_C={
+  navy3:'#1D5E93',azure:'#2E6FA8',ember1:'#C77B0E',ember2:'#E0651A',ember3:'#D93A2B',emberGlow:'#F0A24E',
+  amber:'#C77B0E',green:'#0E8A62',slate:'#C2CDDB',slate2:'#AEBCCE',
+  s:'#FFFFFF',s3:'#EFF3F8',b:'#E4E9F1',b2:'#C9D4E2',t:'#101C2C',t2:'#41546E',t3:'#7F91A8'
+};
+var FLOW_MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+
+function flowInit(){
+  renderKPIFlow();
+  var cand=null;
+  for(var i=0;i<LOTS.length;i++){ if(LOTS[i].status==='completed'&&LOTS[i].kilnBatchId){ cand=LOTS[i]; break; } }
+  if(cand) flowSelect(cand.id); else if(LOTS.length) flowSelect(LOTS[0].id);
+  flowTbRender();
+  flowInitDone=true;
+}
+/* Flow-tab KPI cards: values stay global (like ops) but clicking filters the
+   flow TABLE via flowTbStatus, with the active card highlighted .sel */
+function renderKPIFlow(){
+  var ovLots=getOverviewLots();
+  var total=ovLots.length||1;
+  var done=ovLots.filter(function(l){return l.status==='completed';}).length;
+  var active=ovLots.filter(function(l){return l.status==='in-progress';}).length;
+  var pD=Math.round(done/total*100), pA=Math.round(active/total*100);
+  var card=function(cls,label,val,badge,sub,st){
+    var sel=flowTbStatus===st?' sel':'';
+    return '<div class="kpi '+cls+sel+'" onclick="flowSetStatus(\''+st+'\')"><div class="kpi-label">'+label+'</div>'
+      +'<div class="kpi-val">'+val+'</div><div class="kpi-sub">'+badge+(sub?'<span>'+sub+'</span>':'')+'</div></div>';
+  };
+  document.getElementById("kpiRowFlow").innerHTML=
+    card("total","TOTAL DELIVERIES",ovLots.length.toLocaleString(),"","","all")+
+    card("done","COMPLETED",done.toLocaleString(),'<span class="pct-badge g">'+pD+'%</span>',"of total","completed")+
+    card("active","IN PROGRESS",active.toLocaleString(),'<span class="pct-badge a">'+pA+'%</span>',"currently active","in-progress");
+}
+function flowSetStatus(st){
+  flowTbStatus=st;
+  flowTbPage=1;
+  var sel=document.getElementById('flowStatusSel');
+  if(sel) sel.value=st;
+  renderKPIFlow();
+  flowTbRender();
+}
+
+function flowPDate(s){ if(!s)return null; var p=String(s).split(' '); if(p.length<3)return null; var m=FLOW_MON[p[1]]; if(m===undefined)return null; return new Date(+p[2],m,+p[0]); }
+function flowT(n){ return (n===null||n===undefined||isNaN(n))?'0':(n<10?n.toFixed(2):n.toFixed(1)); }
+function flowSDate(s){ var p=String(s||'').split(' '); return p.length>=2?p[0]+' '+p[1]:s; }
+
+/* Build the render view for a lot (pulls siblings from the in-memory LOTS pool).
+   The batch's TRUE trip count comes from the DB (l.nDeliveries) — LOTS may only
+   hold a subset, so we draw what's loaded and say how many are missing. */
+function flowView(l){
+  var kb=(l.kilnBatchId||'').split(',').filter(function(x){return x;});
+  var kc=l.kc||{};
+  var sib=LOTS.filter(function(x){return x.batchId===l.batchId;});
+  var trips=l.nDeliveries||sib.length;
+  // mirror the modal's Cycle Time: steps[6] (Kiln Consumption) minus Weight In
+  var kFirst=(l.steps&&l.steps[6]&&l.steps[6].date)||(kc['Kiln First Date'])||'—';
+  var cycle=null, fD=flowPDate(kFirst), sD=flowPDate(l.submitted);
+  if(fD&&sD) cycle=Math.max(0,Math.round((fD-sD)/86400000));
+  return {
+    id:l.id, batchId:l.batchId, batchName:l.batchName, wasteType:l.wasteType, shipTo:l.shipTo,
+    wi:{date:l.submitted||'—', time:(l.wi&&l.wi['WI Time'])||'', net:parseFloat(l.weight)||0},
+    wa:{date:(l.steps&&l.steps[1]&&l.steps[1].date)||'—', accepted:!l.rejectedReason, judgement:l.rejectedReason||'A:Accept'},
+    li:{date:(l.steps&&l.steps[2]&&l.steps[2].date)||'—', qty:parseFloat(l.receivedQty||l.weight)||0, nBatch:trips},
+    wo:{date:(l.steps&&l.steps[3]&&l.steps[3].date)||'—'},
+    blend:{date:l.blendDate||'—'},
+    blendBatches:kb, kilnCount:kb.length,
+    trips:trips, poolMissing:Math.max(0,trips-sib.length),
+    kiln:{first:kFirst,
+          last:kc['Kiln Last Date']||'—',
+          recv:parseFloat(l.kilnRecv)||0, consume:parseFloat(l.kilnConsume)||0,
+          movements:kc['Movements']||'—', used:kc['Blend Batch Used']||kb[0]||'—',
+          cycle:cycle},
+    pool:sib.map(function(x){
+      return {id:x.id, w:parseFloat(x.weight)||0, date:x.submitted, status:x.status, me:x.id===l.id};
+    })
+  };
+}
+
+function flowRibbon(x0,t0,b0,x1,t1,b1){
+  var xc=(x0+x1)*0.5;
+  return 'M'+x0+','+t0+' C'+xc+','+t0+' '+xc+','+t1+' '+x1+','+t1+' L'+x1+','+b1+' C'+xc+','+b1+' '+xc+','+b0+' '+x0+','+b0+' Z';
+}
+
+/* Render the Delivery → Kiln sankey SVG (agg brush for big pools, spray for many kiln batches) */
+function flowRender(d){
+  var c=FLOW_C;
+  var cy=272, POOLH=286, nodeR=190, poolX=380, blendX=566, batchX=724, kilnX=904;
+  var qcCol=d.wa.accepted?c.green:c.amber;
+  var bd=flowPDate(d.blend.date);
+  var pre=d.pool.filter(function(m){return flowPDate(m.date)<=bd;});
+  if(!pre.length) pre=d.pool;   // in-progress / no blend date yet → show the whole pool
+  var poolTot=pre.reduce(function(s,m){return s+m.w;},0);
+  var agg=pre.length>8;
+  var segs={}, meSeg, w0, trunkY, heroOy, FANIN='', POOLBAR='', LEFTLAB='', capT='', phantomN=0;
+
+  if(!agg){
+    var sy=POOLH/(poolTot||1), gap=12;
+    var totalCard=pre.reduce(function(s,m){return s+Math.max(m.w*sy,30);},0)+gap*(pre.length-1);
+    // phantom strands for the unloaded trips: up to 3 BEFORE + 3 AFTER the
+    // loaded stack (whole stack shifts down so both sides have room)
+    var phBefore=Math.min(3,d.poolMissing||0);
+    var phAfter=Math.min(3,Math.max(0,(d.poolMissing||0)-phBefore));
+    phantomN=phBefore+phAfter;
+    var PITCH=20;
+    var contentH=totalCard+phantomN*PITCH;
+    var top=Math.max(72,cy-contentH/2);
+    var y=top+phBefore*PITCH;
+    var nodes=pre.map(function(m){var rw=Math.max(m.w*sy,7), ch=Math.max(m.w*sy,30); var o={m:m, mid:y+ch/2, rw:rw}; y+=ch+gap; return o;});
+    var py=cy-POOLH/2;
+    pre.forEach(function(m){var h=m.w*sy; segs[m.id]={top:py,bot:py+h,mid:py+h/2,h:h}; py+=h;});
+    meSeg=segs[d.id]||segs[Object.keys(segs)[0]]||{top:cy-10,bot:cy+10,mid:cy,h:20};
+    w0=Math.max(meSeg.h,12); trunkY=meSeg.mid;
+    var meNode=null; nodes.forEach(function(n){ if(n.m.me) meNode=n; });
+    heroOy=(meNode||nodes[0]||{mid:cy}).mid;
+    var f='<g class="flow-anim">';
+    for(var pb=0;pb<phBefore;pb++){
+      var pbMid=top+PITCH*pb+7;
+      f+='<path class="flow-hit" data-phantom="1" d="'+flowRibbon(nodeR,pbMid-7,pbMid+7,poolX,cy-POOLH/2+4,cy-POOLH/2+16)+'" fill="url(#gSlateF)" opacity="0.42" stroke="'+c.slate2+'" stroke-width="1.5" stroke-dasharray="5 3"/>';
+    }
+    nodes.forEach(function(n){
+      var seg=segs[n.m.id], isMe=n.m.me, dim=n.m.status==='in-progress';
+      f+='<path class="flow-hit" data-node="'+n.m.id+'" d="'+flowRibbon(nodeR,n.mid-n.rw/2,n.mid+n.rw/2,poolX,seg.top,seg.bot)+'" fill="'+(isMe?'url(#gNavyF)':'url(#gSlateF)')+'" opacity="'+(isMe?1:(dim?0.4:0.7))+'"/>';
+    });
+    for(var pa=0;pa<phAfter;pa++){
+      var paMid=y+7;
+      f+='<path class="flow-hit" data-phantom="1" d="'+flowRibbon(nodeR,paMid-7,paMid+7,poolX,cy+POOLH/2-16,cy+POOLH/2-4)+'" fill="url(#gSlateF)" opacity="0.42" stroke="'+c.slate2+'" stroke-width="1.5" stroke-dasharray="5 3"/>';
+      y+=PITCH;
+    }
+    if(phantomN>0) f+='<text x="'+(nodeR-8)+'" y="'+(y+1)+'" text-anchor="end" fill="'+c.t3+'" font-size="9">+'+(d.poolMissing-phantomN)+' more</text>';
+    f+='</g>'; FANIN=f;
+    POOLBAR='<rect x="'+poolX+'" y="'+(cy-POOLH/2)+'" width="14" height="'+POOLH+'" rx="4" fill="url(#gSlateF)"/><rect x="'+poolX+'" y="'+meSeg.top+'" width="14" height="'+meSeg.h+'" rx="3" fill="url(#gNavyF)"/>';
+    var lab='<text x="24" y="'+(top-10)+'" fill="'+c.t2+'" font-size="10.5" font-weight="700" font-family="var(--font)">Batch '+d.batchId+' ('+d.trips+' trips)</text>';
+    nodes.forEach(function(n){
+      var isMe=n.m.me, idCol=isMe?c.navy3:c.t2, wCol=isMe?c.t:c.t2, stDot=n.m.status==='completed'?c.green:c.amber;
+      lab+='<text x="'+(nodeR-8)+'" y="'+(n.mid-2)+'" text-anchor="end" fill="'+idCol+'" font-weight="'+(isMe?700:500)+'" font-size="'+(isMe?11:10)+'">'+n.m.id+'</text>';
+      lab+='<text x="'+(nodeR-8)+'" y="'+(n.mid+11)+'" text-anchor="end" fill="'+wCol+'" font-size="9">'+flowT(n.m.w)+'t · '+flowSDate(n.m.date)+'</text>';
+      lab+='<circle cx="'+(nodeR-2)+'" cy="'+(n.mid-6)+'" r="3" fill="'+stDot+'"/>';
+    });
+    LEFTLAB=lab;
+  } else {
+    var K=Math.min(pre.length,34), strandH=POOLH/K, poolTop=cy-POOLH/2;
+    for(var i=0;i<K;i++){ var t=poolTop+i*strandH; segs[i]={top:t,bot:t+strandH,mid:t+strandH/2,h:strandH}; }
+    var hIdx=Math.floor(K/2), heroH=Math.max(strandH,11), segMid=segs[hIdx].mid;
+    meSeg={top:segMid-heroH/2,bot:segMid+heroH/2,mid:segMid,h:heroH}; w0=heroH; trunkY=segMid;
+    var leftX=162, oTop=cy-140, oStep=280/(K-1);
+    heroOy=oTop+hIdx*oStep;
+    var f2='<g class="flow-anim">';
+    for(var i2=0;i2<K;i2++){
+      var oy=oTop+i2*oStep, hero=i2===hIdx, dH=hero?heroH:strandH*0.56, segC=hero?segMid:segs[i2].mid;
+      f2+='<path class="'+(hero?'flow-hit':'')+'" '+(hero?'data-hero="1"':'')+' d="'+flowRibbon(leftX,oy-dH/2,oy+dH/2,poolX,segC-dH/2,segC+dH/2)+'" fill="'+(hero?'url(#gNavyF)':'url(#gSlateF)')+'" opacity="'+(hero?1:0.3)+'"/>';
+    }
+    // phantom strands (3 before + 3 after the brush) for unloaded trips
+    var phB2=Math.min(3,d.poolMissing||0);
+    var phA2=Math.min(3,Math.max(0,(d.poolMissing||0)-phB2));
+    phantomN=phB2+phA2;
+    for(var pb2=0;pb2<phB2;pb2++){
+      var pbM=74+16*pb2+8;
+      f2+='<path class="flow-hit" data-phantom="1" d="'+flowRibbon(leftX,pbM-7,pbM+7,poolX,cy-POOLH/2+4,cy-POOLH/2+16)+'" fill="url(#gSlateF)" opacity="0.42" stroke="'+c.slate2+'" stroke-width="1.5" stroke-dasharray="5 3"/>';
+    }
+    for(var pa2=0;pa2<phA2;pa2++){
+      var paM=cy+140+16+16*pa2+8;
+      f2+='<path class="flow-hit" data-phantom="1" d="'+flowRibbon(leftX,paM-7,paM+7,poolX,cy+POOLH/2-16,cy+POOLH/2-4)+'" fill="url(#gSlateF)" opacity="0.42" stroke="'+c.slate2+'" stroke-width="1.5" stroke-dasharray="5 3"/>';
+    }
+    if(phantomN>0) f2+='<text x="'+(leftX-8)+'" y="'+(cy+140+16+16*phA2+8+1)+'" text-anchor="end" fill="'+c.t3+'" font-size="9">+'+(d.poolMissing-phantomN)+' more</text>';
+    f2+='</g>'; FANIN=f2;
+    POOLBAR='<rect x="'+poolX+'" y="'+poolTop+'" width="14" height="'+POOLH+'" rx="4" fill="url(#gSlateF)"/><rect x="'+poolX+'" y="'+meSeg.top+'" width="14" height="'+meSeg.h+'" rx="3" fill="url(#gNavyF)"/>';
+    LEFTLAB='<text x="24" y="'+(poolTop-6)+'" fill="'+c.t2+'" font-size="10.5" font-weight="700" font-family="var(--font)">Batch '+d.batchId+' ('+d.trips+' trips)</text>';
+  }
+  capT=(d.batchName&&d.batchName.length>30)?d.batchName.slice(0,29)+'…':(d.batchName||'—');
+
+  /* kiln fan-out: cards for few batches, ember spray for many */
+  var kb=d.blendBatches, kn=d.kilnCount||kb.length, kSpray=kn>6, glowX=kilnX+120;
+  var FANOUT='', KILNCARDS='';
+  if(!kSpray){
+    var kH=Math.min(44,(300)/kn-8), kGap=Math.min(18,(300-kH*kn)/(kn-1||1));
+    var ky=cy-(kH*kn+kGap*(kn-1))/2;
+    var kNodes=kb.map(function(code,i){var o={code:code,top:ky,mid:ky+kH/2,h:kH,primary:code===d.kiln.used}; ky+=kH+kGap; return o;});
+    var fo='<g class="flow-anim">';
+    kNodes.forEach(function(k,i){
+      var sw=Math.max(Math.min(w0/kn,16),8), oy=trunkY-w0/2+w0*((i+0.5)/kn);
+      fo+='<path class="flow-hit" data-kiln="'+k.code+'" d="'+flowRibbon(batchX+14,oy-sw/2,oy+sw/2,kilnX,k.mid-k.h/2+6,k.mid+k.h/2-6)+'" fill="url(#gEmberF)" opacity="'+(k.primary?0.95:0.68)+'"/>';
+    });
+    fo+='</g>'; FANOUT=fo;
+    var kc='';
+    kNodes.forEach(function(k){
+      kc+='<rect class="flow-hit" data-kiln="'+k.code+'" x="'+kilnX+'" y="'+k.top+'" width="150" height="'+k.h+'" rx="8" fill="'+c.s+'" stroke="'+(k.primary?c.ember2:c.b2)+'" stroke-width="'+(k.primary?2:1)+'"/>';
+      kc+='<rect x="'+kilnX+'" y="'+k.top+'" width="5" height="'+k.h+'" rx="2.5" fill="url(#gEmberF)"/>';
+      kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+14)+'" fill="'+c.t+'" font-weight="700" font-size="11">'+k.code+'</text>';
+      kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+26)+'" fill="'+c.t3+'" font-size="8.5">kiln feed batch'+(k.primary?' · matched':'')+'</text>';
+      kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+37)+'" fill="'+c.t3+'" font-size="8" font-family="var(--font)">'+d.kiln.first+'</text>';
+    });
+    KILNCARDS=kc;
+  } else {
+    var K2=Math.min(Math.max(1,kn),4), spTop=cy-148, spBot=cy+148, spStep=(spBot-spTop)/(K2-1), primIdx=Math.floor(K2/2);
+    var primY=spTop+primIdx*spStep;
+    var fo2='<g class="flow-anim">';
+    for(var j=0;j<K2;j++){
+      var ey=spTop+j*spStep, prim=j===primIdx;
+      var oy2=trunkY-w0/2+w0*((j+0.5)/K2), ow=Math.max(w0/K2*0.9,1.4), sw2=prim?12:Math.max((spBot-spTop)/K2*0.5,2.4);
+      fo2+='<path class="flow-hit" '+(prim?'data-kiln="'+d.kiln.used+'"':'data-kphantom="1"')+' d="'+flowRibbon(batchX+14,oy2-ow/2,oy2+ow/2,kilnX+8,ey-sw2/2,ey+sw2/2)+'" fill="url(#gEmberF)" opacity="'+(prim?1:0.24)+'"/>';
+    }
+    fo2+='</g>'; FANOUT=fo2;
+    KILNCARDS='<rect class="flow-hit" data-kiln="'+d.kiln.used+'" x="'+(kilnX+8)+'" y="'+(primY-26)+'" width="150" height="52" rx="8" fill="'+c.s+'" stroke="'+c.ember2+'" stroke-width="2"/>'
+      +'<rect x="'+(kilnX+8)+'" y="'+(primY-26)+'" width="5" height="52" rx="2.5" fill="url(#gEmberF)"/>'
+      +'<text x="'+(kilnX+24)+'" y="'+(primY-13)+'" fill="'+c.t+'" font-weight="700" font-size="11">'+d.kiln.used+'</text>';
+    if(d.kiln.cycle!==null&&d.kiln.cycle!==undefined){
+      KILNCARDS+='<text x="'+(kilnX+24)+'" y="'+(primY+1)+'" fill="'+c.t3+'" font-size="8" font-family="var(--font)">Cycle '+d.kiln.cycle+' days</text>'
+        +'<text x="'+(kilnX+24)+'" y="'+(primY+14)+'" fill="'+c.t3+'" font-size="8" font-family="var(--font)">'+flowSDate(d.kiln.first)+'</text>';
+    } else {
+      KILNCARDS+='<text x="'+(kilnX+24)+'" y="'+(primY+4)+'" fill="'+c.t3+'" font-size="8" font-family="var(--font)">'+flowSDate(d.kiln.first)+'</text>';
+    }
+  }
+
+  /* assemble */
+  flowGdates=[d.wi.date,d.wa.date,d.li.date,d.wo.date,d.blend.date,d.blend.date,d.kiln.first];
+  var gates=[[100,'WEIGH IN',0],[286,'ANALYSIS',1],[380,'LOAD IN',0],[476,'WEIGH OUT',0],[566,'PRE-PROCESS',0],[724,'FINISH GOODS',0],[1000,'KILN CONSUMPTION',2]];
+  var ruler='<g font-size="8.5" font-weight="600" letter-spacing=".05em">';
+  gates.forEach(function(g,i){
+    var gx=g[0], lbl=g[1], kind=g[2];
+    var col= kind===1? qcCol : kind===2? c.ember2 : c.navy2;
+    ruler+='<g class="flow-hit" data-gate="'+i+'" onclick="flowMoreDetail('+i+',event)">'
+      +'<circle cx="'+gx+'" cy="30" r="9" fill="'+col+'"/>'
+      +'<text x="'+gx+'" y="33.5" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">'+(i+1)+'</text>'
+      +'<text x="'+gx+'" y="52" text-anchor="middle" fill="'+c.t3+'">'+lbl+'</text>'
+      +'<text x="'+gx+'" y="65" text-anchor="middle" fill="'+c.t3+'" font-size="7.5">'+flowGdates[i]+'</text>'
+      +'</g>';
+  });
+  ruler+='</g>';
+
+  var defs='<defs>'
+    +'<linearGradient id="gNavyF" x1="0" x2="1"><stop offset="0" stop-color="'+c.navy3+'"/><stop offset="1" stop-color="'+c.azure+'"/></linearGradient>'
+    +'<linearGradient id="gSlateF" x1="0" x2="1"><stop offset="0" stop-color="'+c.slate+'"/><stop offset="1" stop-color="'+c.slate2+'"/></linearGradient>'
+    +'<linearGradient id="gEmberF" x1="0" x2="1"><stop offset="0" stop-color="'+c.ember1+'"/><stop offset=".55" stop-color="'+c.ember2+'"/><stop offset="1" stop-color="'+c.ember3+'"/></linearGradient>'
+    +'<radialGradient id="gGlowF" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="'+c.emberGlow+'" stop-opacity=".38"/><stop offset="1" stop-color="'+c.emberGlow+'" stop-opacity="0"/></radialGradient>'
+    +'</defs>';
+
+  var back='<ellipse cx="'+glowX+'" cy="'+cy+'" rx="150" ry="180" fill="url(#gGlowF)"/>' + POOLBAR;
+
+  var trunk='<g class="flow-anim">'
+    +'<path d="'+flowRibbon(poolX,meSeg.top,meSeg.bot,blendX,trunkY-w0/2,trunkY+w0/2)+'" fill="url(#gNavyF)"/>'
+    +'<path d="'+flowRibbon(blendX+14,trunkY-w0/2,trunkY+w0/2,batchX,trunkY-w0/2,trunkY+w0/2)+'" fill="url(#gNavyF)"/>'
+    +'</g>';
+
+  var amY=(heroOy+meSeg.mid)/2;
+  var qc='<g class="flow-hit" data-gate="1" onclick="flowMoreDetail(1,event)"><circle cx="286" cy="'+amY+'" r="8" fill="'+c.s+'" stroke="'+qcCol+'" stroke-width="2.5"/><circle cx="286" cy="'+amY+'" r="3" fill="'+qcCol+'"/></g>';
+
+  var lab='<g font-size="10">'+LEFTLAB;
+  lab+='<text x="'+(poolX+7)+'" y="'+(cy-POOLH/2-10)+'" text-anchor="middle" fill="'+c.t2+'" font-size="8.5" font-weight="600">'+capT+'</text>';
+  var remTrips=(d.poolMissing||0)-phantomN;
+  if(remTrips>0) lab+='<text x="'+(poolX+7)+'" y="'+(cy+POOLH/2+16)+'" text-anchor="middle" fill="'+c.t3+'" font-size="8" font-family="var(--font)">+'+remTrips+' trips not shown</text>';
+  lab+='<rect x="'+blendX+'" y="'+(trunkY-w0/2-8)+'" width="14" height="'+(w0+16)+'" rx="4" fill="'+c.s+'" stroke="'+c.navy3+'"/>';
+  lab+='<rect x="'+batchX+'" y="'+(trunkY-w0/2-8)+'" width="14" height="'+(w0+16)+'" rx="4" fill="'+c.s+'" stroke="'+c.navy3+'"/>';
+  lab+='<text x="'+(blendX+7)+'" y="'+(trunkY-w0/2-16)+'" text-anchor="middle" fill="'+c.navy3+'" font-size="9.5" font-weight="700">PRE-PROCESS</text>';
+  lab+='<text x="'+(blendX+7)+'" y="'+(trunkY+w0/2+22)+'" text-anchor="middle" fill="'+c.t3+'" font-size="8.5">'+flowSDate(d.blend.date)+'</text>';
+  lab+='<text x="'+(batchX+7)+'" y="'+(trunkY-w0/2-16)+'" text-anchor="middle" fill="'+c.navy3+'" font-size="9.5" font-weight="700">FINISH GOODS</text>';
+  lab+='<text x="'+(batchX+7)+'" y="'+(trunkY+w0/2+22)+'" text-anchor="middle" fill="'+c.t3+'" font-size="8.5">'+flowSDate(d.blend.date)+'</text>';
+  lab+='</g>';
+
+  var kl='<g font-size="10">'
+    +'<text x="'+glowX+'" y="'+(cy-152)+'" text-anchor="middle" fill="'+c.ember2+'" font-size="12" font-weight="700">🔥 KILN CONSUMPTION</text>'
+    +KILNCARDS
+    +'</g>';
+
+  document.getElementById('flowSvg').innerHTML= defs + ruler + back + FANIN + trunk + FANOUT + qc + lab + kl;
+  flowHits(d);
+}
+
+/* flow hover tooltip */
+var flowTipEl=null;
+function flowTipInit(){ if(!flowTipEl){ flowTipEl=document.createElement('div'); flowTipEl.id='flowTip'; flowTipEl.innerHTML='<span class="ft"></span><span class="tr"></span>'; document.body.appendChild(flowTipEl);} }
+function flowTipShow(title,rows,e){
+  flowTipEl.querySelector('.ft').textContent=title;
+  flowTipEl.querySelector('.tr').innerHTML=rows;
+  flowTipEl.classList.add('on'); flowTipMove(e);
+}
+function flowTipMove(e){
+  var pad=14, w=flowTipEl.offsetWidth, h=flowTipEl.offsetHeight;
+  var x=e.clientX+14, yy=e.clientY+14;
+  if(x+w>innerWidth-pad) x=e.clientX-w-14;
+  if(yy+h>innerHeight-pad) yy=e.clientY-h-14;
+  flowTipEl.style.left=x+'px'; flowTipEl.style.top=yy+'px';
+}
+function flowTipHide(){ if(flowTipEl) flowTipEl.classList.remove('on'); }
+function flowHits(d){
+  var svg=document.getElementById('flowSvg');
+  flowTipInit();
+  svg.querySelectorAll('.flow-hit').forEach(function(el){
+    el.addEventListener('mousemove',flowTipMove);
+    el.addEventListener('mouseleave',flowTipHide);
+    el.addEventListener('mouseenter',function(e){
+      if(el.dataset.hero!==undefined){
+        flowTipShow(d.id+' · searched','Net '+flowT(d.wi.net)+' t · '+d.wi.date,e);
+      } else if(el.dataset.node!==undefined){
+        var m=null; d.pool.forEach(function(x){ if(x.id===el.dataset.node) m=x; });
+        if(m) flowTipShow(m.id+(m.me?' · searched':''), flowT(m.w)+' t · '+m.date, e);
+      } else if(el.dataset.phantom!==undefined){
+        flowTipShow('Batch trip (not loaded)', 'Part of batch '+d.batchId+' · '+d.trips+' trips total<br>'+((d.poolMissing||0)+' more not shown'), e);
+      } else if(el.dataset.kphantom!==undefined){
+        flowTipShow('Kiln feed batch', 'Fired '+d.kiln.first+' – '+d.kiln.last+'<br>'+d.kilnCount+' kiln batches in data · only matched shown', e);
+      } else if(el.dataset.kiln!==undefined){
+        flowTipShow(el.dataset.kiln, 'Kiln feed batch · matched<br>Fired '+d.kiln.first+' – '+d.kiln.last+'<br>1 of '+d.kilnCount+' batches', e);
+      } else if(el.dataset.gate!==undefined){
+        var gi=+el.dataset.gate;
+        var names=['Weigh In','Waste Analysis','Load In','Weight Out','Pre-process','Finish Goods','Kiln Consumption'];
+        flowTipShow((gi+1)+'. '+names[gi], flowGdates[gi]||'', e);
+      }
+    });
+  });
+}
+
+/* progress cards + More Detail (reuses index's showStepPopover) */
+function flowProgress(d){
+  var acc=d.wa.accepted;
+  var STEPS7=['Weight In','Waste Analysis','Load In','Weight Out','Pre-process','Finish Goods','Kiln Consumption'];
+  var dates7=[d.wi.date,d.wa.date,d.li.date,d.wo.date,d.blend.date,d.blend.date,d.kiln.first];
+  document.getElementById('flowProgressList').innerHTML=STEPS7.map(function(name,i){
+    var numCls= i===1&&!acc?' st-off' : i===6?' st-kiln' : '';
+    return '<div class="stcard"><div class="stnum'+numCls+'">'+(i+1)+'</div><h4>'+name+'</h4>'
+      +'<div class="st-date">'+dates7[i]+'</div>'
+      +'<button class="st-more" onclick="flowMoreDetail('+i+',event)">More Detail</button></div>';
+  }).join('');
+}
+async function flowMoreDetail(i,ev){
+  var lot=await fetchDetail(flowSelId);
+  if(!lot) return;
+  var rect=null;
+  if(ev&&ev.currentTarget&&ev.currentTarget.getBoundingClientRect) rect=ev.currentTarget.getBoundingClientRect();
+  showStepPopover(lot,i,rect);
+}
+function flowSelect(id){
+  var l=null;
+  for(var i=0;i<LOTS.length;i++){ if(LOTS[i].id===id){ l=LOTS[i]; break; } }
+  if(!l) return;
+  flowSelId=id;
+  flowChips(l);
+  fetchDetail(id).then(function(){
+    if(flowSelId===id){ flowRender(flowView(l)); flowChips(l); }
+  });
+  flowRender(flowView(l));
+  flowProgress(flowView(l));
+  document.getElementById('flowSearchInput').value=id;
+}
+
+/* identity chips for the selected delivery (fills in dict fields after fetchDetail) */
+function flowChips(l){
+  var acc=!l.rejectedReason;
+  var cycle=null, fD=flowPDate((l.steps&&l.steps[6]&&l.steps[6].date)||(l.kc&&l.kc['Kiln First Date'])||null), sD=flowPDate(l.submitted);
+  if(fD&&sD) cycle=Math.max(0,Math.round((fD-sD)/86400000));
+  var desc=(l.wi&&l.wi['Description'])||(l.wa&&l.wa['Waste Name'])||l.batchName||'—';
+  var truck=(l.wa&&l.wa['Truck ID'])||(l.wi&&l.wi['TrnsIDCode'])||'—';
+  var sold=(l.soldToName)||'—';
+  var chip=function(k,v,cls,dot){
+    return '<span class="flow-chip'+(cls?' '+cls:'')+'">'
+      +(dot?'<span class="fc-dot" style="background:'+dot+'"></span>':'')
+      +'<span class="fc-k">'+k+'</span><b>'+v+'</b></span>';
+  };
+  document.getElementById('flowChips').innerHTML=
+    chip('Delivery',l.id,'hero')+
+    chip('Batch',l.batchId+' ('+(l.nDeliveries||'?')+' trips)')+
+    chip('Type',l.wasteType||'—')+
+    chip('Ship-to',l.shipTo||'—')+
+    chip('Sold-to',sold)+
+    chip('Net',(parseFloat(l.weight)||0)+' t')+
+    chip('Cycle',cycle===null?'—':cycle+' days')+
+    chip('QC',acc?'Accepted':'Off-spec','',acc?'var(--green)':'var(--amber)')+
+    chip('Truck',truck)+
+    chip('Description',desc,'wide');
+}
+function flowOnSearch(){
+  var q=document.getElementById('flowSearchInput').value.trim();
+  // filter the flow table with the same query
+  flowTbQ=q; flowTbPage=1;
+  var tb=document.getElementById('flowTbSearch');
+  if(tb) tb.value=q;
+  flowTbRender();
+  if(!q) return;
+  // exact delivery/batch match → also render its sankey
+  var hit=null;
+  for(var i=0;i<LOTS.length;i++){
+    if(LOTS[i].id.indexOf(q)===0||LOTS[i].batchId===q){ hit=LOTS[i]; break; }
+  }
+  if(hit) flowSelect(hit.id);
+}
+
+/* flow table (lightweight copy of ops, click row → select delivery) */
+function flowTbRender(){
+  var rows=LOTS.filter(function(l){
+    if(flowTbQ && (l.id+' '+l.batchId+' '+(l.batchName||'')+' '+(l.shipTo||'')+' '+(l.po||'')).toLowerCase().indexOf(flowTbQ.toLowerCase())===-1) return false;
+    if(flowTbStatus!=='all'&&l.status!==flowTbStatus) return false;
+    if(flowTbFrom){ var d=flowPDate(l.submitted); if(!d||d<flowPDate(flowTbFrom)) return false; }
+    if(flowTbTo){ var d2=flowPDate(l.submitted); if(!d2||d2>flowPDate(flowTbTo)) return false; }
+    return true;
+  });
+  var PAGE=15, pages=Math.max(1,Math.ceil(rows.length/PAGE));
+  if(flowTbPage>pages) flowTbPage=pages;
+  var start=(flowTbPage-1)*PAGE;
+  var html='';
+  rows.slice(start,start+PAGE).forEach(function(l){ html+=renderRow(l,false); });
+  document.getElementById('flowTblBody').innerHTML=html;
+  document.querySelectorAll('#flowTblBody tr.lot-row').forEach(function(tr){
+    tr.addEventListener('click',function(){
+      flowSelect(tr.dataset.id);      // prep the sankey for this delivery…
+      openModal(tr.dataset.id);       // …and open the detail modal (like ops)
+    });
+  });
+  document.querySelectorAll('#flowTblBody .expand-btn').forEach(function(btn){
+    btn.addEventListener('click',function(e){ e.stopPropagation(); openModal(btn.dataset.id); });
+  });
+  document.getElementById('flowRecCount').textContent=rows.length.toLocaleString()+' deliveries';
+  var pg='<button class="pag-btn" '+(flowTbPage<=1?'disabled':'')+' onclick="flowGo(1)">« First</button>'
+    +'<button class="pag-btn" '+(flowTbPage<=1?'disabled':'')+' onclick="flowGo('+(flowTbPage-1)+')">‹ Prev</button>'
+    +'<span class="pag-info" style="font-size:.62rem;color:var(--t3);">Page '+flowTbPage+' of '+pages+'</span>'
+    +'<button class="pag-btn" '+(flowTbPage>=pages?'disabled':'')+' onclick="flowGo('+(flowTbPage+1)+')">Next ›</button>'
+    +'<button class="pag-btn" '+(flowTbPage>=pages?'disabled':'')+' onclick="flowGo('+pages+')">Last »</button>';
+  document.getElementById('flowPagination').innerHTML=pg;
+}
+function flowGo(p){ flowTbPage=p; flowTbRender(); }
+function flowTbOnSearch(){ flowTbQ=document.getElementById('flowTbSearch').value; flowTbPage=1; flowTbRender(); }
+function flowTbReset(){
+  flowTbQ=''; flowTbStatus='all'; flowTbFrom=''; flowTbTo=''; flowTbPage=1;
+  document.getElementById('flowTbSearch').value='';
+  document.getElementById('flowStatusSel').value='all';
+  document.getElementById('flowDateFrom').value='';
+  document.getElementById('flowDateTo').value='';
+  flowTbRender();
+}
 </script>
 
 <div class="modal-ov" id="detailModal" onclick="if(event.target===this)closeModal()">
