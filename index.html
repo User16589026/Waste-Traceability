@@ -20,6 +20,7 @@
   --amber:#C77B0E;--amber-bg:#FBF0DC;
   --red:#D93444;--red-bg:#FCE8EA;
   --yellow:#F2C811;
+  --sccc:#2E5F8A;--sccc-bg:#E5EEF6;--sccc-dark:#1F4666;
   /* surfaces */
   --s:#FFFFFF;--s2:#F7F9FC;--s3:#EFF3F8;--s4:#E4EAF2;
   --b:#E4E9F1;--b2:#C9D4E2;
@@ -264,6 +265,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .bd-done{background:var(--green-bg);color:var(--green-dark);}.bd-done::before{background:var(--green);}
 .bd-act{background:var(--amber-bg);color:var(--amber);}.bd-act::before{background:var(--amber);animation:pulse 1.5s infinite;}
 .bd-rej{background:var(--red-bg);color:var(--red);}.bd-rej::before{background:var(--red);}
+.bd-sccc{background:var(--sccc-bg);color:var(--sccc-dark);}.bd-sccc::before{background:var(--sccc);}
 
 /* Expand button */
 .expand-btn{width:27px;height:27px;border-radius:8px;border:1px solid var(--b);background:var(--s2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--t2);padding:0;}
@@ -286,6 +288,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .bs-icon.dn{background:var(--green-bg);color:var(--green-dark);}
 .bs-icon.rj{background:var(--red-bg);color:var(--red);}
 .bs-icon.cu{background:var(--amber-bg);color:var(--amber);}
+.bs-icon.sccc{background:var(--sccc-bg);color:var(--sccc-dark);}
 .bs-title{font-size:.9rem;font-weight:700;color:var(--t);line-height:1.3;letter-spacing:-.01em;}
 .bs-sub{font-size:.62rem;color:var(--t3);font-family:var(--mono);margin-top:3px;}
 .bs-kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
@@ -293,6 +296,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{ou
 .bs-kpi-label{font-size:.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);margin-bottom:4px;}
 .bs-kpi-val{font-size:.84rem;font-weight:700;color:var(--t);font-family:var(--display);letter-spacing:-.01em;}
 .bs-kpi-val.green{color:var(--green-dark);}
+.bs-kpi-val.sccc{color:var(--sccc-dark);}
 .bs-kpi-val.red{color:var(--red);}
 .bs-kpi-val.amber{color:var(--amber);}
 .bs-fields{display:flex;flex-direction:column;gap:6px;}
@@ -324,6 +328,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 .bs-tl-more{margin-top:5px;padding:3px 11px;font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--b2);border-radius:20px;background:var(--s);color:var(--t3);cursor:pointer;transition:all .13s;display:inline-block;}
 .bs-tl-more:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
 .bs-rej-banner{margin:0;padding:13px 18px;background:var(--red-bg);border-top:1px solid #F6C6CC;border-left:3px solid var(--red);font-size:.66rem;color:#9E2230;line-height:1.5;}
+.bs-scc-banner{margin:0;padding:13px 18px;background:var(--sccc-bg);border-top:1px solid #C7D9E8;border-left:3px solid var(--sccc);font-size:.66rem;color:var(--sccc-dark);line-height:1.5;}
 .bs-rej-banner strong{display:block;font-size:.7rem;margin-bottom:2px;}
 .modal-ov{position:fixed;inset:0;background:rgba(11,27,43,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-ov.open{opacity:1;pointer-events:all;}
@@ -364,6 +369,7 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 .dm-val.mono{font-family:var(--mono);font-size:.66rem;}
 
 .rej-note{margin:0 24px 18px;padding:11px 14px;background:var(--red-bg);border:1px solid #F6C6CC;border-left:3px solid var(--red);border-radius:0 var(--r) var(--r) 0;font-size:.66rem;color:#9E2230;}
+.scc-note{margin:0 24px 18px;padding:11px 14px;background:var(--sccc-bg);border:1px solid #C7D9E8;border-left:3px solid var(--sccc);border-radius:0 var(--r) var(--r) 0;font-size:.66rem;color:var(--sccc-dark);}
 .rej-note strong{display:block;margin-bottom:2px;font-size:.68rem;}
 
 /* ── FP TOOLBAR + FLOW ── */
@@ -575,6 +581,8 @@ button.bs-tl-dot:hover{transform:scale(1.15);}
 .cd-bd-act .cd-badge-dot{background:var(--amber);}
 .cd-bd-rej{background:var(--red-bg);color:var(--red);}
 .cd-bd-rej .cd-badge-dot{background:var(--red);}
+.cd-bd-sccc{background:var(--sccc-bg);color:var(--sccc-dark);}
+.cd-bd-sccc .cd-badge-dot{background:var(--sccc);}
 .cd-stages{display:flex;align-items:center;gap:0;min-width:180px;}
 .cd-stage-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
 .cd-stage-step:not(:last-child)::after{content:'';position:absolute;top:8px;left:50%;width:100%;height:2px;background:var(--s4);z-index:0;}
@@ -1830,10 +1838,19 @@ function renderRow(l,isExp){
 
 function buildDots(l){
   var isDone=l.status==="completed";
+  // Table view: SCCC-inferred completions show all 7 dots done, same as real
+  // ones (user request 2026-08-06 -- table stays visually consistent with the
+  // plain "Complete" badge; the frozen-at-4 distinction lives only in the
+  // detail card's own timeline, which is computed separately from this).
   var stepsDone=isDone?7:l.currentStep;
   return STEPS.map(function(_,i){
     var cls="pe";
-    if(i<stepsDone&&stepHasDate(l,i)) cls="dn";
+    // When isDone, trust the status rather than requiring a per-step date --
+    // SCCC-inferred completions have no real date for steps 5-7 (stepHasDate
+    // would be false), which used to leave those dots pending even at
+    // stepsDone=7. Real completions are unaffected (stepHasDate was already
+    // true for all 7 there).
+    if(i<stepsDone&&(isDone||stepHasDate(l,i))) cls="dn";
     else if(!isDone&&i===stepsDone) cls="cu";
     var clickable=(cls==="dn"||cls==="cu");
     return '<button class="dot7 '+cls+'" data-lid="'+l.id+'" data-si="'+i+'" title="'+(i+1)+'. '+STEPS[i]+'"'+(clickable?' onclick="onDotClick(event,this)"':'')+'></button>';
@@ -1841,16 +1858,25 @@ function buildDots(l){
 }
 
 function buildBadge(st){
+  // Table view stays plain green for SCCC-inferred completions too (same as
+  // real ones) -- the step dots already show 4/7 filled, and the distinction
+  // (blue badge + reworded status + banner) lives in the detail card instead,
+  // per user request 2026-08-06 ("ตรง complete ในตาราง ขอสีเขียวปกติ").
   if(st==="completed") return '<span class="badge bd-done">Complete</span>';
   return '<span class="badge bd-act">In Progress</span>';
 }
 
 function renderDetailRow(l){
   var isDone=l.status==="completed",isRej=!!l.rejectType;
-  var stepsDone=isDone?7:l.currentStep;
-  var iconCls=isDone?'dn':'cu';
-  var iconEmoji=isDone?'✓':'●';
-  var statusLabel=isDone?'Complete':'In Progress';
+  // SCCC-inferred completions (l.completedVia==='sccc') have no real evidence
+  // for steps 5-7 -- showing 7/7 here would misrepresent them exactly like a
+  // real evidence-based completion. Falls through to the real currentStep,
+  // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
+  // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
+  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
+  var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
+  var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
+  var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
   var batchName=l.batchName||'—';
 
   var descHtml='';
@@ -1863,8 +1889,8 @@ function renderDetailRow(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':l.currentStep)+' / 7</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?(l.completedVia==='sccc'?'sccc':'green'):'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+stepsDone+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
     +'<div class="bs-fields">'
@@ -1913,10 +1939,11 @@ function renderDetailRow(l){
   tlHtml+='</div>';
 
   var rejBanner=isRej?'<div class="bs-rej-banner"><strong>Off-Spec Rejection'+(l.rejectType?' — '+l.rejectType:'')+'</strong>'+l.rejectedReason+'</div>':'';
+  var sccBanner=(l.completedVia==='sccc')?'<div class="bs-scc-banner"><strong>Completed by SCCC plant.</strong></div>':'';
 
   return '<tr class="detail-row"><td colspan="8"><div class="detail-inner">'
     +'<div class="bs-wrap"><div class="bs-desc">'+descHtml+'</div><div class="bs-left">'+leftHtml+'</div><div class="bs-right">'+tlHtml+'</div></div>'
-    +rejBanner
+    +rejBanner+sccBanner
     +'</div></td></tr>';
 }
 
@@ -2241,7 +2268,9 @@ async function exportPDF(overrideLots,custName,btnEl){
   var statusColor={'completed':'#059669','in-progress':'#D97706','rejected':'#DC2626'};
   var rows=lots.map(function(l,i){
     var isDone=l.status==='completed',isRej=!!l.rejectType;
-    var sc=statusColor[l.status]||'#94A3B8';
+    var isScc=l.completedVia==='sccc';
+    var sc=isScc?'#2E5F8A':(statusColor[l.status]||'#94A3B8');
+    var statusText=isScc?'Completed – SCCC':l.status;
     var td='padding:5px 7px;font-size:8px;';
     var mono=td+'font-family:monospace;';
     var muted=td+'color:#64748B;white-space:nowrap;';
@@ -2256,7 +2285,7 @@ async function exportPDF(overrideLots,custName,btnEl){
         +'<td style="'+td+'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+description+'</td>'
         +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
         +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
-        +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+        +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+statusText+'</span></td>'
         +'<td style="'+muted+'">'+l.submitted+'</td>'
         +'</tr>';
     }
@@ -2270,7 +2299,7 @@ async function exportPDF(overrideLots,custName,btnEl){
       +'<td style="'+td+'max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+description+'</td>'
       +'<td style="'+td+'white-space:nowrap;">'+truckId+'</td>'
       +'<td style="'+td+'text-align:right;font-family:monospace;">'+l.weight+'</td>'
-      +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+l.status+'</span></td>'
+      +'<td style="'+td+'"><span style="background:'+sc+'1A;color:'+sc+';padding:2px 6px;border-radius:8px;font-weight:600;white-space:nowrap;">'+statusText+'</span></td>'
       +'<td style="'+muted+'">'+l.submitted+'</td>'
       +'</tr>';
   }).join('');
@@ -2434,12 +2463,13 @@ async function exportCSV(overrideLots,custName,btnEl){
   });
   if(!lots||lots.length===0){alert('No deliveries to export.');return;}
   await fetchDetailsBatch(lots);
-  var headers=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Reject Type','Weight-in'];
+  var headers=['Delivery','Batch','Batch Name','Description','Truck ID','Weight(t)','Status','Completed Via','Reject Type','Weight-in'];
   var rows=lots.map(function(l){
     var batchName=l.batchName||'';
     var description=(l.wi&&l.wi['Description'])?l.wi['Description']:'';
     var truckId=(l.wi&&l.wi['TrnsIDCode'])?l.wi['TrnsIDCode']:'';
-    return [l.id,l.batchId,batchName,description,truckId,l.weight,l.status,l.rejectedReason||'',l.submitted].map(csvEscape).join(',');
+    var completedVia=l.completedVia==='sccc'?'SCCC':'';
+    return [l.id,l.batchId,batchName,description,truckId,l.weight,l.status,completedVia,l.rejectedReason||'',l.submitted].map(csvEscape).join(',');
   });
   var csv=headers.map(csvEscape).join(',')+'\r\n'+rows.join('\r\n');
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
@@ -2540,6 +2570,8 @@ async function onDotClick(e,el){
 
 function showStepPopover(l,si,rect){
   var isDone=l.status==="completed";
+  // Matches buildDots: table dots show all 7 done for SCCC-inferred
+  // completions too, so this must agree when one of those dots is clicked.
   var stepsDone=isDone?7:l.currentStep;
   var cls="dn";
   if(si>=stepsDone&&!(isDone)) cls="cu";
@@ -2734,6 +2766,7 @@ var db = supabase.createClient(
       rejectedStep:   r.rejected_step,
       rejectedReason: r.rejected_reason,
       rejectType:     r.rejected_reason ? r.rejected_reason.split(':')[0] : null,
+      completedVia:   r.completed_via || null,
       nDeliveries:    r.n_deliveries,
       receivedQty:    r.received_qty,
       blendDate:      r.blend_date,
@@ -2777,7 +2810,7 @@ var db = supabase.createClient(
     });
   }
 
-  var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
+  var COLS = 'id,batch_id,batch_name,po,ship_to,sold_to_party,sold_to_name,waste_type,material,status,current_step,weight,submitted,last_updated,rejected_step,rejected_reason,completed_via,n_deliveries,received_qty,blend_date,kiln_recv,kiln_consume,kiln_batch_id,steps';
   var PAGE = 1000;
   var loadedRows = 0;
 
@@ -3159,7 +3192,12 @@ var CUST_STEP_NAMES=['Weight In','Waste Analysis','Pre-process','Finish Goods'];
 
 function custRenderDetailRow(l){
   var isDone=l.status==='completed', isRej=!!l.rejectType;
-  var stepsDone=isDone?7:l.currentStep;
+  // SCCC-inferred completions (l.completedVia==='sccc') have no real evidence
+  // for steps 5-7 -- showing 7/7 here would misrepresent them exactly like a
+  // real evidence-based completion. Falls through to the real currentStep,
+  // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
+  // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
+  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
   var stepperHtml='';
   CUST_STEP_IDX.forEach(function(si,vi){
     var name=CUST_STEP_NAMES[vi];
@@ -3195,13 +3233,18 @@ function custRenderDetailRow(l){
     +'<div class="dm-item"><div class="dm-key">Submitted</div><div class="dm-val" style="font-weight:400;">'+l.submitted+'</div></div>'
     +'</div>';
   var rejNote=isRej?'<div class="rej-note"><strong>⚠ Off-Spec Rejection'+(l.rejectType?' ('+l.rejectType+')':"")+'</strong>'+l.rejectedReason+'</div>':'';
+  var sccNote=(l.completedVia==='sccc')?'<div class="scc-note"><strong>Completed by SCCC plant.</strong></div>':'';
   return '<tr class="detail-row"><td colspan="6"><div class="detail-inner">'
     +'<div class="stepper">'+stepperHtml+'</div>'
-    +meta+rejNote
+    +meta+rejNote+sccNote
     +'</div></td></tr>';
 }
 function custGetStage(lot){
-  if(lot.status==='completed') return 4;
+  // SCCC-inferred completions (completedVia==='sccc') have no real evidence
+  // they reached "Disposed" (stage 4 = Finish Goods) -- fall through to the
+  // currentStep-based stages like any other in-progress lot instead of
+  // faking the final stage. Mirrors the stepsDone carve-out above.
+  if(lot.status==='completed'&&lot.completedVia!=='sccc') return 4;
   if(lot.currentStep>=3) return 3;
   if(lot.currentStep>=2) return 2;
   return 1;
@@ -3218,6 +3261,8 @@ function custRenderStages(lot){
   return html+'</div>';
 }
 function custGetBadge(st){
+  // Table view stays plain green for SCCC-inferred completions too -- see
+  // buildBadge's comment (same rule applied to Customer View for consistency).
   if(st==='completed') return '<span class="cd-badge cd-bd-done"><span class="cd-badge-dot"></span>Complete</span>';
   return '<span class="cd-badge cd-bd-act"><span class="cd-badge-dot"></span>In Progress</span>';
 }
@@ -3329,10 +3374,15 @@ function custExportCSV(btnEl){
 ═══════════════════════════════ */
 function buildDetailContent(l){
   var isDone=l.status==="completed",isRej=!!l.rejectType;
-  var stepsDone=isDone?7:l.currentStep;
-  var iconCls=isDone?'dn':'cu';
-  var iconEmoji=isDone?'✓':'●';
-  var statusLabel=isDone?'Complete':'In Progress';
+  // SCCC-inferred completions (l.completedVia==='sccc') have no real evidence
+  // for steps 5-7 -- showing 7/7 here would misrepresent them exactly like a
+  // real evidence-based completion. Falls through to the real currentStep,
+  // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
+  // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
+  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
+  var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
+  var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
+  var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
   var batchName=l.batchName||'—';
 
   var leftHtml=''
@@ -3342,8 +3392,8 @@ function buildDetailContent(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+(isDone?'7':l.currentStep)+' / 7</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?(l.completedVia==='sccc'?'sccc':'green'):'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+stepsDone+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
     +'<div class="bs-fields">'
@@ -3392,10 +3442,11 @@ function buildDetailContent(l){
   tlHtml+='</div>';
 
   var rejBanner=isRej?'<div class="bs-rej-banner"><strong>Off-Spec Rejection'+(l.rejectType?' — '+l.rejectType:'')+'</strong>'+l.rejectedReason+'</div>':'';
+  var sccBanner=(l.completedVia==='sccc')?'<div class="bs-scc-banner"><strong>Completed by SCCC plant.</strong></div>':'';
 
   return '<div class="detail-inner">'
     +'<div class="bs-wrap"><div class="bs-desc"></div><div class="bs-left">'+leftHtml+'</div><div class="bs-right">'+tlHtml+'</div></div>'
-    +rejBanner
+    +rejBanner+sccBanner
     +'</div>';
 }
 
@@ -3694,7 +3745,7 @@ function flowRender(d){
   lab+='</g>';
 
   var kl='<g font-size="10">'
-    +'<text x="'+glowX+'" y="'+(cy-152)+'" text-anchor="middle" fill="'+c.ember2+'" font-size="12" font-weight="700">🔥 KILN CONSUMPTION</text>'
+    +'<text x="'+glowX+'" y="'+(cy-152)+'" text-anchor="middle" fill="'+c.ember2+'" font-size="12" font-weight="700">KILN CONSUMPTION</text>'
     +KILNCARDS
     +'</g>';
 
