@@ -836,7 +836,9 @@ svg.flow text{font-family:var(--mono);}
       <select id="fpStatusSel" onchange="fpApplyFilters()">
         <option value="all">All Status</option>
         <option value="in-progress">In Progress</option>
-        <option value="completed">Completed</option>
+        <option value="completed">All Completed</option>
+        <option value="completed-ieco">Completed by IECO</option>
+        <option value="completed-sccc">Completed by SCCC</option>
         <option value="rejected">Off-Spec</option>
       </select>
       <input type="date" id="fpDateFrom" onchange="fpApplyFilters()"/>
@@ -877,7 +879,9 @@ svg.flow text{font-family:var(--mono);}
         <div class="filter-chips" id="filterChips">
           <button class="chip active" data-f="all">All <span id="chipAll"></span></button>
           <button class="chip c-active" data-f="in-progress">In Progress</button>
-          <button class="chip c-done" data-f="completed">Completed</button>
+          <button class="chip c-done" data-f="completed">All Completed</button>
+          <button class="chip c-done" data-f="completed-ieco">Completed by IECO</button>
+          <button class="chip c-done" data-f="completed-sccc">Completed by SCCC</button>
           <button class="chip c-reject" data-f="rejected">Off-Spec</button>
           <button class="chip-clear" id="chipClear" style="display:none" onclick="clearStatusFilter()">✕ Clear</button>
         </div>
@@ -1687,7 +1691,11 @@ function getFilteredScoped(opts){
   opts=opts||{};
   return getActiveLots().filter(function(l){
     if(!opts.skipStatus){
-      if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
+      if(filterStatus==="completed-ieco"){
+        if(l.status!=="completed"||l.completedVia==="sccc") return false;
+      } else if(filterStatus==="completed-sccc"){
+        if(l.status!=="completed"||l.completedVia!=="sccc") return false;
+      } else if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
       else if(filterStatus!=="all"&&l.status!==filterStatus) return false;
     }
     if(fpCust!=='all'&&l.shipTo!==fpCust) return false;
@@ -2616,6 +2624,14 @@ function showStepPopover(l,si,rect){
     if(dict['WO Time']&&woDate){
       dict['Weight Out']=woDate+'  '+dict['WO Time'];
       delete dict['WO Time'];
+    }
+    // Temporarily hide batch-wide kiln quantity/balance estimates from the
+    // Step 7 popover. Keep the dates and activity fields visible.
+    if(si===6){
+      delete dict['Recv Qty'];
+      delete dict['Consume Qty'];
+      delete dict['Net Balance'];
+      delete dict['Note'];
     }
   }
   var hasDict=dict&&Object.keys(dict).length>0;
@@ -3930,4 +3946,3 @@ function flowTbReset(){
 </div>
 </body>
 </html>
-
