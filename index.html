@@ -1217,13 +1217,23 @@ function parseDate(s){
    cycle times came from that fallback, none from an exact match. Unknown shows
    "—", never a guessed number and never 0 (0 would still land in the ≤7 days
    bucket and still drag the average). Single source for all 4 call sites. */
-function cycleDays(l){
+function hasDeliveryKilnEvidence(l){
   var s7=l&&l.steps&&l.steps[6];
-  if(!s7||s7.exact===false) return null;
-  var wi=parseDate(l.submitted), kd=parseDate(s7.date);
-  if(!wi||!kd) return null;
-  var d=Math.round((kd-wi)/86400000);
-  return d<0?null:d;   // guard for browsers still serving pre-2026-08-05 cache (no .exact)
+  var wi=parseDate(l&&l.submitted), kd=parseDate(s7&&s7.date);
+  // A kiln date is displayable only when it belongs to this delivery (normal
+  // BlendBatch match or direct SCCC evidence) and it is not before Weight In.
+  return !!(s7&&s7.exact===true&&wi&&kd&&kd>=wi);
+}
+function isScccCompleted(l){
+  // SCCC plant completion is the terminal business status. It can bypass
+  // Pre-process and Finish Goods, so Step 7 is shown as completed even when
+  // the source has no delivery-level kiln date to display.
+  return !!(l&&l.status==='completed'&&l.completedVia==='sccc');
+}
+function cycleDays(l){
+  if(!hasDeliveryKilnEvidence(l)) return null;
+  var s7=l.steps[6];
+  return Math.round((parseDate(s7.date)-parseDate(l.submitted))/86400000);
 }
 function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function monthLabel(k){
@@ -1876,12 +1886,10 @@ function buildBadge(st){
 
 function renderDetailRow(l){
   var isDone=l.status==="completed",isRej=!!l.rejectType;
-  // SCCC-inferred completions (l.completedVia==='sccc') have no real evidence
-  // for steps 5-7 -- showing 7/7 here would misrepresent them exactly like a
-  // real evidence-based completion. Falls through to the real currentStep,
-  // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
-  // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
-  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
+  // SCCC completion is terminal even though it bypasses steps 5-6. Show the
+  // Step 7 tick, but do not invent a date or cycle time when no exact kiln
+  // evidence exists for this delivery.
+  var stepsDone=isDone?7:l.currentStep;
   var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
   var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
   var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
@@ -1916,6 +1924,11 @@ function renderDetailRow(l){
         var days=cycleDays(l);                    // null = วันเผาเป็นค่าประมาณระดับ Batch
         return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+(days===null?'—':days+' days')+'</span></div>';
       })()
+    +(function(){
+        var s7=l.steps&&l.steps[6];
+        if(!s7||s7.route!=='sccc-direct') return '';
+        return '<div class="bs-field"><span class="bs-fkey">Direct SCCC Kiln</span><span class="bs-fval">'+s7.date+'</span></div>';
+      })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
@@ -1923,7 +1936,8 @@ function renderDetailRow(l){
   var tlHtml='<div class="bs-timeline-title">Traceability Progress</div><div class="bs-timeline">';
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
-    if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
+    if(i===6&&(hasDeliveryKilnEvidence(l)||isScccCompleted(l))){tlCls="tl-dn";dotChar="✓";}
+    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
     else if(!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
@@ -2514,6 +2528,7 @@ var STEP_EXTRA=[
     if(l.kilnRecv)    rows.push({k:'Kiln Recv',v:l.kilnRecv+' t'});
     if(l.kilnConsume) rows.push({k:'Kiln Consumed',v:l.kilnConsume+' t'});
     if(l.kilnBatchId) rows.push({k:'Kiln Batch',v:l.kilnBatchId.split(',')[0]});
+    if(l.steps[6]&&l.steps[6].route==='sccc-direct') rows.push({k:'Evidence',v:'Direct SCCC · MT 261 · Batch '+(l.steps[6].batch||l.batchId)});
     return rows;
   }
 ];
@@ -2607,7 +2622,9 @@ function showStepPopover(l,si,rect){
 
   // pick the right dict per step
   var dictMap=[l.wi, l.wa, l.li, l.wo, l.pp, l.pp, l.kc];
-  var rawDict=dictMap[si];
+  // Batch-wide kiln metadata is useful for audit, but never as Step 7 detail
+  // unless there is a delivery-specific kiln date on or after Weight In.
+  var rawDict=(si===6&&!hasDeliveryKilnEvidence(l))?null:dictMap[si];
 
   // Preprocess: copy dict and apply display transformations
   var dict=rawDict?Object.assign({},rawDict):rawDict;
@@ -3213,7 +3230,12 @@ function custRenderDetailRow(l){
   // real evidence-based completion. Falls through to the real currentStep,
   // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
   // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
-  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
+  // ...except direct-SCCC (steps[6].route==='sccc-direct'): that group HAS a
+  // real 031 MT 261 kiln date, so it shows 7/7 like an evidence-based
+  // completion (mirrors Power BI Q_Final CHANGE 8, 2026-08-12). The backend
+  // now sends currentStep=7 for them too; this keeps the display consistent
+  // even if a browser still has pre-upload cache.
+  var stepsDone=(isDone&&(l.completedVia!=='sccc'||(l.steps&&l.steps[6]&&l.steps[6].route==='sccc-direct')))?7:l.currentStep;
   var stepperHtml='';
   CUST_STEP_IDX.forEach(function(si,vi){
     var name=CUST_STEP_NAMES[vi];
@@ -3390,12 +3412,10 @@ function custExportCSV(btnEl){
 ═══════════════════════════════ */
 function buildDetailContent(l){
   var isDone=l.status==="completed",isRej=!!l.rejectType;
-  // SCCC-inferred completions (l.completedVia==='sccc') have no real evidence
-  // for steps 5-7 -- showing 7/7 here would misrepresent them exactly like a
-  // real evidence-based completion. Falls through to the real currentStep,
-  // which correctly stalls at 4 (Weight Out) for this group. Mirrors the
-  // backend get_step() carve-out (upload_to_supabase.py, 2026-08-06).
-  var stepsDone=(isDone&&l.completedVia!=='sccc')?7:l.currentStep;
+  // SCCC completion is terminal even though it bypasses steps 5-6. Show the
+  // Step 7 tick, but do not invent a date or cycle time when no exact kiln
+  // evidence exists for this delivery.
+  var stepsDone=isDone?7:l.currentStep;
   var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
   var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
   var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
@@ -3427,6 +3447,11 @@ function buildDetailContent(l){
         var days=cycleDays(l);                    // null = วันเผาเป็นค่าประมาณระดับ Batch
         return '<div class="bs-field"><span class="bs-fkey">Cycle Time</span><span class="bs-fval">'+(days===null?'—':days+' days')+'</span></div>';
       })()
+    +(function(){
+        var s7=l.steps&&l.steps[6];
+        if(!s7||s7.route!=='sccc-direct') return '';
+        return '<div class="bs-field"><span class="bs-fkey">Direct SCCC Kiln</span><span class="bs-fval">'+s7.date+'</span></div>';
+      })()
     +(l.wi&&l.wi['Manifest No']?'<div class="bs-field"><span class="bs-fkey">Manifest No</span><span class="bs-fval">'+l.wi['Manifest No']+'</span></div>':'')
     +'</div>';
 
@@ -3434,7 +3459,8 @@ function buildDetailContent(l){
   var tlHtml='<div class="bs-timeline-title">Traceability Progress</div><div class="bs-timeline">';
   STEPS.forEach(function(name,i){
     var tlCls="tl-pe",dotChar=(i+1)+'',dateTxt='',dateCls='';
-    if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
+    if(i===6&&(hasDeliveryKilnEvidence(l)||isScccCompleted(l))){tlCls="tl-dn";dotChar="✓";}
+    else if(i<stepsDone&&stepHasDate(l,i)){tlCls="tl-dn";dotChar="✓";}
     else if(!isDone&&i===stepsDone){tlCls="tl-cu";dotChar=(i+1)+'';}
     var stepData=l.steps[i];
     if(stepData&&stepData.date&&stepData.date!=='—'&&stepData.date!=='In Progress'){
@@ -3551,14 +3577,22 @@ function flowSDate(s){ var p=String(s||'').split(' '); return p.length>=2?p[0]+'
    The batch's TRUE trip count comes from the DB (l.nDeliveries) — LOTS may only
    hold a subset, so we draw what's loaded and say how many are missing. */
 function flowView(l){
-  var kb=(l.kilnBatchId||'').split(',').filter(function(x){return x;});
   var kc=l.kc||{};
   var sib=LOTS.filter(function(x){return x.batchId===l.batchId;});
   var trips=l.nDeliveries||sib.length;
-  // mirror the modal's Cycle Time: steps[6] (Kiln Consumption) minus Weight In.
-  // kFirst still falls back to kc for DISPLAY, but the cycle number does not —
-  // cycleDays() refuses to compute one from the Batch-wide estimate (see its comment).
-  var kFirst=(l.steps&&l.steps[6]&&l.steps[6].date)||(kc['Kiln First Date'])||'—';
+  // Direct SCCC route (README 11 ส.ค. 2026): the kiln evidence is 031.Batch ==
+  // 01.Batch (steps[6].batch), not an IECO BlendBatch from 04 — there was no
+  // blend for this route. Show the 031 batch as the kiln feed batch so the
+  // sankey doesn't draw 04-blend cards claiming "matched" against a date that
+  // actually came from 031. The date itself is kept as-is (it is the evidence).
+  var s7=l.steps&&l.steps[6];
+  var hasKiln=hasDeliveryKilnEvidence(l);
+  var directSccc=!!(hasKiln&&s7.route==='sccc-direct'&&s7.batch);
+  var kb=hasKiln?(l.kilnBatchId||'').split(',').filter(function(x){return x;}):[];
+  if(directSccc) kb=[s7.batch];
+  // Do not display the Batch-wide fallback as Step 7. It can belong to an
+  // earlier delivery in the same Batch and is not traceability evidence here.
+  var kFirst=hasKiln?s7.date:'—';
   var cycle=cycleDays(l);
   return {
     id:l.id, batchId:l.batchId, batchName:l.batchName, wasteType:l.wasteType, shipTo:l.shipTo,
@@ -3573,7 +3607,7 @@ function flowView(l){
           last:kc['Kiln Last Date']||'—',
           recv:parseFloat(l.kilnRecv)||0, consume:parseFloat(l.kilnConsume)||0,
           movements:kc['Movements']||'—', used:kc['Blend Batch Used']||kb[0]||'—',
-          cycle:cycle},
+          cycle:cycle, directSccc:directSccc},
     pool:sib.map(function(x){
       return {id:x.id, w:parseFloat(x.weight)||0, date:x.submitted, status:x.status, me:x.id===l.id};
     })
@@ -3690,7 +3724,7 @@ function flowRender(d){
       kc+='<rect class="flow-hit" data-kiln="'+k.code+'" x="'+kilnX+'" y="'+k.top+'" width="150" height="'+k.h+'" rx="8" fill="'+c.s+'" stroke="'+(k.primary?c.ember2:c.b2)+'" stroke-width="'+(k.primary?2:1)+'"/>';
       kc+='<rect x="'+kilnX+'" y="'+k.top+'" width="5" height="'+k.h+'" rx="2.5" fill="url(#gEmberF)"/>';
       kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+14)+'" fill="'+c.t+'" font-weight="700" font-size="11">'+k.code+'</text>';
-      kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+26)+'" fill="'+c.t3+'" font-size="8.5">kiln feed batch'+(k.primary?' · matched':'')+'</text>';
+      kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+26)+'" fill="'+c.t3+'" font-size="8.5">'+(d.kiln.directSccc?'direct SCCC · MT 261':'kiln feed batch'+(k.primary?' · matched':''))+'</text>';
       kc+='<text x="'+(kilnX+16)+'" y="'+(k.top+37)+'" fill="'+c.t3+'" font-size="8" font-family="var(--font)">'+d.kiln.first+'</text>';
     });
     KILNCARDS=kc;
@@ -3802,7 +3836,9 @@ function flowHits(d){
       } else if(el.dataset.kphantom!==undefined){
         flowTipShow('Kiln feed batch', 'Fired '+d.kiln.first+' – '+d.kiln.last+'<br>'+d.kilnCount+' kiln batches in data · only matched shown', e);
       } else if(el.dataset.kiln!==undefined){
-        flowTipShow(el.dataset.kiln, 'Kiln feed batch · matched<br>Fired '+d.kiln.first+' – '+d.kiln.last+'<br>1 of '+d.kilnCount+' batches', e);
+        flowTipShow(el.dataset.kiln, d.kiln.directSccc
+          ? 'Direct SCCC · MT 261 · Batch '+el.dataset.kiln+'<br>Fired '+d.kiln.first
+          : 'Kiln feed batch · matched<br>Fired '+d.kiln.first+' – '+d.kiln.last+'<br>1 of '+d.kilnCount+' batches', e);
       } else if(el.dataset.gate!==undefined){
         var gi=+el.dataset.gate;
         var names=['Weigh In','Waste Analysis','Load In','Weight Out','Pre-process','Finish Goods','Kiln Consumption'];
