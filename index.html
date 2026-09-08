@@ -836,9 +836,7 @@ svg.flow text{font-family:var(--mono);}
       <select id="fpStatusSel" onchange="fpApplyFilters()">
         <option value="all">All Status</option>
         <option value="in-progress">In Progress</option>
-        <option value="completed">All Completed</option>
-        <option value="completed-ieco">Completed by IECO</option>
-        <option value="completed-sccc">Completed by SCCC</option>
+        <option value="completed">Completed</option>
         <option value="rejected">Off-Spec</option>
       </select>
       <input type="date" id="fpDateFrom" onchange="fpApplyFilters()"/>
@@ -879,9 +877,7 @@ svg.flow text{font-family:var(--mono);}
         <div class="filter-chips" id="filterChips">
           <button class="chip active" data-f="all">All <span id="chipAll"></span></button>
           <button class="chip c-active" data-f="in-progress">In Progress</button>
-          <button class="chip c-done" data-f="completed">All Completed</button>
-          <button class="chip c-done" data-f="completed-ieco">Completed by IECO</button>
-          <button class="chip c-done" data-f="completed-sccc">Completed by SCCC</button>
+          <button class="chip c-done" data-f="completed">Completed</button>
           <button class="chip c-reject" data-f="rejected">Off-Spec</button>
           <button class="chip-clear" id="chipClear" style="display:none" onclick="clearStatusFilter()">✕ Clear</button>
         </div>
@@ -1701,11 +1697,7 @@ function getFilteredScoped(opts){
   opts=opts||{};
   return getActiveLots().filter(function(l){
     if(!opts.skipStatus){
-      if(filterStatus==="completed-ieco"){
-        if(l.status!=="completed"||l.completedVia==="sccc") return false;
-      } else if(filterStatus==="completed-sccc"){
-        if(l.status!=="completed"||l.completedVia!=="sccc") return false;
-      } else if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
+      if(filterStatus==="rejected"){ if(!l.rejectType) return false; }
       else if(filterStatus!=="all"&&l.status!==filterStatus) return false;
     }
     if(fpCust!=='all'&&l.shipTo!==fpCust) return false;
@@ -1890,9 +1882,9 @@ function renderDetailRow(l){
   // Step 7 tick, but do not invent a date or cycle time when no exact kiln
   // evidence exists for this delivery.
   var stepsDone=isDone?7:l.currentStep;
-  var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
-  var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
-  var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
+  var iconCls=isDone?'dn':'cu';
+  var iconEmoji=isDone?'✓':'●';
+  var statusLabel=isDone?'Completed':'In Progress';
   var batchName=l.batchName||'—';
 
   var descHtml='';
@@ -1905,7 +1897,7 @@ function renderDetailRow(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?(l.completedVia==='sccc'?'sccc':'green'):'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+stepsDone+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
@@ -1961,11 +1953,9 @@ function renderDetailRow(l){
   tlHtml+='</div>';
 
   var rejBanner=isRej?'<div class="bs-rej-banner"><strong>Off-Spec Rejection'+(l.rejectType?' — '+l.rejectType:'')+'</strong>'+l.rejectedReason+'</div>':'';
-  var sccBanner=(l.completedVia==='sccc')?'<div class="bs-scc-banner"><strong>Completed by SCCC plant.</strong></div>':'';
-
   return '<tr class="detail-row"><td colspan="8"><div class="detail-inner">'
     +'<div class="bs-wrap"><div class="bs-desc">'+descHtml+'</div><div class="bs-left">'+leftHtml+'</div><div class="bs-right">'+tlHtml+'</div></div>'
-    +rejBanner+sccBanner
+    +rejBanner
     +'</div></td></tr>';
 }
 
@@ -2712,6 +2702,9 @@ function showStepPopover(l,si,rect){
         gridHtml+='<div class="spop-row"><span class="spop-key">'+k+'</span>'+valHtml+'</div>';
         rendered.add(k);
       });
+      if(si===6&&g.label==='Dates'&&l.completedVia==='sccc'){
+        gridHtml+='<div class="spop-row"><span class="spop-key">Route</span><span class="spop-val note">Direct to SCCC</span></div>';
+      }
     });
 
     // any leftover fields not in groups
@@ -2739,6 +2732,7 @@ function showStepPopover(l,si,rect){
     var rows=[];
     if(stepData&&stepData.date&&stepData.date!=='—') rows.push({k:'Date',v:stepData.date});
     if(stepData&&stepData.note&&stepData.note!=='—') rows.push({k:'Detail',v:stepData.note,cls:'note'});
+    if(si===6&&l.completedVia==='sccc') rows.push({k:'Route',v:'Direct to SCCC',cls:'note'});
     document.getElementById('spopBody').innerHTML=rows.map(function(r){
       return '<div class="spop-row"><span class="spop-key">'+r.k+'</span><span class="spop-val'+(r.cls?' '+r.cls:'')+'">'+r.v+'</span></div>';
     }).join('')+'<div style="font-size:.62rem;color:var(--t3);margin-top:6px;">No additional data</div>';
@@ -3416,9 +3410,9 @@ function buildDetailContent(l){
   // Step 7 tick, but do not invent a date or cycle time when no exact kiln
   // evidence exists for this delivery.
   var stepsDone=isDone?7:l.currentStep;
-  var iconCls=isDone?(l.completedVia==='sccc'?'sccc':'dn'):'cu';
-  var iconEmoji=isDone?(l.completedVia==='sccc'?'●':'✓'):'●';
-  var statusLabel=(isDone&&l.completedVia!=='sccc')?'Complete':(isDone?'Completed by SCCC plant.':'In Progress');
+  var iconCls=isDone?'dn':'cu';
+  var iconEmoji=isDone?'✓':'●';
+  var statusLabel=isDone?'Completed':'In Progress';
   var batchName=l.batchName||'—';
 
   var leftHtml=''
@@ -3428,7 +3422,7 @@ function buildDetailContent(l){
     +'</div>'
     +'<div class="bs-kpis">'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Net Weight</div><div class="bs-kpi-val">'+l.weight+' t</div></div>'
-    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?(l.completedVia==='sccc'?'sccc':'green'):'amber')+'">'+statusLabel+'</div></div>'
+    +'<div class="bs-kpi"><div class="bs-kpi-label">Status</div><div class="bs-kpi-val '+(isDone?'green':'amber')+'">'+statusLabel+'</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Step</div><div class="bs-kpi-val">'+stepsDone+' / 7</div></div>'
     +'<div class="bs-kpi"><div class="bs-kpi-label">Weight In</div><div class="bs-kpi-val" style="font-size:.7rem;font-weight:600;">'+l.submitted+'</div></div>'
     +'</div>'
@@ -3484,11 +3478,9 @@ function buildDetailContent(l){
   tlHtml+='</div>';
 
   var rejBanner=isRej?'<div class="bs-rej-banner"><strong>Off-Spec Rejection'+(l.rejectType?' — '+l.rejectType:'')+'</strong>'+l.rejectedReason+'</div>':'';
-  var sccBanner=(l.completedVia==='sccc')?'<div class="bs-scc-banner"><strong>Completed by SCCC plant.</strong></div>':'';
-
   return '<div class="detail-inner">'
     +'<div class="bs-wrap"><div class="bs-desc"></div><div class="bs-left">'+leftHtml+'</div><div class="bs-right">'+tlHtml+'</div></div>'
-    +rejBanner+sccBanner
+    +rejBanner
     +'</div>';
 }
 
