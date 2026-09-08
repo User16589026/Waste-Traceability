@@ -2664,7 +2664,7 @@ function showStepPopover(l,si,rect){
       {label:'Result',   keys:['Judgement','Remark']},
     ],
     // 2 LI
-    [{label:'Load In', keys:['First Received','Last Received','Received Qty','Received Count','Received MTs','Deliveries']}],
+    [{label:'Load In', keys:['First Received','Last Received','Received Qty','Deliveries']}],
     // 3 WO
     [
       {label:'Weight Out', keys:['Weight Out Date','Weight Out Time','Weight Out QTY','Weight-out By']},
@@ -2696,7 +2696,11 @@ function showStepPopover(l,si,rect){
       gridHtml+='<div class="spop-section"><span class="spop-section-label">'+g.label+'</span><span class="spop-section-line"></span></div>';
       fieldsInGroup.forEach(function(k){
         var val=dict[k];
-        if(k==='Net Weight'&&val&&!isNaN(val)) val=(parseFloat(val)/1000).toFixed(3)+' t';
+        // SAP Weight In/Out quantities are stored in kg.  Convert only for display;
+        // the source payload remains untouched so downstream logic is unchanged.
+        if(['Net Weight','WI QTY','WO QTY','Weight In QTY','Weight Out QTY'].includes(k)&&val!==''&&!isNaN(Number(val))) {
+          val=(Number(val)/1000).toFixed(2)+' t';
+        }
         var valHtml=(k==='Sold-to Party'&&l.soldToParty)
           ?'<span class="spop-val" style="color:var(--navy);cursor:pointer;text-decoration:underline dotted;" onclick="setChartFilter(\'soldToParty\',\''+l.soldToParty+'\');closePopover();" title="Filter by this Sold-to">'+val+'</span>'
           :'<span class="spop-val">'+val+'</span>';
